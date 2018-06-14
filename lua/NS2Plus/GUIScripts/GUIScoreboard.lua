@@ -1,6 +1,3 @@
-local kNSLUserURL = "http://www.ensl.org/users/"
-local kNSLTeamURL = "http://www.ensl.org/teams/"
-
 local kObservatoryUserURL = "http://observatory.morrolan.ch/player?steam_id="
 
 local team1Skill, team2Skill, team1VictoryP = 0, 0, 0
@@ -226,35 +223,10 @@ function GUIScoreboard:SendKeyEvent(key, down)
 	end
 
 	if self.visible and self.hoverMenu.background:GetIsVisible() then
-		local NSLuid = 0
-		local NSLtid = 0
-		local NSLname, isNSL
-
-		if GetNSLMode then
-			for _, pie in ientitylist(Shared.GetEntitiesWithClassname("PlayerInfoEntity")) do
-				if pie.clientId == self.hoverPlayerClientIndex then
-					NSLuid = pie.NSL_ID
-					NSLtid = pie.NSL_TID
-					NSLname = pie.NSL_NICK
-					if NSLtid > 0 then
-						NSLname = NSLname .. " - Team: " .. (pie.NSL_Team)
-					end
-					isNSL = pie.NSL_League == "NSL"
-					break
-				end
-			end
-		end
 
 		local steamId = GetSteamIdForClientIndex(self.hoverPlayerClientIndex) or 0
 		local function openObservatoryProf()
 			Client.ShowWebpage(string.format("%s%s", kObservatoryUserURL, steamId))
-		end
-
-		local function openNSLUserPage()
-			Client.ShowWebpage(string.format("%s%s", kNSLUserURL, NSLuid))
-		end
-		local function openNSLTeamPage()
-			Client.ShowWebpage(string.format("%s%s", kNSLTeamURL, NSLtid))
 		end
 
 		local found = 0
@@ -270,9 +242,7 @@ function GUIScoreboard:SendKeyEvent(key, down)
 					teamColorBg = entry.bgColor
 					teamColorHighlight = entry.bgHighlightColor
 					found = index
-				elseif text == "Observatory profile" and NSLuid == 0 then
-					added = true
-				elseif text == "NSL profile" then
+				elseif text == "Observatory profile" then
 					added = true
 				end
 			end
@@ -288,16 +258,6 @@ function GUIScoreboard:SendKeyEvent(key, down)
 			-- Don't add the button if we can't find the one we expect
 			if found then
 				self.hoverMenu:AddButton("Observatory profile", teamColorBg, teamColorHighlight, textColor, openObservatoryProf, found)
-
-				if isNSL and NSLuid > 0 then
-					found = found + 1
-					self.hoverMenu:AddSeparator("NSL", found)
-					self.hoverMenu:AddButton(NSLname, titleColor, titleColor, textColor, nil, found)
-					self.hoverMenu:AddButton("NSL profile", teamColorBg, teamColorHighlight, textColor, openNSLUserPage, found+1)
-					if NSLtid > 0 then
-						self.hoverMenu:AddButton("NSL team", teamColorBg, teamColorHighlight, textColor, openNSLTeamPage, found+2)
-					end
-				end
 
 				-- Calling the show function will reposition the menu (in case we're out of the window)
 				self.hoverMenu:Show()

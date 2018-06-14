@@ -11,9 +11,6 @@ function BuildServerEntry(serverIndex)
 			local _, pos = string.find(serverTags[t], "CHUD_0x")
 			if pos then
 				serverEntry.CHUDBitmask = tonumber(string.sub(serverTags[t], pos+1))
-				if CheckCHUDTagOption(serverEntry.CHUDBitmask, CHUDTagBitmask["nslserver"]) and serverEntry.requiresPassword and string.find(serverEntry.name, "ENSL.org") == 1 then
-					serverEntry.isNSL = true
-				end
 				break
 			end
 		end
@@ -28,7 +25,6 @@ local kGreen = Color(0, 208/255, 103/255)
 local kYellow = kGreen --Color(1, 1, 0) --used for reserved full
 local kGold = kBlue --Color(212/255, 175/255, 55/255) --used for ranked
 local kRed = kBlue --Color(1, 0 ,0) --used for full
-local kNSLColor = ColorIntToColor(0x1aa7e2)
 local originalSetServerData
 originalSetServerData = Class_ReplaceMethod( "ServerEntry", "SetServerData",
 	function(self, serverData)
@@ -37,9 +33,6 @@ originalSetServerData = Class_ReplaceMethod( "ServerEntry", "SetServerData",
 		local blockedString
 		if serverData.CHUDBitmask ~= nil then
 			local mode = serverData.mode:gsub("ns2", "ns2+", 1)
-			if serverData.isNSL then
-				mode = mode .. " NSL"
-			end
 			self.modName:SetText(mode)
 
 			if serverData.ranked then
@@ -49,10 +42,7 @@ originalSetServerData = Class_ReplaceMethod( "ServerEntry", "SetServerData",
 				if CheckCHUDTagOption(serverData.CHUDBitmask, mask) then
 					if index == "mcr" then
 						self.playerCount:SetColor(kYellow)
-					elseif serverData.isNSL then
-						self.modName:SetColor(kNSLColor)
-						self.serverName:SetColor(kNSLColor)
-					elseif index ~= "nslserver" then
+					else
 						local val = ConditionalValue(CHUDOptions[index].disabledValue == nil, CHUDOptions[index].defaultValue, CHUDOptions[index].disabledValue)
 						
 						if CHUDOptions[index].currentValue ~= val then

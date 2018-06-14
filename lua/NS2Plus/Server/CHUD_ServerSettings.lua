@@ -15,8 +15,8 @@ CHUDServerOptions =
 		defaultValue = true,
 		},
 	allow_nsllights = {
-		label   = "NSL Lights",
-		tooltip = "Enables or disables the ability to use the NSL lights for clients.",
+		label   = "High Performance Lights",
+		tooltip = "Enables or disables the ability to use the high performance lights for clients.",
 		valueType = "bool",
 		defaultValue = true,
 		},
@@ -92,22 +92,6 @@ CHUDServerOptions =
 		defaultValue = false,
 		},
 }
-
--- Compmod servers allow hidden viewmodels by default
-local hasCompmod = false
-local hasNSLMod = false
-for modNum = 1, Server.GetNumActiveMods() do
-	if Server.GetActiveModId(modNum) == "e5ffa15" or Server.GetActiveModId(modNum) == "1ecfb5cc" then
-		CHUDServerOptions["allow_drawviewmodel"] = nil
-		hasCompmod = true
-	elseif Server.GetActiveModId(modNum) == "a2ddae8" then
-		hasNSLMod = true
-	end
-end
-
-if hasCompmod and hasNSLMod then
-	AddCHUDTagBitmask(CHUDTagBitmask["nslserver"])
-end
 
 local configFileName = "NS2PlusServerConfig.json"
 
