@@ -4,22 +4,22 @@ originalGameInfo = Class_ReplaceMethod( "GameInfo", "OnCreate",
 		
 		originalGameInfo(self)
 		
-		self.showAvgSkill = CHUDServerOptions["showavgteamskill"].currentValue == true
-		self.showProbability = CHUDServerOptions["showprobabilityofteamvictory"].currentValue == true
-		self.showPlayerSkill = CHUDServerOptions["showplayerskill"].currentValue == true
+		self.showAvgSkill = CHUDServerOptions["show_avgteamskill"].currentValue == true
+		self.showProbability = CHUDServerOptions["show_probabilityofteamvictory"].currentValue == true
+		self.showPlayerSkill = CHUDServerOptions["show_playerskill"].currentValue == true
 		self.showEndStatsAuto = CHUDServerOptions["autodisplayendstats"].currentValue == true
 		self.showEndStatsTeamBreakdown = CHUDServerOptions["endstatsteambreakdown"].currentValue == true
 		
 	end)
 
-CHUDServerOptions["showavgteamskill"].applyFunction = function()
-		GetGameInfoEntity().showAvgSkill = CHUDServerOptions["showavgteamskill"].currentValue
+CHUDServerOptions["show_avgteamskill"].applyFunction = function()
+		GetGameInfoEntity().showAvgSkill = CHUDServerOptions["show_avgteamskill"].currentValue
 	end
-CHUDServerOptions["showprobabilityofteamvictory"].applyFunction = function()
-		GetGameInfoEntity().showProbability = CHUDServerOptions["showprobabilityofteamvictory"].currentValue
+CHUDServerOptions["show_probabilityofteamvictory"].applyFunction = function()
+		GetGameInfoEntity().showProbability = CHUDServerOptions["show_probabilityofteamvictory"].currentValue
 	end
-CHUDServerOptions["showplayerskill"].applyFunction = function()
-		GetGameInfoEntity().showPlayerSkill = CHUDServerOptions["showplayerskill"].currentValue
+CHUDServerOptions["show_playerskill"].applyFunction = function()
+		GetGameInfoEntity().showPlayerSkill = CHUDServerOptions["show_playerskill"].currentValue
 	end
 CHUDServerOptions["autodisplayendstats"].applyFunction = function()
 		GetGameInfoEntity().showEndStatsAuto = CHUDServerOptions["autodisplayendstats"].currentValue

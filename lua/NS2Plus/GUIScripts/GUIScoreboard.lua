@@ -1,6 +1,6 @@
 local kObservatoryUserURL = "http://observatory.morrolan.ch/player?steam_id="
 
-local team1Skill, team2Skill, team1VictoryP = 0, 0, 0
+local team1Skill, team2Skill, team1VictoryP, skillDiff, skillPlayers = 0, 0, 0, 0, 0
 local textHeight, teamItemWidth
 
 local originalScoreboardUpdateTeam = GUIScoreboard.UpdateTeam
@@ -12,7 +12,7 @@ function GUIScoreboard:UpdateTeam(updateTeam)
 	local teamScores = updateTeam["GetScores"]()
 	local playerList = updateTeam["PlayerList"]
 	
-	local teamAvgSkill = 0
+	local teamSumSkill = 0
 	local numPlayers = #teamScores
 	
 	-- Resize the player list if it doesn't match.
@@ -40,24 +40,28 @@ function GUIScoreboard:UpdateTeam(updateTeam)
 		end
 		
 		if playerRecord.SteamId > 0 then
-			numPlayers = numPlayers + 1
-			if playerRecord.Skill > 0 then
-				teamAvgSkill = teamAvgSkill + playerRecord.Skill
+
+			if playerRecord.Skill >= 0 then
+				teamSumSkill = teamSumSkill + playerRecord.Skill
+				numPlayers = numPlayers + 1
 			end
 		end
 	end
 
 	if (teamNumber == 1 or teamNumber == 2) and (self.showAvgSkill or self.showProbability)then
-		local skill = numPlayers > 0 and teamAvgSkill/numPlayers or 0
+		local avgskill = numPlayers > 0 and teamSumSkill/numPlayers or 0
 		if teamNumber == 1 then
-			team1Skill = skill
+			team1Skill = avgskill
+			skillPlayers = #playerList
+			skillDiff = teamSumSkill + avgskill * (skillPlayers- numPlayers)
 		elseif teamNumber == 2 then
-			team2Skill = skill
-		end
+			team2Skill = avgskill
+			skillPlayers = skillPlayers + #playerList
+			skillDiff = skillDiff - teamSumSkill - avgskill * (#playerList - numPlayers)
 
-		-- calculate probability of victory using the simplified model
-		local skilldiff = team1Skill - team2Skill
-		team1VictoryP = Round(100 / (1 + math.exp(-(skilldiff/100))))
+			-- calculate probability of victory
+			team1VictoryP = math.min(Round(100 / (1 + math.exp(-skillDiff / (100 * skillPlayers)))), 99)
+		end
 	end
 end
 

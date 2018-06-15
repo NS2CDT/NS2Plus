@@ -67,19 +67,19 @@ CHUDServerOptions =
 		minValue = 0,
 		maxValue = 999,
 		},
-	showavgteamskill = {
+	show_avgteamskill = {
 		label   = "Show average team skills",
 		tooltip = "Shows the average team skill on the scoreboard for clients.",
 		valueType = "bool",
 		defaultValue = false,
 		},
-	showprobabilityofteamvictory = {
+	show_probabilityofteamvictory = {
 		label   = "Show probability of victory for each team",
 		tooltip = "Shows the probability of victory for each team on the scoreboard for clients.",
 		valueType = "bool",
 		defaultValue = false,
 		},
-	showplayerskill = {
+	show_playerskill = {
 		label   = "Show player skill pregame",
 		tooltip = "Shows each player's Hive skill on the scoreboard before the game starts.",
 		valueType = "bool",
