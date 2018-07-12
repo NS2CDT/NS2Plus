@@ -1,7 +1,7 @@
 local kNSLUserURL = "http://www.ensl.org/users/"
 local kNSLTeamURL = "http://www.ensl.org/teams/"
 
-local kObservatoryUserURL = "http://observatory.morrolan.ch/player?steam_id="
+local kObservatoryUserURL = "https://observatory.morrolan.ch/player?steam_id="
 
 local team1Skill, team2Skill, team1VictoryP = 0, 0, 0
 local textHeight, teamItemWidth
