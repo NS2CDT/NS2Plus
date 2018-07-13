@@ -15,7 +15,7 @@ local screenHeight = Client.GetScreenHeight()
 local aspectRatio = screenWidth/screenHeight
 
 local kSteamProfileURL = "http://steamcommunity.com/profiles/"
-local kObservatoryUserURL = "http://observatory.morrolan.ch/player?steam_id="
+local kObservatoryUserURL = "https://observatory.morrolan.ch/player?steam_id="
 
 -- To avoid printing 200.00 or things like that
 local function printNum(number)
