@@ -6,6 +6,11 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
+- 13/7/2018
+    - Fixed that the used team victory probability formula was incorrect (Thanks Las)
+    - Fixed that the observatory scoreboard link wasn’t using https (Thanks Morrolan)
+    - Reset the hive skill related server options. Server operators can re-enable them via sv_plus.
+
 - 7/4/2018
     - Fixed a script error that could occur opening the ns2+options in-game
     - Fixed that predict conflicted with the weapon slot mode of the alien ability select option.
@@ -16,10 +21,6 @@ Latest changes
       - Todo:
         - I'm planning to expand this feature to support all abilities and  pure key bound ability activation.
         - Additionally currently selecting metabolize has a short delay due to the way the weapon select is handled at the server side.
-
-- 28/3/2018
-    - Fixed that the hive skill graph uses the skill maximum as initial minimum
-    - Fixed that spectators were considered as alien players at the beginning of a round by the hive skill graph
 
 Server settings
 ===============
