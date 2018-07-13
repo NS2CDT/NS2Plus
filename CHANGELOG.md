@@ -1,8 +1,9 @@
 Changelog
 ============
 - 13/7/2018
-    - Fixed that the used team victory probability formula was incorrect (Thanks Las)
-    - Fixed that the observatory scoreboard link wasn’t using https (Thanks Morrolan)
+    - Fixed that the used team victory probability formula was incorrect. (Thanks Las)
+    - Fixed that the team victory probability was displayed even if one team doesn't have any players yet.
+    - Fixed that the observatory scoreboard link wasn’t using https. (Thanks Morrolan)
     - Reset the hive skill related server options. Server operators can re-enable them via sv_plus.
 
 - 7/4/2018

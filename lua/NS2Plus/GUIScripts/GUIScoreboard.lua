@@ -137,20 +137,24 @@ function GUIScoreboard:Update(deltaTime)
 			self.scoreboardBackground:AddChild(self.avgSkillItem)
 			self.scoreboardBackground:AddChild(self.avgSkillItem2)
 
-			local team1Text, team2Text
-			if self.showAvgSkill and self.showProbability then
-				team1Text = string.format("Avg. skill: %d, Probability of victory: %d%%", team1Skill, team1VictoryP)
-				team2Text = string.format("Avg. skill: %d, Probability of victory: %d%%", team2Skill, 100 - team1VictoryP)
-			elseif self.showAvgSkill then
+			local team1Text = ""
+			local team2Text = ""
+
+			if self.showAvgSkill then
 				team1Text = string.format("Avg. skill: %d", team1Skill)
 				team2Text = string.format("Avg. skill: %d", team2Skill)
-			else
-				team1Text = string.format("Probability of victory: %d%%", team1VictoryP)
-				team2Text = string.format("Probability of victory: %d%%", 100 - team1VictoryP)
 			end
 
-
 			if team1Players > 0 and team2Players > 0 then
+
+				if self.showAvgSkill and self.showProbability then
+					team1Text = string.format("Avg. skill: %d, Probability of victory: %d%%", team1Skill, team1VictoryP)
+					team2Text = string.format("Avg. skill: %d, Probability of victory: %d%%", team2Skill, 100 - team1VictoryP)
+				elseif self.showProbability then
+					team1Text = string.format("Probability of victory: %d%%", team1VictoryP)
+					team2Text = string.format("Probability of victory: %d%%", 100 - team1VictoryP)
+				end
+
 				self.avgSkillItem:SetText(team1Text)
 				self.avgSkillItem2:SetText(team2Text)
 				hasText = true

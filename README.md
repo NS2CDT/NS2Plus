@@ -7,10 +7,11 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 Latest changes
 ==============
 - 13/7/2018
-    - Fixed that the used team victory probability formula was incorrect (Thanks Las)
-    - Fixed that the observatory scoreboard link wasn’t using https (Thanks Morrolan)
+    - Fixed that the used team victory probability formula was incorrect. (Thanks Las)
+    - Fixed that the team victory probability was displayed even if one team doesn't have any players yet.
+    - Fixed that the observatory scoreboard link wasn’t using https. (Thanks Morrolan)
     - Reset the hive skill related server options. Server operators can re-enable them via sv_plus.
-
+    
 - 7/4/2018
     - Fixed a script error that could occur opening the ns2+options in-game
     - Fixed that predict conflicted with the weapon slot mode of the alien ability select option.
