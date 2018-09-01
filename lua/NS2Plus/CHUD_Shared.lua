@@ -190,3 +190,10 @@ CHUDTagBitmask = {
 	drawviewmodel = bit.lshift(1, 5),
 	nslserver = bit.lshift(1, 6),
 }
+
+CHUDTagBitmaskEnum = {}
+do
+	for name, _ in pairs(CHUDTagBitmask) do
+		CHUDTagBitmaskEnum[#CHUDTagBitmaskEnum+1] = name
+	end
+end
