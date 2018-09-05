@@ -6,6 +6,9 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
+- 5/9/2018
+    - Fixed script error introduce by Skill Tier tooltips
+
 - 13/7/2018
     - Fixed that the used team victory probability formula was incorrect. (Thanks Las)
     - Fixed that the team victory probability was displayed even if one team doesn't have any players yet.
