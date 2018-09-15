@@ -42,20 +42,27 @@ local originalCrossUpdate = GUICrosshair.Update
 function GUICrosshair:Update(deltaTime)
 	originalCrossUpdate(self)
 
-	local reloadFraction = CHUDGetReloadFraction()
-	local reloadIndicator = CHUDGetOption("reloadindicator")
-	local reloadIndicatorVisible = reloadIndicator == 1 and gCHUDHiddenViewModel or reloadIndicator == 2
-	-- For some reason having this initialized isn't enough so let's check for it every frame
-	if self.reloadDial and self.crosshairs:GetIsVisible() and reloadIndicatorVisible and reloadFraction > -1 then
-		self.updateInterval = kUpdateIntervalFull
-		self.reloadDial:SetIsVisible(true)
-		self.reloadDial:SetPercentage(reloadFraction)
-		self.reloadDial:Update(deltaTime)
+    local reloadIndicator = CHUDGetOption("reloadindicator")
+	if reloadIndicator > 0 then
+		local reloadFraction = CHUDGetReloadFraction()	
+		local reloadIndicatorVisible = reloadIndicator == 1 and gCHUDHiddenViewModel or reloadIndicator == 2
+		-- For some reason having this initialized isn't enough so let's check for it every frame
+		if self.reloadDial and self.crosshairs:GetIsVisible() and reloadIndicatorVisible and reloadFraction > -1 then
+			self.updateInterval = kUpdateIntervalFull
+			self.reloadDial:SetIsVisible(true)
+			self.reloadDial:SetPercentage(reloadFraction)
+			self.reloadDial:Update(deltaTime)
+		else	
+			self.updateInterval = 0.04 
+			if self.reloadDial then
+				self.reloadDial:SetIsVisible(false)
+			end
+		end
 	else
-		self.updateInterval = 0.04
+		self.updateInterval = 0.1 -- = 1000ms
 		if self.reloadDial then
 			self.reloadDial:SetIsVisible(false)
-		end
+		end	
 	end
 end
 	
