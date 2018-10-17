@@ -76,16 +76,12 @@ local function OnLocalPlayerChanged()
 	CHUDApplyLifeformSpecificStuff()
 end
 
--- Apparently NS2 doesn't always call OnLocalPlayerChanged when changing teams, so this
-local lastTeam
-local function OnUpdateClient()
-	if Client.GetLocalPlayer() and lastTeam ~= Client.GetLocalPlayer():GetTeamNumber() then
-		CHUDApplyTeamSpecificStuff()
-		lastTeam = Client.GetLocalPlayer():GetTeamNumber()
-	end
+local function OnSetClientTeamNumber(message)
+	Client.localClientTeamNumber = message.teamNumber
+	CHUDApplyTeamSpecificStuff()
 end
+Client.HookNetworkMessage("SetClientTeamNumber", OnSetClientTeamNumber)
 
-Event.Hook("UpdateClient", OnUpdateClient)
 Event.Hook("LoadComplete", OnLoadComplete)
 Event.Hook("LocalPlayerChanged", OnLocalPlayerChanged)
 

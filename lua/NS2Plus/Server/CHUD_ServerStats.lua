@@ -483,9 +483,9 @@ statusGrouping[kPlayerStatus.Evolving] = kPlayerStatus.Embryo
 
 -- Add commander playing teams separate per team
 -- Vanilla only tracks overall commanding time
-local ScoringSharedUpdate = debug.getupvaluex(ScoringMixin.OnProcessMove, "SharedUpdate")
-local function newScoringSharedUpdate(self, deltaTime)
-	ScoringSharedUpdate(self, deltaTime)
+local oldScoringOnUpdate = ScoringMixin.OnUpdate
+function ScoringMixin:OnUpdate(deltaTime)
+	oldScoringOnUpdate(self, deltaTime)
 	
 	if self.clientIndex and self.clientIndex > 0 then
 		local steamId = GetSteamIdForClientIndex(self.clientIndex)
@@ -514,7 +514,6 @@ local function newScoringSharedUpdate(self, deltaTime)
 		end
 	end
 end
-debug.replaceupvalue(ScoringMixin.OnProcessMove, "SharedUpdate", newScoringSharedUpdate, true)
 
 local originalScoringAddKill = ScoringMixin.AddKill
 function ScoringMixin:AddKill()
@@ -1311,32 +1310,40 @@ function BulletsMixin:ApplyBulletGameplayEffects(player, target, endPoint, direc
 	originalBulletsMixinApplyBulletGameplayEffects(self, player, target, endPoint, direction, damage, surface, showTracer)
 end
 
+-- TODO: Refactor the following two methods
+
 local kChargeTime, kBulletSize
 local function NewExecuteShot(self, startPoint, endPoint, player)
+
 	-- Filter ourself out of the trace so that we don't hit ourselves.
 	local filter = EntityFilterTwo(player, self)
 	local trace = Shared.TraceRay(startPoint, endPoint, CollisionRep.Damage, PhysicsMask.Bullets, EntityFilterAllButIsa("Tunnel"))
 	local hitPointOffset = trace.normal * 0.3
 	local direction = (endPoint - startPoint):GetUnit()
 	local damage = kRailgunDamage + math.min(1, (Shared.GetTime() - self.timeChargeStarted) / kChargeTime) * kRailgunChargeDamage
-	local parent = self.GetParent and self:GetParent()
+
 	local extents = GetDirectedExtentsForDiameter(direction, kBulletSize)
-	
-	if parent and trace.fraction < 1 then
-	
+
+	if trace.fraction < 1 then
+
 		-- do a max of 10 capsule traces, should be sufficient
 		local hitEntities = {}
+
+		-- NS2PLUS MOD START
+		local parent = self.GetParent and self:GetParent()
 		local isPlayer = false
 		local playerTargets = 0
 		local foundOnos = false
-		
+		-- NS2PLUS MOD END
+
 		for i = 1, 20 do
-		
+
 			local capsuleTrace = Shared.TraceBox(extents, startPoint, trace.endPoint, CollisionRep.Damage, PhysicsMask.Bullets, filter)
 			if capsuleTrace.entity then
-			
+
 				if not table.find(hitEntities, capsuleTrace.entity) then
-				
+
+					-- NS2PLUS MOD START
 					if capsuleTrace.entity:isa("Player") and GetAreEnemies(parent, capsuleTrace.entity) then
 						isPlayer = true
 						playerTargets = playerTargets + 1
@@ -1344,40 +1351,43 @@ local function NewExecuteShot(self, startPoint, endPoint, player)
 							foundOnos = true
 						end
 					end
-				
+					-- NS2PLUS MOD END
+
 					table.insert(hitEntities, capsuleTrace.entity)
 					self:DoDamage(damage, capsuleTrace.entity, capsuleTrace.endPoint + hitPointOffset, direction, capsuleTrace.surface, false, false)
-				
+
 				end
-				
-			end    
-				
+
+			end
+
 			if (capsuleTrace.endPoint - trace.endPoint):GetLength() <= extents.x then
 				break
 			end
-			
+
 			-- use new start point
 			startPoint = Vector(capsuleTrace.endPoint) + direction * extents.x * 3
-		
+
 		end
 
+		-- NS2PLUS MOD START
 		-- Drifters, buildings and teammates don't count towards accuracy as hits or misses
 		if #hitEntities == 0 or (#hitEntities > 0 and isPlayer) then
-			local steamId = GetSteamIdForClientIndex(parent:GetClientIndex())
+			local steamId = parent and GetSteamIdForClientIndex(parent:GetClientIndex())
 			if steamId then
 				AddAccuracyStat(steamId, self:GetTechId(), #hitEntities > 0, playerTargets == 1 and foundOnos, parent:GetTeamNumber())
 			end
 		end
-		
+		-- NS2PLUS MOD END
+
 		-- for tracer
 		local effectFrequency = self:GetTracerEffectFrequency()
-		local showTracer = ConditionalValue(GetIsVortexed(player), false, math.random() < effectFrequency)
+		local showTracer = (math.random() < effectFrequency)
 		self:DoDamage(0, nil, trace.endPoint + hitPointOffset, direction, trace.surface, false, showTracer)
-		
+
 		if Client and showTracer then
 			TriggerFirstPersonTracer(self, trace.endPoint)
 		end
-	
+
 	end
 end
 debug.replaceupvalue(Railgun.OnTag, "ExecuteShot", NewExecuteShot, true)
@@ -1442,64 +1452,66 @@ debug.joinupvalues(Parasite.PerformPrimaryAttack, originalParasiteAttack)
 	
 local kSpread, kSpikeSize
 local function NewFireSpikes(self)
-	local player = self:GetParent()    
+
+
+	local player = self:GetParent()
 	local viewAngles = player:GetViewAngles()
 	viewAngles.roll = NetworkRandom() * math.pi * 2
 	local shootCoords = viewAngles:GetCoords()
-	
+
 	-- Filter ourself out of the trace so that we don't hit ourselves.
 	local filter = EntityFilterOneAndIsa(player, "Babbler")
 	local range = kSpikesRange
-	
+
 	local numSpikes = kSpikesPerShot
 	local startPoint = player:GetEyePos()
-	
+
 	local viewCoords = player:GetViewCoords()
-	
+
 	self.spiked = true
-	self.silenced = GetHasSilenceUpgrade(player)
-	
+	self.silenced = GetHasSilenceUpgrade(player) and player:GetVeilLevel() > 0
+
 	for spike = 1, numSpikes do
 
-		-- Calculate spread for each shot, in case they differ    
-		local spreadDirection = CalculateSpread(viewCoords, kSpread, NetworkRandom) 
+		-- Calculate spread for each shot, in case they differ
+		local spreadDirection = CalculateSpread(viewCoords, kSpread, NetworkRandom)
 
 		local endPoint = startPoint + spreadDirection * range
 		startPoint = player:GetEyePos()
-		
+
 		local trace = Shared.TraceRay(startPoint, endPoint, CollisionRep.Damage, PhysicsMask.Bullets, filter)
 		if not trace.entity then
 			local extents = GetDirectedExtentsForDiameter(spreadDirection, kSpikeSize)
 			trace = Shared.TraceBox(extents, startPoint, endPoint, CollisionRep.Damage, PhysicsMask.Bullets, filter)
 		end
-		
+
 		local distToTarget = (trace.endPoint - startPoint):GetLength()
-		
+
 		if trace.fraction < 1 then
 
 			-- Have damage increase to reward close combat
 			local damageDistScalar = Clamp(1 - (distToTarget / kSpikeMinDamageRange), 0, 1)
 			local damage = kSpikeMinDamage + damageDistScalar * (kSpikeMaxDamage - kSpikeMinDamage)
 			local direction = (trace.endPoint - startPoint):GetUnit()
-			
+
 			if (trace.entity and trace.entity:isa("Player") and GetAreEnemies(self:GetParent(), trace.entity)) then
 				local steamId = GetSteamIdForClientIndex(self:GetParent():GetClientIndex())
 				if steamId then
 					AddAccuracyStat(steamId, self:GetSecondaryTechId(), true, trace.entity and trace.entity:isa("Onos"), self:GetParent():GetTeamNumber())
 				end
 			end
-			
+
 			self:DoDamage(damage, trace.entity, trace.endPoint - direction * kHitEffectOffset, direction, trace.surface, true, math.random() < 0.75)
-				
+
 		end
-		
+
 		if not trace.entity then
 			local steamId = GetSteamIdForClientIndex(self:GetParent():GetClientIndex())
 			if steamId then
 				AddAccuracyStat(steamId, self:GetSecondaryTechId(), false, nil, self:GetParent():GetTeamNumber())
 			end
 		end
-		
+
 	end
 end
 debug.replaceupvalue(SpikesMixin.OnTag, "FireSpikes", NewFireSpikes, true)

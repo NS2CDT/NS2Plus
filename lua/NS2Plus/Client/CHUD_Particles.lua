@@ -331,7 +331,7 @@ originalSetCinematic = Class_ReplaceMethod( "Cinematic", "SetCinematic",
 	end
 )
 
-function CacheCinematics(className, groupName, values)
+local function CacheCinematics(className, groupName, values)
 	if className == "cinematic" and mapCinematicNames[values.cinematicName] then
 		table.insert(cinematicsCache, Client.cinematics[#Client.cinematics])
 		if not Client.fullyLoaded then
@@ -410,17 +410,28 @@ function LoadMapEntity(className, groupName, values)
 	return success
 end
 
-function RemovePropDynamics()
-	local mapName = string.lower(Shared.GetMapName())
-	for _, entity in ientitylist(Shared.GetEntitiesWithClassname("PropDynamic")) do
-		-- Biodome seems to be using a different case for some models than what the actual files show
-		local modelName = string.lower(entity:GetModelName())
-		local mapSpecificBlockedProp = blockedProps[mapName] and blockedProps[mapName][modelName]
-		if (blockedProps[modelName] or mapSpecificBlockedProp) and not CHUDGetOption("mapparticles") then
-			entity:SetModel(nil)
+local originalOnUpdateRender
+originalOnUpdateRender = Class_ReplaceMethod("PropDynamic", "OnUpdateRender",
+	function(self)
+		local showParticles = CHUDGetOption("mapparticles")
+		if self:GetRenderModel() then
+			if showParticles then
+				originalOnUpdateRender(self)
+			else
+				local mapName = string.lower(Shared.GetMapName())
+				local modelName = string.lower(self:GetModelName())
+				local mapSpecificBlockedProp = blockedProps[mapName] and blockedProps[mapName][modelName]
+				if blockedProps[modelName] or mapSpecificBlockedProp then
+					self.originalModelName = modelName
+					self:SetModel(nil)
+				end
+			end
+		elseif showParticles and self.originalModelName then
+			self:SetModel(self.originalModelName)
+			self.originalModelName = nil
 		end
 	end
-end
+)
 		
 function SetCHUDCinematics()
 	if not CHUDGetOption("mapparticles") then
@@ -475,5 +486,4 @@ function SetCHUDAmbients()
 	end
 end
 
-Event.Hook("UpdateClient", RemovePropDynamics)
 Event.Hook("MapLoadEntity", CacheCinematics)
