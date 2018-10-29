@@ -483,10 +483,7 @@ statusGrouping[kPlayerStatus.Evolving] = kPlayerStatus.Embryo
 
 -- Add commander playing teams separate per team
 -- Vanilla only tracks overall commanding time
-local oldScoringOnUpdate = ScoringMixin.OnUpdate
-function ScoringMixin:OnUpdate(deltaTime)
-	oldScoringOnUpdate(self, deltaTime)
-	
+function ScoringMixin:UpdatePlayerStats(deltaTime)
 	if self.clientIndex and self.clientIndex > 0 then
 		local steamId = GetSteamIdForClientIndex(self.clientIndex)
 		local teamNumber = self:GetTeamNumber()
@@ -495,9 +492,7 @@ function ScoringMixin:OnUpdate(deltaTime)
 			local statusPlayer = CHUDClientStats[steamId]
 			local statusRoot = CHUDClientStats[steamId]["status"]
 			local stat = CHUDClientStats[steamId][teamNumber]
-			-- This function gets called sometimes twice for the same player in the same frame
-			-- It also happens that sometimes the times are in the past
-			-- So just check that the time looks correct
+			-- Make sure we update times only once per frame
 			if self:GetIsPlaying() and (not statusPlayer.lastUpdate or statusPlayer.lastUpdate < Shared.GetTime()) then
 				statusPlayer.lastUpdate = Shared.GetTime()
 				if self:isa("Commander") then
@@ -505,7 +500,7 @@ function ScoringMixin:OnUpdate(deltaTime)
 				end
 				stat.timePlayed = stat.timePlayed + deltaTime
 				local status = statusGrouping[self:GetPlayerStatusDesc()] ~= nil and statusGrouping[self:GetPlayerStatusDesc()] or self:GetPlayerStatusDesc()
-				
+
 				if statusRoot[status] == nil then
 					statusRoot[status] = 0
 				end
@@ -513,6 +508,20 @@ function ScoringMixin:OnUpdate(deltaTime)
 			end
 		end
 	end
+end
+
+local oldScoringOnUpdate = ScoringMixin.OnUpdate
+function ScoringMixin:OnUpdate(deltaTime)
+	oldScoringOnUpdate(self, deltaTime)
+
+	self:UpdatePlayerStats(deltaTime)
+end
+
+local oldProcessMove = ScoringMixin.OnProcessMove
+function ScoringMixin:OnProcessMove(input)
+	oldProcessMove(self, input)
+
+	self:UpdatePlayerStats(input.time)
 end
 
 local originalScoringAddKill = ScoringMixin.AddKill
