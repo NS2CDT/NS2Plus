@@ -75,11 +75,19 @@ local function OnLocalPlayerChanged()
 	CHUDApplyLifeformSpecificStuff()
 end
 
-local function OnSetClientTeamNumber(message)
-	Client.localClientTeamNumber = message.teamNumber
-	CHUDApplyTeamSpecificStuff()
+-- Todo: Find a better way to make this work
+local lastTeam
+local oldUpdateTracers = UpdateTracers
+function UpdateTracers(deltaTime)
+	oldUpdateTracers(deltaTime)
+
+	local player = Client.GetLocalPlayer()
+	local teamNumber = player and player:GetTeamNumber()
+	if teamNumber ~= lastTeam then
+		CHUDApplyTeamSpecificStuff()
+		lastTeam = teamNumber
+	end
 end
-Client.HookNetworkMessage("SetClientTeamNumber", OnSetClientTeamNumber)
 
 Event.Hook("LoadComplete", OnLoadComplete)
 Event.Hook("LocalPlayerChanged", OnLocalPlayerChanged)
