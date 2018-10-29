@@ -1,5 +1,11 @@
 Changelog
 ============
+- 29/10/2018
+    - Optimized the reload indicator code (Thanks Handschuh)
+    - Refactored the map particles option code. The option now takes effect immediably.
+    - Optimized the usage of certain event hooks to avoid causing engine crashes.
+    - Fixed and optimized the low lights for ns2_descent (Thanks Zavaro)
+    
 - 5/9/2018
     - Fixed script error introduced from Skill Tier icon tooltips
 

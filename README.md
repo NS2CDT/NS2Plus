@@ -6,6 +6,13 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
+
+- 29/10/2018
+    - Optimized the reload indicator code (Thanks Handschuh)
+    - Refactored the map particles option code. The option now takes effect immediably.
+    - Optimized the usage of certain event hooks to avoid causing engine crashes.
+    - Fixed and optimized the low lights for ns2_descent (Thanks Zavaro)
+    
 - 5/9/2018
     - Fixed script error introduce by Skill Tier tooltips
 
@@ -18,13 +25,6 @@ Latest changes
 - 7/4/2018
     - Fixed a script error that could occur opening the ns2+options in-game
     - Fixed that predict conflicted with the weapon slot mode of the alien ability select option.
-
-- 4/6/2018
-    - Replaced all Elixer methods with the new DebugUltility methods
-    - Added an option to choose how to select alien abilities. This allows to select metabolize to be selected as weapon once again.
-      - Todo:
-        - I'm planning to expand this feature to support all abilities and  pure key bound ability activation.
-        - Additionally currently selecting metabolize has a short delay due to the way the weapon select is handled at the server side.
 
 Server settings
 ===============
