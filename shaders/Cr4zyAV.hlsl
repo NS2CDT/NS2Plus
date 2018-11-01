@@ -104,18 +104,20 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     float alienMask = 0;
     float marineMask = 0;
     
-//>0.7 & <0.8 = marines and aliens
+//>0.7 & <0.8 = aliens
 //>0.8 = aliens and infested structures
 //>0.9 = infested structures and gorges
-//>=1 = nothing
+//>0.96 & < 1 Marine Structures
+//>=1 = Marine
 
 //these masks create an infested/gorge, alien and marine mask
-    if (depth1.g > 0.9) {
-        infestedMask = 1;
-    }
-    else {
-        infestedMask = 0;
-    }
+//TODO Deactivated, unknown what values are the correct ones currently for BUILD 325!
+//    if (depth1.g > 0.9) {
+//        infestedMask = 0;
+//    }
+//    else {
+//        infestedMask = 0;
+//    }
     
     if (depth1.g > 0.8 && depth1.g < 0.9) {
         alienMask = 1;
@@ -124,7 +126,7 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
         alienMask = 0;
     }
     
-    if (depth1.g > 0.5 && depth1.g < 0.8) {
+    if ((depth1.g > 0.5 && depth1.g < 0.8) || depth1.g  > 0.96) {
         marineMask = 1;
     }
     else {
