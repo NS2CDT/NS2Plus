@@ -111,7 +111,7 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     float alienMask = 0;
     float marineMask = 0;
     
-    if (depth1.g > 0.89 && depth1.g < 0.98) {
+    if (depth1.g > 0.89 && depth1.g < 0.97) {
         alienMask = 1;
     }
 
