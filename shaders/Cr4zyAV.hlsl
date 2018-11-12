@@ -99,59 +99,37 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     float sineY = sin(-y * .1) * sin(-y * .1);
     float avAreaX  = clamp(sineX * avAspect*1.5,0,1);
     float avAreaY = clamp(sineY ,0,1);
-    
-    float infestedMask = 0;
+
+    //these masks create an gorge, alien and marine mask
+    //0.5 = Viewmodel
+    //0.96 = Aliens
+    //0.9 = Alien Structures
+    //0.94 = Gorges & Babbles
+    //0.98 = Marine Structures
+    //1 = Marine & Marine Equiqment
+
     float alienMask = 0;
     float marineMask = 0;
     
-//>0.7 & <0.8 = aliens
-//>0.8 = aliens and infested structures
-//>0.9 = infested structures and gorges
-//>0.96 & < 1 Marine Structures
-//>=1 = Marine
-
-//these masks create an infested/gorge, alien and marine mask
-//TODO Deactivated, unknown what values are the correct ones currently for BUILD 325!
-//    if (depth1.g > 0.9) {
-//        infestedMask = 0;
-//    }
-//    else {
-//        infestedMask = 0;
-//    }
-    
-    if (depth1.g > 0.8 && depth1.g < 0.9) {
+    if (depth1.g > 0.89 && depth1.g < 0.98) {
         alienMask = 1;
     }
-    else {
-        alienMask = 0;
-    }
-    
-    if ((depth1.g > 0.5 && depth1.g < 0.8) || depth1.g  > 0.96) {
+
+    if (depth1.g  > 0.97) {
         marineMask = 1;
     }
-    else {
-        marineMask = 0;
-    }
-//combine marine and infested masks for complete marine mask
-    marineMask = clamp(marineMask + (infestedMask*0.1),0,1);
-    alienMask = clamp(alienMask + infestedMask,0,1);
     
-//VIEWMODEL mask
+    //VIEWMODEL mask
     float myAlien = 0;
     float4 realvm = inputPixel;
     float vmdepth = max(0.12, pow(2, max(depth - 0.5, 0) * -0.2));
 
-    if (modelvm < .6){
-        if (depth < 2.2){
-            myAlien = 1 * modelvm;
-        }
-        else{
-            myAlien = 0;
-        }
+    if (modelvm < .6 && depth < 2.2){
+        myAlien = 1 * modelvm;
     }
     myAlien = clamp(myAlien*5,0,1);
 
-//select vm to display
+    //select vm to display
     if (avViewModelStyle >= 1){
         realvm = clamp(modelvm * 2 * myAlien * pow(vmdepth,10),0,1);
     }
@@ -160,7 +138,7 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
         realvm = 0;
     }
 
-//make a mask that gets dark rooms/areas
+    //make a mask that gets dark rooms/areas
     float ipColour = inputPixel.g + inputPixel.b ;
     float redRoom = 0;
     float enableRedRoom = 0;
@@ -206,7 +184,7 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
         }
     }
 
-//vignette the screen
+    //vignette the screen
     float2 screenCenter = float2(0.5, 0.5);
     float darkened = 1 - clamp(length(texCoord - screenCenter) - 0.45, 0, 1);
     darkened = pow(darkened, 4);    
@@ -248,15 +226,15 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     float fadeout = max(0.0, pow(avBlendChange*.8+1, max(depth - 0.5, 0) * -0.3));
     float fadeoff = max(0.12, pow(avBlendChange*.8+1, max(depth - 0.5, 0) * -0.2));
     
-//AV Colour vars
+    //AV Colour vars
     float4 colourOne = float4(closeR, closeG, closeB, 1) * closeIntensity;
     float4 colourTwo = float4(distantR, distantG, distantB, 1) * distantIntensity;
     float4 colourAngle = lerp(colourOne, colourTwo, .75);
     
-//fog colour/colour three, wont rename in code as to not reset anyones existing options
+    //fog colour/colour three, wont rename in code as to not reset anyones existing options
     float4 colourFog = float4(fogR, fogG, fogB, 1) * fogIntensity;
     
-//enchances stronger shade so it can adjust edge and model colour slightly differently on highlights    
+    //enchances stronger shade so it can adjust edge and model colour slightly differently on highlights
     float strongestColour = max(max(fogR,fogG),fogB);
     float4 colourModel = 0;
     float4 invertColourModel = 0;
@@ -264,8 +242,8 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     float colourMulti = lerp(0,.5,fogIntensity*.5);
     float4 invertColour = float4((1-fogR),(1-fogG),(1-fogB),1);
     
-//this only applies to 2 modes (1 & 3)
-    if     (modeAV > 1){
+    //this only applies to 2 modes (1 & 3)
+    if (modeAV > 1){
         if (modeAV == 2 ) {
         }
         else {
@@ -373,7 +351,7 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
         }
     }
     
-//marineColor adjustments
+    //marineColor adjustments
     if (marineColor == 2) {
         //adds viewmodel mask to alienMask and removes any marines
         alienMask = clamp(alienMask + (model - marineMask),0,1);
@@ -436,49 +414,49 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
         }
     }
 
-//do colour intensity now so inverted colours dont end up white/black
+    //do colour intensity now so inverted colours dont end up white/black
     colourFog = colourFog * fogIntensity;
     colourModel = colourModel * fogIntensity;
     
-//offset colour when models are at an angle to camera
+    //offset colour when models are at an angle to camera
     float4 angleBlend = clamp(1-fadedist*5,0,1)*distantIntensity*.8 + clamp(fadedist*.5,0,1)*closeIntensity*.5;
     colourAngle = colourAngle * .6 * angleBlend;
 
-//set up screen center colouring
+    //set up screen center colouring
     float4 mainColour = 
     model * edge * colourOne * 2 * clamp(fadeDistBlend*5,0.02,1) +
     model * edge * colourTwo * 1 * clamp(1-fadeDistBlend*7,0,1) * clamp(fadeDistBlend*300,0.02,1)  +
     model * edge * colourTwo * .6 * clamp(1-fadeDistBlend*60,0,1);
         
-//set up screen edge colouring
+    //set up screen edge colouring
     float4 edgeColour = 
     model * edge * colourOne * 2 * clamp(fadeDistBlend*.5,0,1) + 
     model * edge * colourTwo * 1 * clamp(1-fadeDistBlend*2.5,0,1) * clamp(fadeDistBlend*10,0.02,1) + 
     model * edge * colourTwo * .6 * (1-clamp(fadeDistBlend*1.2,0.02,1));
 
-//outlines for when av is off, edges only
+    //outlines for when av is off, edges only
     float4 offOutline = model * (
     ((edge * edge) * 3) * colourOne * 2 * clamp(fadeDistBlend*2.25,0,1) + 
     ((edge * edge) * 2) * colourTwo * 1.2 * clamp(1-fadeDistBlend*4.5,0,1) * clamp(fadeDistBlend*500,0.02,1) + 
     (edge * edge) * colourTwo * .4 * (1-clamp(fadeDistBlend*60,0.02,1)) * 3) ;
     
-//lerp it together
+    //lerp it together
     float4 outline = lerp(mainColour, edgeColour, clamp(avAreaX + avAreaY, 0, 1));
     
-//set up original mode model colouring
+    //set up original mode model colouring
     float4 modelColour =
     (model * (0.5 + 0.1 * pow(0.1 + sin(time * 5 + intensity * 4), 2)) * clamp(fadedist*.5,.5,1)) * colourModel +
     ((model * pow(edge,2)) * (colourFog * (clamp(fadedist *60,.25,1)))) +
     (model * pow(edge,2) * 10 + model * pow(edge,2.5) * 200) * (colourFog * clamp(fadedist * 20,2,10));
 
-//WORLD edges
-// redRoom detection means outlines in dark rooms are much more pronounced
+    //WORLD edges
+    // redRoom detection means outlines in dark rooms are much more pronounced
     float4 world = (pow(edge,1.5) * .05 * redRoom) + edge * 0.02;
     
-//FOG setup
+    //FOG setup
     float4 fog = clamp(pow(depth * 0.012, 1), 0, 1.2) * colourFog * (0.6 + edge);
     
-//av off effects   
+    //av off effects
     if (amount < 1){
         if (modeAVoff >= 1){
             if (modeAVoff > 1){
@@ -499,8 +477,8 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
         }
     }
 
-//skybox mask
-//lerp with circle masks because depth is a terrible at widescreen resolutions and this way the result is better, not perfect tho.
+    //skybox mask
+    //lerp with circle masks because depth is a terrible at widescreen resolutions and this way the result is better, not perfect tho.
     float4 noSkybox = 0;
     float maskSkybox = 0;
     
@@ -525,20 +503,20 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
         float green = inputPixel.g;
         float blue = inputPixel.b;
         
-//desaturate
+    //desaturate
     float4 desaturate = 0;
 
     if (avDesat >= 1){
         if (avDesat > 1){
             if (avDesat > 2){
-//close desat
+                //close desat
                 desaturate = float4(max(0, max(green, blue) - red), max(0, max(red, blue) - green), max(0, max(green, red) - blue), 0) * 1 * clamp(fadeDistDesat*2.25,0,1) + 
                 float4(max(0, max(green, blue) - red), max(0, max(red, blue) - green), max(0, max(green, red) - blue), 0) * .6 *clamp(1-fadeDistDesat*2.5,0,1) * clamp(fadeDistDesat*9,0.02,1) + 
                 float4(max(0, max(green, blue) - red), max(0, max(red, blue) - green), max(0, max(green, red) - blue), 0) * .2 * (1-clamp(fadeDistDesat*9,0.02,1)) * clamp(fadeDistDesat*30,0.02,1) + 
                 float4(max(0, max(green, blue) - red), max(0, max(red, blue) - green), max(0, max(green, red) - blue), 0) * 0 * (1-clamp(fadeDistDesat*30,0.02,1)) * (desatIntensity * 5);
             }
             else{
-//distance desat
+                //distance desat
                 desaturate = float4(max(0, max(green, blue) - red), max(0, max(red, blue) - green), max(0, max(green, red) - blue), 0) * 0.03 * clamp(fadeDistDesat*2.25,0,1) + 
                 float4(max(0, max(green, blue) - red), max(0, max(red, blue) - green), max(0, max(green, red) - blue), 0) * .09 *clamp(1-fadeDistDesat*2.5,0,1) * clamp(fadeDistDesat*9,0.02,1) + 
                 float4(max(0, max(green, blue) - red), max(0, max(red, blue) - green), max(0, max(green, red) - blue), 0) * .15 * (1-clamp(fadeDistDesat*9,0.02,1)) * clamp(fadeDistDesat*30,0.02,1) + 
@@ -546,17 +524,17 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
             }
         }
         else {
-//scene desat    
+            //scene desat
             desaturate = float4(max(0, max(green, blue) - red), max(0, max(red, blue) - green), max(0, max(green, red) - blue), 0);
         }
     }
     else {
-//no desat
+        //no desat
         float4 desaturate = 1;
     }
 
-//put it all together
-//get mode and create final shader
+    //put it all together
+    //get mode and create final shader
     if (modeAV >= 1){
         if (modeAV > 1){
             if (modeAV > 2){
@@ -584,12 +562,13 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
         alienVision = (((pow(inputPixel * .9 * darkened, 1.4) + desaturate * desatIntensity) + (outline * (model * 1.5)) * 2 + (model * intensity * colourAngle * (0.5 + 0.2 * pow(0.1 + sin(time * 5 + intensity * 3), 2)) * fadeoff) + ((inputPixel + desaturate * desatIntensity) + world * .75)) * clamp(pow(1-realvm,12),0,1) + (realvm * inputPixelold)) * maskSkybox + noSkybox;
     }
         
-//activation effects
-// Compute a pulse "front" that sweeps out from the viewer when the effect is activated.
+    //activation effects
+    // Compute a pulse "front" that sweeps out from the viewer when the effect is activated.
     float wave  = cos(4 * (x/20)) + sin(4 * (x/20));
     float front = pow( (time - startTime) * frontSpeed, frontMovementPower) + wave;
     float pulse = 0;
-//instant enable    
+
+    //instant enable
     if (avToggle > 0){
         if (avToggle > 1){
             return alienVision;
