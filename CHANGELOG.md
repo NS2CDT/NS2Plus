@@ -1,5 +1,9 @@
 Changelog
 ============
+- 12/11/2018
+    - Fixed that the separate team color option for the cr4zy alien vision didn't work anymore (Thanks to Handschuh)
+    - Fixed that the low lights for ns2_descent were too dark in many areas (Thanks Zavaro)
+    
 - 29/10/2018
     - Optimized the reload indicator code (Thanks Handschuh)
     - Refactored the map particles option code. The option now takes effect immediably.

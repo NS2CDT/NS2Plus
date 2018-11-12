@@ -7,6 +7,10 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 Latest changes
 ==============
 
+- 12/11/2018
+    - Fixed that the separate team color option for the cr4zy alien vision didn't work anymore (Thanks to Handschuh)
+    - Fixed that the low lights for ns2_descent were too dark in many areas (Thanks Zavaro)
+    
 - 29/10/2018
     - Optimized the reload indicator code (Thanks Handschuh)
     - Refactored the map particles option code. The option now takes effect immediably.
@@ -21,10 +25,6 @@ Latest changes
     - Fixed that the team victory probability was displayed even if one team doesn't have any players yet.
     - Fixed that the observatory scoreboard link wasn’t using https. (Thanks Morrolan)
     - Reset the hive skill related server options. Server operators can re-enable them via sv_plus.
-    
-- 7/4/2018
-    - Fixed a script error that could occur opening the ns2+options in-game
-    - Fixed that predict conflicted with the weapon slot mode of the alien ability select option.
 
 Server settings
 ===============
