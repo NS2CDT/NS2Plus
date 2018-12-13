@@ -1,3 +1,5 @@
+-- Todo: Optimize so that stats are processed faster and use less network bandwidth
+
 local CHUDClientStats = {}
 local CHUDTeamStats = {}
 local CHUDRTGraph = {}
@@ -14,7 +16,7 @@ local lastRoundStats = {}
 local locationsTable = {}
 local locationsLookup = {}
 local minimapExtents = {}
-local function OnMapLoadEntity(className, groupName, values)
+local function OnMapLoadEntity(className, _, values)
 	if className == "minimap_extents" then
 		minimapExtents.scale = tostring(values.scale)
 		minimapExtents.origin = tostring(values.origin)
@@ -384,12 +386,12 @@ local function AddTeamGraphKill(teamNumber, killer, victim, weapon, doer)
 				doerPosition = tostring(origin)
 			end
 		end
-		local killerSteamID = killer and killer:isa("Player") and GetSteamIdForClientIndex(killer:GetClientIndex()) or nil
+		local killerSteamID = killer and killer:isa("Player") and killer:GetSteamId() or nil
 		local victimLocation = victim and victim:isa("Player") and locationsLookup[victim:GetLocationName()] or nil
 		local victimPosition = victim and victim:isa("Player") and tostring(victim:GetOrigin()) or nil
 		local victimClass = victim and victim:isa("Player") and EnumToString(kPlayerStatus, victim:GetPlayerStatusDesc()) or nil
-		local victimSteamID = victim and victim:isa("Player") and GetSteamIdForClientIndex(victim:GetClientIndex()) or nil
-		local weapon = EnumToString(kTechId, weapon) or nil
+		local victimSteamID = victim and victim:isa("Player") and victim:GetSteamId() or nil
+		weapon = EnumToString(kTechId, weapon) or nil
 		
 		table.insert(CHUDKillGraph, {gameTime = CHUDGetGameTime(), gameMinute = CHUDGetGameTime(true), killerTeamNumber = teamNumber, killerWeapon = weapon, killerPosition = killerPosition, killerLocation = killerLocation, killerClass = killerClass, killerSteamID = killerSteamID, victimPosition = victimPosition, victimLocation = victimLocation, victimClass = victimClass, victimSteamID = victimSteamID, doerLocation = doerLocation, doerPosition = doerPosition})
 	end
@@ -416,7 +418,7 @@ classNameToTechId["Shockwave"] = kTechId.Stomp
 local function GetAttackerWeapon(attacker, doer)
 
 		local attackerTeam = attacker and attacker:isa("Player") and attacker:GetTeamNumber() or nil
-		local attackerSteamId = attacker and attacker:isa("Player") and GetSteamIdForClientIndex(attacker:GetClientIndex()) or nil
+		local attackerSteamId = attacker and attacker:isa("Player") and attacker:GetSteamId() or nil
 		local attackerWeapon = doer and doer:isa("Weapon") and doer:GetTechId() or kTechId.None
 		
 		if attacker and doer then
@@ -432,9 +434,8 @@ local function GetAttackerWeapon(attacker, doer)
 				if doer.GetWeaponTechId then
 					attackerWeapon = doer:GetWeaponTechId()
 				elseif doer.techId then
-					local deathIcon = nil
 					attackerWeapon = doer.techId
-					deathIcon = doer.GetDeathIconIndex and doer:GetDeathIconIndex() or nil
+					local deathIcon = doer.GetDeathIconIndex and doer:GetDeathIconIndex() or nil
 					
 					-- Translate the deathicon into a techid we can use for the end-game stats
 					if deathIcon == kDeathMessageIcon.Mine then
@@ -1053,15 +1054,15 @@ originalNS2GamerulesEndGame = Class_ReplaceMethod("NS2Gamerules", "EndGame",
 			local newBuildingSummaryTable = {}
 			for teamNumber, team in pairs(CHUDBuildingSummary) do
 				for techId, entry in pairs(team) do
-						local msg = {}
-						msg.teamNumber = teamNumber
-						msg.techId = techId
-						msg.built = entry.built
-						msg.lost = entry.lost
-						Server.SendNetworkMessage("CHUDBuildingSummary", msg, true)
+						local buildMsg = {}
+						buildMsg.teamNumber = teamNumber
+						buildMsg.techId = techId
+						buildMsg.built = entry.built
+						buildMsg.lost = entry.lost
+						Server.SendNetworkMessage("CHUDBuildingSummary", buildMsg, true)
 						
-						msg.techId = EnumToString(kTechId, techId)
-						table.insert(newBuildingSummaryTable, msg)
+						buildMsg.techId = EnumToString(kTechId, techId)
+						table.insert(newBuildingSummaryTable, buildMsg)
 				end
 			end
 			CHUDBuildingSummary = newBuildingSummaryTable
@@ -1106,21 +1107,21 @@ originalNS2GamerulesEndGame = Class_ReplaceMethod("NS2Gamerules", "EndGame",
 		end
 		
 		if sendCommStats then
-			local msg = {}
-			msg.medpackAccuracy = CHUDGetAccuracy(medpackHitsAcc, (medpackPicks-medpackHitsAcc)+medpackMisses)
-			msg.medpackResUsed = medpackPicks
-			msg.medpackResExpired = medpackMisses
-			msg.medpackEfficiency = CHUDGetAccuracy(medpackPicks, medpackMisses)
-			msg.medpackRefill = medpackRefill
-			msg.ammopackResUsed = ammopackPicks
-			msg.ammopackResExpired = ammopackMisses
-			msg.ammopackEfficiency = CHUDGetAccuracy(ammopackPicks, ammopackMisses)
-			msg.ammopackRefill = ammopackRefill
-			msg.catpackResUsed = catpackPicks
-			msg.catpackResExpired = catpackMisses
-			msg.catpackEfficiency = CHUDGetAccuracy(catpackPicks, catpackMisses)
+			local comMsg = {}
+			comMsg.medpackAccuracy = CHUDGetAccuracy(medpackHitsAcc, (medpackPicks-medpackHitsAcc)+medpackMisses)
+			comMsg.medpackResUsed = medpackPicks
+			comMsg.medpackResExpired = medpackMisses
+			comMsg.medpackEfficiency = CHUDGetAccuracy(medpackPicks, medpackMisses)
+			comMsg.medpackRefill = medpackRefill
+			comMsg.ammopackResUsed = ammopackPicks
+			comMsg.ammopackResExpired = ammopackMisses
+			comMsg.ammopackEfficiency = CHUDGetAccuracy(ammopackPicks, ammopackMisses)
+			comMsg.ammopackRefill = ammopackRefill
+			comMsg.catpackResUsed = catpackPicks
+			comMsg.catpackResExpired = catpackMisses
+			comMsg.catpackEfficiency = CHUDGetAccuracy(catpackPicks, catpackMisses)
 			
-			Server.SendNetworkMessage("CHUDGlobalCommStats", msg, true)
+			Server.SendNetworkMessage("CHUDGlobalCommStats", comMsg, true)
 		end
 		
 		-- Don't save the round data if there's no player data
@@ -1137,7 +1138,6 @@ originalNS2GamerulesEndGame = Class_ReplaceMethod("NS2Gamerules", "EndGame",
 			lastRoundStats.ServerInfo["buildNumber"] = Shared.GetBuildNumber()
 			lastRoundStats.ServerInfo["rookieOnly"] = Server.GetHasTag("rookie_only")
 			lastRoundStats.ServerInfo["mods"] = {}
-			local modNum
 			local activeModIds = {}
 
 			-- Can't get the mod title correctly unless we do this
@@ -1185,7 +1185,7 @@ local function NS2PlusPlayerPreOnKill(self, killer, doer, point, direction)
 
 	-- Send stats to the player on death
 	if CHUDGetGameStarted() then
-		local steamId = GetSteamIdForClientIndex(self:GetClientIndex())
+		local steamId = self:GetSteamId()
 		if steamId and steamId > 0 then
 			local teamNumber = self:GetTeamNumber()
 			MaybeInitCHUDClientStats(steamId, nil, teamNumber)
@@ -1265,15 +1265,13 @@ end
 local originalConstructMixinConstruct = ConstructMixin.Construct
 function ConstructMixin:Construct(elapsedTime, builder)
 
-	local success, playAV = originalConstructMixinConstruct(self, elapsedTime, builder)
-	local steamId
-	
-	if builder and builder:isa("Player") then
-		steamId = GetSteamIdForClientIndex(builder:GetClientIndex())
-	end
+	local success = originalConstructMixinConstruct(self, elapsedTime, builder)
 
-	if success and steamId then
-		AddBuildTime(steamId, elapsedTime, builder:GetTeamNumber())
+	if success then
+		local steamId = builder and builder.GetSteamId and builder:GetSteamId()
+		if steamId then
+			AddBuildTime(steamId, elapsedTime, builder:GetTeamNumber())
+		end
 	end
 
 end
@@ -1291,10 +1289,12 @@ end
 local originalAttackMeleeCapsule = AttackMeleeCapsule
 function AttackMeleeCapsule(weapon, player, damage, range, optionalCoords, altMode, filter)
 	local a, target, c, d, e , f = originalAttackMeleeCapsule(weapon, player, damage, range, optionalCoords, altMode, filter)
-	if weapon and weapon.GetTechId and weapon.GetParent and weapon:GetParent() then
+
+	local parent = weapon and weapon.GetParent and weapon:GetParent()
+	if parent and weapon.GetTechId then
 		-- Drifters, buildings and teammates don't count towards accuracy as hits or misses
-		if (target and target:isa("Player") and GetAreEnemies(weapon:GetParent(), target)) or target == nil then
-			local steamId = weapon:GetParent():GetSteamId()
+		if (target and target:isa("Player") and GetAreEnemies(parent, target)) or target == nil then
+			local steamId = parent:GetSteamId()
 			if steamId then
 				AddAccuracyStat(steamId, weapon:GetTechId(), target ~= nil, target and target:isa("Onos"), weapon:GetParent():GetTeamNumber())
 			end
@@ -1306,12 +1306,14 @@ end
 
 local originalBulletsMixinApplyBulletGameplayEffects = BulletsMixin.ApplyBulletGameplayEffects
 function BulletsMixin:ApplyBulletGameplayEffects(player, target, endPoint, direction, damage, surface, showTracer)
-	if self and self.GetTechId and self.GetParent and self:GetParent() then
+	local parent = self and self.GetParent and self:GetParent()
+	if parent and self.GetTechId then
 		-- Drifters, buildings and teammates don't count towards accuracy as hits or misses
-		if (target and target:isa("Player") and GetAreEnemies(self:GetParent(), target)) or target == nil then
-			local steamId = GetSteamIdForClientIndex(self:GetParent():GetClientIndex())
+
+		if (target and target:isa("Player") and GetAreEnemies(parent, target)) or target == nil then
+			local steamId = parent:GetSteamId()
 			if steamId then
-				AddAccuracyStat(steamId, self:GetTechId(), target ~= nil, target and target:isa("Onos"), self:GetParent():GetTeamNumber())
+				AddAccuracyStat(steamId, self:GetTechId(), target ~= nil, target and target:isa("Onos"), parent:GetTeamNumber())
 			end
 		end
 	end
@@ -1319,252 +1321,98 @@ function BulletsMixin:ApplyBulletGameplayEffects(player, target, endPoint, direc
 	originalBulletsMixinApplyBulletGameplayEffects(self, player, target, endPoint, direction, damage, surface, showTracer)
 end
 
--- TODO: Refactor the following two methods
+local oldRailgunDoDamage = Railgun.DoDamage
+function Railgun:DoDamage(damage, target, point, direction, surface, altMode, showtracer)
+	if oldRailgunDoDamage then oldRailgunDoDamage(self, damage, target, point, direction, surface, altMode, showtracer) end
 
-local kChargeTime, kBulletSize
-local function NewExecuteShot(self, startPoint, endPoint, player)
+	-- Railgun calls DoDamage at the end of a shoot for tracer effect with damage == 0
+	if damage == 0 then
+		local numTargets = self.numTargets and self.numTargets or 0
+		local isOnos = numTargets == 1 and self.hitOnos
 
-	-- Filter ourself out of the trace so that we don't hit ourselves.
-	local filter = EntityFilterTwo(player, self)
-	local trace = Shared.TraceRay(startPoint, endPoint, CollisionRep.Damage, PhysicsMask.Bullets, EntityFilterAllButIsa("Tunnel"))
-	local hitPointOffset = trace.normal * 0.3
-	local direction = (endPoint - startPoint):GetUnit()
-	local damage = kRailgunDamage + math.min(1, (Shared.GetTime() - self.timeChargeStarted) / kChargeTime) * kRailgunChargeDamage
-
-	local extents = GetDirectedExtentsForDiameter(direction, kBulletSize)
-
-	if trace.fraction < 1 then
-
-		-- do a max of 10 capsule traces, should be sufficient
-		local hitEntities = {}
-
-		-- NS2PLUS MOD START
 		local parent = self.GetParent and self:GetParent()
-		local isPlayer = false
-		local playerTargets = 0
-		local foundOnos = false
-		-- NS2PLUS MOD END
+		local steamId = parent and parent:GetSteamId()
 
-		for i = 1, 20 do
+		AddAccuracyStat(steamId, self:GetTechId(), numTargets > 0, isOnos, parent:GetTeamNumber())
 
-			local capsuleTrace = Shared.TraceBox(extents, startPoint, trace.endPoint, CollisionRep.Damage, PhysicsMask.Bullets, filter)
-			if capsuleTrace.entity then
+		self.hitOnos = false
+		self.numTargets = 0
 
-				if not table.find(hitEntities, capsuleTrace.entity) then
-
-					-- NS2PLUS MOD START
-					if capsuleTrace.entity:isa("Player") and GetAreEnemies(parent, capsuleTrace.entity) then
-						isPlayer = true
-						playerTargets = playerTargets + 1
-						if capsuleTrace.entity:isa("Onos") then
-							foundOnos = true
-						end
-					end
-					-- NS2PLUS MOD END
-
-					table.insert(hitEntities, capsuleTrace.entity)
-					self:DoDamage(damage, capsuleTrace.entity, capsuleTrace.endPoint + hitPointOffset, direction, capsuleTrace.surface, false, false)
-
-				end
-
-			end
-
-			if (capsuleTrace.endPoint - trace.endPoint):GetLength() <= extents.x then
-				break
-			end
-
-			-- use new start point
-			startPoint = Vector(capsuleTrace.endPoint) + direction * extents.x * 3
-
+	elseif target then
+		self.numTargets = self.numTargets and self.numTargets + 1 or 1
+		if target:isa("Onos") then
+			self.hitOnos = true
 		end
+	end
 
-		-- NS2PLUS MOD START
-		-- Drifters, buildings and teammates don't count towards accuracy as hits or misses
-		if #hitEntities == 0 or (#hitEntities > 0 and isPlayer) then
-			local steamId = parent and GetSteamIdForClientIndex(parent:GetClientIndex())
-			if steamId then
-				AddAccuracyStat(steamId, self:GetTechId(), #hitEntities > 0, playerTargets == 1 and foundOnos, parent:GetTeamNumber())
-			end
+end
+
+local oldParasiteDoDamage = Parasite.DoDamage
+function Parasite:DoDamage(damage, target, point, direction, surface, altMode, showtracer)
+	if oldParasiteDoDamage then oldParasiteDoDamage(self, damage, target, point, direction, surface, altMode, showtracer) end
+
+	if target and target:isa("Player") then
+		local parent = self.GetParent and self:GetParent()
+		if GetAreEnemies(parent, target) then
+			self.hitEnemy = true
+			self.hitOnos = target:isa("Onos")
 		end
-		-- NS2PLUS MOD END
-
-		-- for tracer
-		local effectFrequency = self:GetTracerEffectFrequency()
-		local showTracer = (math.random() < effectFrequency)
-		self:DoDamage(0, nil, trace.endPoint + hitPointOffset, direction, trace.surface, false, showTracer)
-
-		if Client and showTracer then
-			TriggerFirstPersonTracer(self, trace.endPoint)
-		end
-
 	end
 end
-debug.replaceupvalue(Railgun.OnTag, "ExecuteShot", NewExecuteShot, true)
 
-local originalParasiteAttack, kRange, kParasiteSize
-originalParasiteAttack = Class_ReplaceMethod( "Parasite", "PerformPrimaryAttack",
-	function(self, player)
-		self.activity = Parasite.kActivity.Primary
-		self.primaryAttacking = true
-		local parent = self.GetParent and self:GetParent()
-		local success = false
+local oldParasitePerformPrimaryAttack = Parasite.PerformPrimaryAttack
+function Parasite:PerformPrimaryAttack(player)
+	oldParasitePerformPrimaryAttack(self, player)
 
-		if parent and not self.blocked then
-		
-			self.blocked = true
-			
-			success = true
-			
-			self:TriggerEffects("parasite_attack")
-			
-			-- Trace ahead to see if hit enemy player or structure
+	local steamId = player:GetSteamId()
+	if steamId then
+		AddAccuracyStat(steamId, self:GetTechId(), self.hitEnemy, self.hitOnos, self:GetTeamNumber())
+	end
 
-			local viewCoords = player:GetViewAngles():GetCoords()
-			local startPoint = player:GetEyePos()
-		
-			-- double trace; first as a ray to allow us to hit through narrow openings, then as a fat box if the first one misses
-			local trace = Shared.TraceRay(startPoint, startPoint + viewCoords.zAxis * kRange, CollisionRep.Damage, PhysicsMask.Bullets, EntityFilterOneAndIsa(player, "Babbler"))
-			if not trace.entity then
-				local extents = GetDirectedExtentsForDiameter(viewCoords.zAxis, kParasiteSize)
-				trace = Shared.TraceBox(extents, startPoint, startPoint + viewCoords.zAxis * kRange, CollisionRep.Damage, PhysicsMask.Bullets, EntityFilterOneAndIsa(player, "Babbler"))
-			end
-			
-			if trace.fraction < 1 then
-			
-				local hitObject = trace.entity
-				local direction = GetNormalizedVector(trace.endPoint - startPoint)
-				local impactPoint = trace.endPoint - direction * kHitEffectOffset
-				
-				if (hitObject and hitObject:isa("Player") and GetAreEnemies(parent, hitObject)) then
-					local steamId = GetSteamIdForClientIndex(parent:GetClientIndex())
-					if steamId then
-						AddAccuracyStat(steamId, self:GetTechId(), true, hitObject and hitObject:isa("Onos"), parent:GetTeamNumber())
-					end
-				end
-				
-				self:DoDamage(kParasiteDamage, hitObject, impactPoint, direction)
-				
-			end
-			
-			if not trace.entity then
-				local steamId = GetSteamIdForClientIndex(parent:GetClientIndex())
-				if steamId then
-					AddAccuracyStat(steamId, self:GetTechId(), false, nil, parent:GetTeamNumber())
-				end
-			end
-			
-		end
-		
-		return success
-	end)
-debug.joinupvalues(Parasite.PerformPrimaryAttack, originalParasiteAttack)
-	
-local kSpread, kSpikeSize
-local function NewFireSpikes(self)
+	self.hitEnemy = false
+	self.hitOnos = false
+end
 
+local oldSpikeMixinDoDamage = SpikesMixin.DoDamage
+function SpikesMixin:DoDamage(damage, target, point, direction, surface, altMode, showtracer)
+	if oldSpikeMixinDoDamage then oldSpikeMixinDoDamage(self, damage, target, point, direction, surface, altMode, showtracer) end
 
-	local player = self:GetParent()
-	local viewAngles = player:GetViewAngles()
-	viewAngles.roll = NetworkRandom() * math.pi * 2
-	local shootCoords = viewAngles:GetCoords()
+	if self.primaryAttacking then return end
 
-	-- Filter ourself out of the trace so that we don't hit ourselves.
-	local filter = EntityFilterOneAndIsa(player, "Babbler")
-	local range = kSpikesRange
+	local parent = self:GetParent()
+	local steamId = parent and parent.GetSteamId and parent:GetSteamId()
+	if not steamId then return end
 
-	local numSpikes = kSpikesPerShot
-	local startPoint = player:GetEyePos()
-
-	local viewCoords = player:GetViewCoords()
-
-	self.spiked = true
-	self.silenced = GetHasSilenceUpgrade(player) and player:GetVeilLevel() > 0
-
-	for spike = 1, numSpikes do
-
-		-- Calculate spread for each shot, in case they differ
-		local spreadDirection = CalculateSpread(viewCoords, kSpread, NetworkRandom)
-
-		local endPoint = startPoint + spreadDirection * range
-		startPoint = player:GetEyePos()
-
-		local trace = Shared.TraceRay(startPoint, endPoint, CollisionRep.Damage, PhysicsMask.Bullets, filter)
-		if not trace.entity then
-			local extents = GetDirectedExtentsForDiameter(spreadDirection, kSpikeSize)
-			trace = Shared.TraceBox(extents, startPoint, endPoint, CollisionRep.Damage, PhysicsMask.Bullets, filter)
-		end
-
-		local distToTarget = (trace.endPoint - startPoint):GetLength()
-
-		if trace.fraction < 1 then
-
-			-- Have damage increase to reward close combat
-			local damageDistScalar = Clamp(1 - (distToTarget / kSpikeMinDamageRange), 0, 1)
-			local damage = kSpikeMinDamage + damageDistScalar * (kSpikeMaxDamage - kSpikeMinDamage)
-			local direction = (trace.endPoint - startPoint):GetUnit()
-
-			if (trace.entity and trace.entity:isa("Player") and GetAreEnemies(self:GetParent(), trace.entity)) then
-				local steamId = GetSteamIdForClientIndex(self:GetParent():GetClientIndex())
-				if steamId then
-					AddAccuracyStat(steamId, self:GetSecondaryTechId(), true, trace.entity and trace.entity:isa("Onos"), self:GetParent():GetTeamNumber())
-				end
-			end
-
-			self:DoDamage(damage, trace.entity, trace.endPoint - direction * kHitEffectOffset, direction, trace.surface, true, math.random() < 0.75)
-
-		end
-
-		if not trace.entity then
-			local steamId = GetSteamIdForClientIndex(self:GetParent():GetClientIndex())
-			if steamId then
-				AddAccuracyStat(steamId, self:GetSecondaryTechId(), false, nil, self:GetParent():GetTeamNumber())
-			end
-		end
-
+	if target and GetAreEnemies(parent, target) then
+		AddAccuracyStat(steamId, self:GetSecondaryTechId(), true, target:isa("Onos"), parent:GetTeamNumber())
+	else
+		AddAccuracyStat(steamId, self:GetSecondaryTechId(), false, false, parent:GetTeamNumber())
 	end
 end
-debug.replaceupvalue(SpikesMixin.OnTag, "FireSpikes", NewFireSpikes, true)
 
-local originalSpitProcessHit
-originalSpitProcessHit = Class_ReplaceMethod( "Spit", "ProcessHit",
-	function(self, targetHit, surface, normal, hitPoint)
+local oldSpitDoDamage = Spit.DoDamage
+function Spit:DoDamage(damage, target, point, direction, surface, altMode, showtracer)
+	if oldSpitDoDamage then oldSpitDoDamage(self, damage,target, point, direction, surface, altMode, showtracer) end
 
-		local player = self:GetOwner()
-		if player then
-			if player == targetHit then
-				targetHit = nil
-				local eyePos = player:GetEyePos()        
-				local viewCoords = player:GetViewCoords()
-				local trace = Shared.TraceRay(eyePos, eyePos + viewCoords.zAxis * 1.5, CollisionRep.Damage, PhysicsMask.Bullets, EntityFilterOneAndIsa(player, "Babbler"))
-				if trace.fraction ~= 1 then
-					targetHit = trace.entity
-				end
-			end
-			
-			if (targetHit and targetHit:isa("Player") and GetAreEnemies(player, targetHit)) or targetHit == nil then
-				local steamId = GetSteamIdForClientIndex(player:GetClientIndex())
-				if steamId then
-					AddAccuracyStat(steamId, self:GetWeaponTechId(), targetHit ~= nil, targetHit and targetHit:isa("Onos"), player:GetTeamNumber())
-				end
-			end
+	if target then
+		local parent = self:GetOwner()
+		if target:isa("Player") and parent and GetAreEnemies(parent, target) then
+			self.hitEnemy = true
+			self.hitOnos = target:isa("Onos")
 		end
-		-- An actual attack I can hook semi-properly :_)
-		originalSpitProcessHit(self, targetHit, surface, normal, hitPoint)
+	end
+end
 
-	end)
-
-local originalSpitTimeUp
-originalSpitTimeUp = Class_ReplaceMethod( "Spit", "TimeUp",
+local originalSpitOnDestroy
+originalSpitOnDestroy = Class_ReplaceMethod( "Spit", "OnDestroy",
 	function(self)
 		local player = self:GetOwner()
-		if player then
-			local steamId = GetSteamIdForClientIndex(player:GetClientIndex())
-			if steamId then
-				AddAccuracyStat(steamId, self:GetWeaponTechId(), false, false, player:GetTeamNumber())
-			end
+		local steamId = player and player:GetSteamId()
+		if steamId then
+			AddAccuracyStat(steamId, self:GetWeaponTechId(), self.hitEnemy, self.hitOnos, player:GetTeamNumber())
 		end
-	
-		originalSpitTimeUp(self)
+
+		originalSpitOnDestroy(self)
 	end)
 	
 -- Initialize the arrays

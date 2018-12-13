@@ -59,7 +59,6 @@ function Commander:OnDestroy()
 	end
 end
 
---Todo: Clean this mess of a local function
 local tooltipText
 local function displayTimeTooltip(tech)
 	local mouseX, mouseY = Client.GetCursorPosScreen()

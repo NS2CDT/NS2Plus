@@ -17,7 +17,7 @@ function CHUDWrapTextIntoTable( str, limit, indent, indent1 )
 	
 	local here = 1 - #indent1
 	str = indent1..str:gsub( "(%s+)()(%S+)()",
-		function( sp, st, word, fi )
+		function( _, st, word, fi )
 			if fi-here > limit then
 				here = st - #indent
 				--Print(indent..word)
@@ -324,9 +324,6 @@ if Client then
 		local sensitivity = ConditionalValue(isMarine, CHUDGetOption("sensitivity_m"), CHUDGetOption("sensitivity_a"))
 		local fov = ConditionalValue(isMarine, CHUDGetOption("fov_m"), CHUDGetOption("fov_a"))
 		
-		local sensitivity_perteam = CHUDGetOption("sensitivity_perteam")
-		local fov_perteam = CHUDGetOption("fov_perteam")
-		
 		-- Aliens with per-lifeform sens will have it set separately.
 		if CHUDGetOption("sensitivity_perteam") and
 			(isMarine or not CHUDGetOption("sensitivity_perlifeform")) then
@@ -383,7 +380,7 @@ if Client then
 	end
 end
 
--- Todo: Add this to vanilla DebugUltility.lua and Class.lua
+-- Todo: Remove after build 326
 function Class_AddMethod( className, methodName, method )
 	assert( _G[className][methodName] == nil or _G[className][methodName] == method, "Attempting to add new method when class already has one -- use Class_ReplaceMethod instead" )
 

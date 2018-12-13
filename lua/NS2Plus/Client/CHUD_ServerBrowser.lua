@@ -24,7 +24,6 @@ local kBlue = Color(0, 168/255 ,255/255)
 local kGreen = Color(0, 208/255, 103/255)
 local kYellow = kGreen --Color(1, 1, 0) --used for reserved full
 local kGold = kBlue --Color(212/255, 175/255, 55/255) --used for ranked
-local kRed = kBlue --Color(1, 0 ,0) --used for full
 local originalSetServerData = ServerEntry.SetServerData
 function ServerEntry:SetServerData(serverData)
 	originalSetServerData(self, serverData)
@@ -87,10 +86,5 @@ function ServerEntry:Initialize()
 			self.mapName.toolTipActive = false
 			self.tooltip:Hide()
 		end
-	end)
-
-	-- Todo: Add to vanilla
-	table.insert(self.mouseOutCallbacks, function(self)
-		self.tooltip:Hide()
 	end)
 end

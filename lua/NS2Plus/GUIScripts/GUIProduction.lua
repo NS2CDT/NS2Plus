@@ -1,3 +1,5 @@
+-- Todo: Merge this into vanilla ns2
+
 local tooltipText
 local function displayNameTooltip(tech)
 	local mouseX, mouseY = Client.GetCursorPosScreen()
@@ -66,5 +68,3 @@ function GUISpectator:Update(deltaTime)
 		self.tooltip:Hide()
 	end
 end
-
--- Todo: Refactor all Commander class modifications into one lua file

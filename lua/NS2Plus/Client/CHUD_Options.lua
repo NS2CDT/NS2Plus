@@ -1125,7 +1125,7 @@ CHUDOptions =
 				valueType = "bool",
 				applyFunction = function()
 					local minimapScript = ClientUI.GetScript("GUIMinimapFrame")
-					local playerIconColor = nil
+					local playerIconColor
 					if CHUDGetOption("minimaparrowcolorcustom") then
 						playerIconColor = ColorIntToColor(CHUDGetOption("minimaparrowcolor"))
 					end
@@ -1146,7 +1146,7 @@ CHUDOptions =
 				category = "minimap",
 				applyFunction = function()
 					local minimapScript = ClientUI.GetScript("GUIMinimapFrame")
-					local playerIconColor = nil
+					local playerIconColor
 					if CHUDGetOption("minimaparrowcolorcustom") then
 						playerIconColor = ColorIntToColor(CHUDGetOption("minimaparrowcolor"))
 					end
@@ -1628,7 +1628,8 @@ CHUDOptions =
 				label = "Alien ability select method",
 				tooltip = "Lets you choose the way you select/activate alien abilities",
 				type = "select",
-				values  = { "Default", "Use weapon slots"}, --Todo: Add Keybound and both modes
+				-- Weapon slot mode is a hack and doesn't work really great due preict and client logic conflicting with each other.
+				values  = { "Default", "Use weapon slots"},
 				defaultValue = 0,
 				category = "misc",
 				valueType = "int",

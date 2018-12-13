@@ -12,7 +12,7 @@ function MainMenu_Open()
 			Script.Load("lua/NS2Plus/Client/CHUD_Options.lua")
 			Script.Load("lua/NS2Plus/Client/CHUD_ServerBrowser.lua")
 			Script.Load("lua/NS2Plus/Client/CHUD_Hitsounds.lua")
-			
+
 			GetCHUDSettings()
 			io.close(check)
 			Shared.Message("NS2+ Main Menu mods loaded. Build " .. kCHUDVersion .. ".")
