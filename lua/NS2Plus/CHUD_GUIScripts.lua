@@ -23,7 +23,7 @@ ModLoader.SetupFileHook("lua/GUIScoreboard.lua", "lua/NS2Plus/GUIScripts/GUIScor
 ModLoader.SetupFileHook("lua/GUINotifications.lua", "lua/NS2Plus/GUIScripts/GUINotifications.lua", "post")
 ModLoader.SetupFileHook("lua/GUIDeathMessages.lua", "lua/NS2Plus/GUIScripts/GUIDeathMessages.lua", "post")
 ModLoader.SetupFileHook("lua/GUICrosshair.lua", "lua/NS2Plus/GUIScripts/GUICrosshair.lua", "post")
-ModLoader.SetupFileHook("lua/Commander_Alerts.lua", "lua/NS2Plus/GUIScripts/Commander_Alerts.lua", "post")
+ModLoader.SetupFileHook("lua/GUICommanderAlerts.lua", "lua/NS2Plus/GUIScripts/GUICommanderAlerts.lua", "post")
 
 if Shared.GetBuildNumber() < 326 then
 	ModLoader.SetupFileHook("lua/menu/GUIHoverTooltip.lua", "lua/NS2Plus/GUIScripts/GUIHoverTooltip.lua", "post")
