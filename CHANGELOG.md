@@ -1,5 +1,9 @@
 Changelog
 ============
+- 20/12/2018
+    - Fixed compatibility issues with ns2 build 326
+    - Optimized server stats code
+    
 - 12/11/2018
     - Fixed that the separate team color option for the cr4zy alien vision didn't work anymore (Thanks to Handschuh)
     - Fixed that the low lights for ns2_descent were too dark in many areas (Thanks Zavaro)
