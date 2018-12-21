@@ -1362,7 +1362,7 @@ end
 
 local oldParasitePerformPrimaryAttack = Parasite.PerformPrimaryAttack
 function Parasite:PerformPrimaryAttack(player)
-	oldParasitePerformPrimaryAttack(self, player)
+	local success = oldParasitePerformPrimaryAttack(self, player)
 
 	local steamId = player:GetSteamId()
 	if steamId then
@@ -1371,6 +1371,8 @@ function Parasite:PerformPrimaryAttack(player)
 
 	self.hitEnemy = false
 	self.hitOnos = false
+	
+	return success
 end
 
 local oldSpikeMixinDoDamage = SpikesMixin.DoDamage
