@@ -7,6 +7,10 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 Latest changes
 ==============
 
+- 20/12/2018
+    - Fixed compatibility issues with ns2 build 326
+    - Optimized server stats code
+    
 - 12/11/2018
     - Fixed that the separate team color option for the cr4zy alien vision didn't work anymore (Thanks to Handschuh)
     - Fixed that the low lights for ns2_descent were too dark in many areas (Thanks Zavaro)
@@ -16,15 +20,6 @@ Latest changes
     - Refactored the map particles option code. The option now takes effect immediably.
     - Optimized the usage of certain event hooks to avoid causing engine crashes.
     - Fixed and optimized the low lights for ns2_descent (Thanks Zavaro)
-    
-- 5/9/2018
-    - Fixed script error introduce by Skill Tier tooltips
-
-- 13/7/2018
-    - Fixed that the used team victory probability formula was incorrect. (Thanks Las)
-    - Fixed that the team victory probability was displayed even if one team doesn't have any players yet.
-    - Fixed that the observatory scoreboard link wasn’t using https. (Thanks Morrolan)
-    - Reset the hive skill related server options. Server operators can re-enable them via sv_plus.
 
 Server settings
 ===============
