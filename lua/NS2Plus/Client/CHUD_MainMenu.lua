@@ -77,6 +77,33 @@ local function CHUDResortForm()
 	end
 end
 
+-- Show or hide an option's children (and their children...) as appropriate
+local function PropagateVisibility(CHUDOption)
+	if CHUDOption.children then
+		local show = true
+		for _, value in pairs(CHUDOption.hideValues) do
+			if CHUDOption.currentValue == value then
+				show = false
+			end
+		end
+
+		local CHUDMenuOption = mainMenu.CHUDOptionElements[CHUDOption["name"]]
+
+		-- Hide children options if the parent is also hidden
+		if CHUDMenuOption:GetIsVisible() == false then
+			show = false
+		end
+
+		for _, option in pairs(CHUDOption.children) do
+			local optionName = CHUDGetOptionParam(option, "name")
+			if optionName then
+				CHUDSetOptionVisible(mainMenu.CHUDOptionElements[optionName], show)
+				PropagateVisibility(CHUDOptions[option])
+			end
+		end
+	end
+end
+
 local function CHUDSaveMenuSetting(name)
 	if mainMenu ~= nil and mainMenu.CHUDOptionElements ~= nil then
 		local CHUDMenuOption = mainMenu.CHUDOptionElements[name]
@@ -104,35 +131,23 @@ local function CHUDSaveMenuSetting(name)
 			
 			CHUDMenuOption.resetOption:SetIsVisible(CHUDMenuOption:GetIsVisible() and CHUDOption.defaultValue ~= CHUDOption.currentValue)
 
-			-- Show or hide an option's children (and their children...) as appropriate
-			local function PropagateVisibility(CHUDOption)
-				if CHUDOption.children then
-					local show = true
-					for _, value in pairs(CHUDOption.hideValues) do
-						if CHUDOption.currentValue == value then
-							show = false
-						end
-					end
-					
-					local CHUDMenuOption = mainMenu.CHUDOptionElements[CHUDOption["name"]]
-
-					-- Hide children options if the parent is also hidden
-					if CHUDMenuOption:GetIsVisible() == false then
-						show = false
-					end
-
-					for _, option in pairs(CHUDOption.children) do
-						local optionName = CHUDGetOptionParam(option, "name")
-						if optionName then
-							CHUDSetOptionVisible(mainMenu.CHUDOptionElements[optionName], show)
-							PropagateVisibility(CHUDOptions[option])
-						end
-					end
-				end
-			end
-
 			PropagateVisibility(CHUDOption)
 			CHUDResortForm()
+		end
+	end
+end
+
+--apply additional indents to deeper child options
+local function PropagateIndent(CHUDOption)
+	if CHUDOption.children then
+		for _, option in pairs(CHUDOption.children) do
+			local optionName = CHUDGetOptionParam(option, "name")
+			if optionName then
+				local indentOption = mainMenu.CHUDOptionElements[optionName]
+				local getIndent = indentOption.label.background:GetPosition()
+				indentOption.label:SetLeftOffset(getIndent.x + 20)
+				PropagateIndent(CHUDOptions[option])
+			end
 		end
 	end
 end
@@ -142,20 +157,6 @@ local function CHUDIndentChildren(name)
         local CHUDMenuOption = mainMenu.CHUDOptionElements[name]
         local index = CHUDMenuOption.index
         local CHUDOption = CHUDOptions[index]
-        --apply additional indents to deeper child options
-        local function PropagateIndent(CHUDOption)
-            if CHUDOption.children then
-                for _, option in pairs(CHUDOption.children) do
-                    local optionName = CHUDGetOptionParam(option, "name")
-                    if optionName then
-                        local indentOption = mainMenu.CHUDOptionElements[optionName]
-                        local getIndent = indentOption.label.background:GetPosition()
-                        indentOption.label:SetLeftOffset(getIndent.x + 20)
-                        PropagateIndent(CHUDOptions[option])
-                    end
-                end
-            end
-        end
         PropagateIndent(CHUDOption)
     end
 end
@@ -296,7 +297,7 @@ function GUIMainMenu:CreateCHUDOptionWindow()
 	back:AddEventCallbacks( { OnClick = function() self.CHUDOptionWindow:SetIsVisible(false) end } )
 	
 	local resetCallbacks = { 
-		OnMouseOver = function(self)
+		OnMouseOver = function(_)
 			if mainMenu ~= nil then
 				mainMenu.optionTooltip:SetText("WARNING: This will reset all the NS2+ options to default values.")
 				mainMenu.optionTooltip:Show()
@@ -305,13 +306,13 @@ function GUIMainMenu:CreateCHUDOptionWindow()
 			end
 		end,
 		
-		OnMouseOut = function(self)
+		OnMouseOut = function(_)
 			if mainMenu ~= nil then
 				mainMenu.optionTooltip:Hide()
 			end
 		end,
 		
-		OnClick = function(self)
+		OnClick = function(_)
 			ResetAllCHUDSettings()
 		end,
 		}
@@ -444,7 +445,7 @@ GUIMainMenu.CreateCHUDOptionsForm = function(mainMenu, content, options, optionE
 		resetOption:SetTopOffset(y)
 		
 		local tooltipCallbacks = { 
-			OnMouseOver = function(self)
+			OnMouseOver = function(_)
 				if mainMenu ~= nil then
 					local defaultValue = option.defaultValue
 					if option.valueType == "float" then
@@ -468,13 +469,13 @@ GUIMainMenu.CreateCHUDOptionsForm = function(mainMenu, content, options, optionE
 				end
 			end,
 			
-			OnMouseOut = function(self)
+			OnMouseOut = function(_)
 				if mainMenu ~= nil then
 					mainMenu.optionTooltip:Hide()
 				end
 			end,
 			
-			OnClick = function(self)
+			OnClick = function(_)
 				ResetMenuOption(option)
 			end,
 			}
@@ -525,7 +526,7 @@ GUIMainMenu.CreateCHUDOptionsForm = function(mainMenu, content, options, optionE
 			input_display:SetValue(ToString( input:GetValue() ))
 			input_display:AddEventCallbacks({ 
 				
-			OnEnter = function(self)
+			OnEnter = function(_)
 				if input_display:GetValue() ~= "" and input_display:GetValue() ~= "." then
 					input:SetValue(Round(((input_display:GetValue() / multiplier) - minValue) / (maxValue - minValue),4))
 				end
@@ -535,7 +536,7 @@ GUIMainMenu.CreateCHUDOptionsForm = function(mainMenu, content, options, optionE
 				end
 			
 			end,
-			OnBlur = function(self)
+			OnBlur = function(_)
 				if input_display:GetValue() ~= "" and input_display:GetValue() ~= "." then
 					input:SetValue(Round(((input_display:GetValue() / multiplier) - minValue) / (maxValue - minValue),4))
 				end
@@ -548,7 +549,7 @@ GUIMainMenu.CreateCHUDOptionsForm = function(mainMenu, content, options, optionE
 			})
 			input:Register(
 				{OnSlide =
-					function(value, interest)
+					function(_, _)
 						CHUDSliderCallback(option.name)
 						local value = (input:GetValue() * (maxValue - minValue) + minValue) * multiplier
 						input_display:SetValue(ToString(string.sub(Round(value,2), 0, ConditionalValue(value > 100, 5, 4))))
@@ -601,8 +602,8 @@ GUIMainMenu.CreateCHUDOptionsForm = function(mainMenu, content, options, optionE
 		label:SetTopOffset(y)
 		label:SetIgnoreEvents(false)
 		
-		local tooltipCallbacks = { 
-			OnMouseOver = function(self)
+		tooltipCallbacks = {
+			OnMouseOver = function(_)
 				if mainMenu ~= nil then
 					local text = option.tooltip
 					local texture = option.helpImage
@@ -621,7 +622,7 @@ GUIMainMenu.CreateCHUDOptionsForm = function(mainMenu, content, options, optionE
 				end    
 			end,
 			
-			OnMouseOut = function(self)
+			OnMouseOut = function(_)
 				if mainMenu ~= nil then
 					mainMenu.optionTooltip:Hide()
 				end

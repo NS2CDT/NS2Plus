@@ -25,7 +25,7 @@ function GUIInsight_PlayerHealthbars:UpdatePlayers(deltaTime)
 
 	local players = Shared.GetEntitiesWithClassname("Player")
 
-	for index, player in ientitylist(players) do
+	for _, player in ientitylist(players) do
 
 		local playerIndex = player:GetId()
 		local relevant = player:GetIsVisible() and player:GetIsAlive() and not player:isa("Commander") and not player:isa("Spectator") and not player:isa("ReadyRoomPlayer")

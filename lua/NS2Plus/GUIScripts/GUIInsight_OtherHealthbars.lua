@@ -39,7 +39,7 @@ function GUIInsight_OtherHealthbars:Update(deltaTime)
 	end
 
 	-- Weapon expire times
-	for index, other in ientitylist(Shared.GetEntitiesWithClassname("Weapon")) do
+	for _, other in ientitylist(Shared.GetEntitiesWithClassname("Weapon")) do
 		local otherIndex = other:GetId()
 		local expireFraction = other.GetExpireTimeFraction and other:GetExpireTimeFraction() or 0
 		local relevant = self.isVisible and expireFraction > 0
@@ -69,7 +69,7 @@ function GUIInsight_OtherHealthbars:Update(deltaTime)
 			local kHealthbarOffset = Vector(-backgroundSize/2, -self.kOtherHealthBarSize.y/2 - GUIScale(8), 0)
 
 			-- Calculate Health Bar Screen position
-			local min, max = other:GetModelExtents()
+			local _, max = other:GetModelExtents()
 			local nameTagWorldPosition = other:GetOrigin() + Vector(0, max.y, 0)
 			local nameTagInScreenspace = Client.WorldToScreen(nameTagWorldPosition) + kHealthbarOffset
 

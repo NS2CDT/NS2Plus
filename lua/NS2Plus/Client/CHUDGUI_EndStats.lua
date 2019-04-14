@@ -56,8 +56,6 @@ local kMarineStatsColor = Color(0, 0.75, 0.88, 0.65)
 local kAlienStatsColor = Color(0.84, 0.48, 0.17, 0.65)
 local kCommanderStatsColor = Color(0.75, 0.75, 0, 0.65)
 local kStatusStatsColor = Color(1, 1, 1, 0.65)
-local kStatsHeaderBgColor = Color(0, 0, 0, 0.9)
-local kStatsHeaderTextColor = Color(1, 1, 1, 1)
 local kPlayerStatsTextColor = Color(1, 1, 1, 1)
 local kMarinePlayerStatsEvenColor = Color(0, 0, 0, 0.75)
 local kMarinePlayerStatsOddColor = Color(0, 0, 0, 0.65)
@@ -104,7 +102,7 @@ local miscDataTable = {}
 local cardsTable = {}
 local hiveSkillGraphTable = {}
 local rtGraphTable = {}
-local commanderStats = nil
+local commanderStats
 local killGraphTable = {}
 local buildingSummaryTable = {}
 local statusSummaryTable = {}
@@ -116,8 +114,8 @@ local kMaxAppendTime = 2.5
 local loadedLastRound = false
 local lastRoundFile = "config://NS2Plus/LastRoundStats.json"
 
-local highlightedField = nil
-local highlightedFieldMarine = nil
+local highlightedField
+local highlightedFieldMarine
 local lastSortedT1 = "kills"
 local lastSortedT1WasInv = false
 local lastSortedT2 = "kills"
@@ -166,7 +164,7 @@ local function estimateHiveSkillGraph()
 	end
 end
 
-local function UpdateSizeOfUI(self)
+local function UpdateSizeOfUI()
 	screenWidth = Client.GetScreenWidth()
 	screenHeight = Client.GetScreenHeight()
 	aspectRatio = screenWidth/screenHeight
@@ -406,7 +404,6 @@ local function CreateScoreboardRow(container, bgColor, textColor, playerName, ki
 	
 	local kItemSize = GUILinearScale(50)
 	local xOffset = kRowSize.x
-	local kItemPaddingLarge = GUILinearScale(60)
 	local kItemPaddingMediumLarge = GUILinearScale(50)
 	local kItemPaddingMedium = GUILinearScale(40)
 	local kItemPaddingSmallMedium = GUILinearScale(30)
@@ -1678,7 +1675,7 @@ end
 
 local function HandleSlidebarClicked(self)
 
-	local mouseX, mouseY = Client.GetCursorPosScreen()
+	local _, mouseY = Client.GetCursorPosScreen()
 	if self.sliderBarBg:GetIsVisible() and self.isDragging then
 		local topPos = self.sliderBarBg:GetScreenPosition(screenWidth, screenHeight).y
 		local bottomPos = topPos + kContentMaxYSize
@@ -2114,8 +2111,6 @@ function CHUDGUI_EndStats:ProcessStats()
 	local minutes1Avg = math.floor(totalTimeBuilding1)
 	local seconds1Avg = (totalTimeBuilding1 % 1)*60
 
-	local minutesP1 = math.floor(totalTimePlaying1)
-	local secondsP1 = (totalTimePlaying1 % 1)*60
 	totalTimePlaying1 = totalTimePlaying1/numPlayers1
 	local minutes1PAvg = math.floor(totalTimePlaying1)
 	local seconds1PAvg = (totalTimePlaying1 % 1)*60
@@ -2126,8 +2121,6 @@ function CHUDGUI_EndStats:ProcessStats()
 	local minutes2Avg = math.floor(totalTimeBuilding2)
 	local seconds2Avg = (totalTimeBuilding2 % 1)*60
 
-	local minutesP2 = math.floor(totalTimePlaying2)
-	local secondsP2 = (totalTimePlaying2 % 1)*60
 	totalTimePlaying2 = totalTimePlaying2/numPlayers2
 	local minutes2PAvg = math.floor(totalTimePlaying2)
 	local seconds2PAvg = (totalTimePlaying2 % 1)*60
@@ -2169,9 +2162,10 @@ function CHUDGUI_EndStats:ProcessStats()
 		statCard.teamNumber = -2
 
 		local totalTime = 0
-		for index, row in ipairs(statusSummaryTable) do
+		for _, row in ipairs(statusSummaryTable) do
 			totalTime = totalTime + row.timeMinutes
 		end
+
 		for index, row in ipairs(statusSummaryTable) do
 			bgColor = ConditionalValue(index % 2 == 0, kMarinePlayerStatsEvenColor, kMarinePlayerStatsOddColor)
 			local minutes = math.floor(row.timeMinutes)
@@ -2719,22 +2713,22 @@ local function CHUDSetCommStats(message)
 			row.value = printNum(message.medpackAccuracy) .. "%"
 			table.insert(cardEntry.rows, row)
 			
-			local row = {}
+			row = {}
 			row.title = "Amount healed"
 			row.value = printNum(message.medpackRefill)
 			table.insert(cardEntry.rows, row)
 			
-			local row = {}
+			row = {}
 			row.title = "Res spent on used medpacks"
 			row.value = printNum(message.medpackResUsed)
 			table.insert(cardEntry.rows, row)
 			
-			local row = {}
+			row = {}
 			row.title = "Res spent on expired medpacks"
 			row.value = printNum(message.medpackResExpired)
 			table.insert(cardEntry.rows, row)
 			
-			local row = {}
+			row = {}
 			row.title = "Efficiency (used vs expired)"
 			row.value = printNum(message.medpackEfficiency) .. "%"
 			table.insert(cardEntry.rows, row)
@@ -2760,17 +2754,17 @@ local function CHUDSetCommStats(message)
 			row.value = printNum(message.ammopackRefill)
 			table.insert(cardEntry.rows, row)
 			
-			local row = {}
+			row = {}
 			row.title = "Res spent on used ammopacks"
 			row.value = printNum(message.ammopackResUsed)
 			table.insert(cardEntry.rows, row)
 			
-			local row = {}
+			row = {}
 			row.title = "Res spent on expired ammopacks"
 			row.value = printNum(message.ammopackResExpired)
 			table.insert(cardEntry.rows, row)
 			
-			local row = {}
+			row = {}
 			row.title = "Efficiency (used vs expired)"
 			row.value = printNum(message.ammopackEfficiency) .. "%"
 			table.insert(cardEntry.rows, row)
@@ -2796,12 +2790,12 @@ local function CHUDSetCommStats(message)
 			row.value = printNum(message.catpackResUsed)
 			table.insert(cardEntry.rows, row)
 			
-			local row = {}
+			row = {}
 			row.title = "Res spent on expired catpacks"
 			row.value = printNum(message.catpackResExpired)
 			table.insert(cardEntry.rows, row)
 			
-			local row = {}
+			row = {}
 			row.title = "Efficiency (used vs expired)"
 			row.value = printNum(message.catpackEfficiency) .. "%"
 			table.insert(cardEntry.rows, row)

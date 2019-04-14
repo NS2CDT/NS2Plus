@@ -6,7 +6,7 @@ CHUDStatsVisible = false
 
 local gStatsUI
 
-local statsTable = nil
+local statsTable
 
 -- To avoid printing 200.00 or things like that
 local function printNum(number)
@@ -51,7 +51,7 @@ function CHUDGUI_DeathStats:UpdateSizeOfUI()
 	kTextShadowOffset = GUILinearScale(2)
 end
 
-function CHUDGUI_DeathStats:OnResolutionChanged(oldX, oldY, newX, newY)
+function CHUDGUI_DeathStats:OnResolutionChanged(_, _, _, _)
 	self:Uninitialize()
 	self:Initialize()
 end
@@ -328,7 +328,7 @@ originalAlienSpecUpdate = Class_ReplaceMethod( "GUIAlienSpectatorHUD", "Update",
 		
 local originalBalanceUpdate
 originalBalanceUpdate = Class_ReplaceMethod( "GUIWaitingForAutoTeamBalance", "Update",
-	function(self, deltaTime)
+	function(self, _)
 		self.waitingText:SetIsVisible(PlayerUI_GetIsWaitingForTeamBalance() and not CHUDStatsVisible)
 	end)
 

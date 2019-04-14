@@ -111,7 +111,7 @@ function CHUDGUI_StaticLineGraph:Initialize()
     
 end
 
-function CHUDGUI_StaticLineGraph:OnResolutionChanged(oldX, oldY, newX, newY)
+function CHUDGUI_StaticLineGraph:OnResolutionChanged(_, _, _, _)
     kFontScale = GUILinearScale(Vector(1,1,0))
     xPadding = GUILinearScale(Vector(0,10,0))
     yPadding = GUILinearScale(Vector(-10,0,0))
@@ -156,7 +156,7 @@ function CHUDGUI_StaticLineGraph:StartLine(index, lineColor)
     self.colors[index] = lineColor
 
 end
-function CHUDGUI_StaticLineGraph:SetPoints(index, points, noRefresh, preserveBounds)
+function CHUDGUI_StaticLineGraph:SetPoints(index, points, _, _)
 
     self.lines[index] = points
 
@@ -196,13 +196,6 @@ local function adjustUpperBound(bound, spacing)
         return bound
     end
     return bound - r + spacing
-end
-local function adjustLowerBound(bound, spacing)
-    local r = bound%spacing
-    if r == 0 then
-        return bound
-    end
-    return bound - r - spacing
 end
 function CHUDGUI_StaticLineGraph:adjustBoundsToGridSpacing()
     self.max.y = adjustUpperBound(self.max.y, self.gridSpacing.y)
@@ -337,7 +330,7 @@ function CHUDGUI_StaticLineGraph:refreshGrid(ignoreX, ignoreY)
     
     if not ignoreX then    
         ClearLines(self.xGridLines)
-        for i = 1, #self.xActiveNames do
+        for _ = 1, #self.xActiveNames do
             self:freeNameItem(1, true)
         end
         for x = self.min.x, self.max.x, self.gridSpacing.x do
@@ -362,7 +355,7 @@ function CHUDGUI_StaticLineGraph:refreshGrid(ignoreX, ignoreY)
     
     if not ignoreY then    
         ClearLines(self.yGridLines)
-        for i = 1, #self.yActiveNames do
+        for _ = 1, #self.yActiveNames do
             self:freeNameItem(1, false)
         end
         for y = self.min.y, self.max.y, self.gridSpacing.y do

@@ -6,7 +6,7 @@ function GUIAlienBuyMenu:Initialize()
 		self.backgroundCircle:SetIsVisible(false)
 		self.glowieParticles:Uninitialize()
 		self.smokeParticles:Uninitialize()
-		for cornerName, cornerItem in pairs(self.corners) do
+		for _, cornerItem in pairs(self.corners) do
 			GUI.DestroyItem(cornerItem)
 		end
 		self.corners = { }

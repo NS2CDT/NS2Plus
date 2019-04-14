@@ -4,7 +4,6 @@ class 'CHUDGUI_ClassicAmmo' (GUIAnimatedScript)
 
 local kFontName = Fonts.kAgencyFB_Large_Bold
 local kAmmoColor = Color(163/255, 210/255, 220/255, 0.8)
-local kLowAmmoColor = Color(1, 0, 0, 1)
 
 function CHUDGUI_ClassicAmmo:Initialize()
 
@@ -38,7 +37,7 @@ function CHUDGUI_ClassicAmmo:Reset()
 	
 end
 
-function CHUDGUI_ClassicAmmo:OnResolutionChanged(oldX, oldY, newX, newY)
+function CHUDGUI_ClassicAmmo:OnResolutionChanged(_, _, _, _)
 
 	self:Uninitialize()
 	self:Initialize()
@@ -46,11 +45,11 @@ function CHUDGUI_ClassicAmmo:OnResolutionChanged(oldX, oldY, newX, newY)
 end
 
 local pulsateTime = 0
-local function Pulsate(script, item)
+local function Pulsate(_, item)
 
 	item:SetColor(Color(1, 0, 0, 0.35), pulsateTime, "CLASSIC_AMMO_PULSATE", AnimateLinear,
-		function(script, item)
-			item:SetColor(Color(1, 0, 0, 1), pulsateTime, "CLASSIC_AMMO_PULSATE", AnimateLinear, Pulsate)
+		function(_, this)
+			this:SetColor(Color(1, 0, 0, 1), pulsateTime, "CLASSIC_AMMO_PULSATE", AnimateLinear, Pulsate)
 		end)
 
 end

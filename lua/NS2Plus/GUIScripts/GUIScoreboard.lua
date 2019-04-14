@@ -23,11 +23,10 @@ function GUIScoreboard:UpdateTeam(updateTeam)
 	-- Recount the players so we can exclude bots
 	numPlayers = 0
 	local currentPlayerIndex = 1
-	for index, player in ipairs(playerList) do
+	for _, player in ipairs(playerList) do
 		local playerRecord = teamScores[currentPlayerIndex]
 		currentPlayerIndex = currentPlayerIndex + 1
-		local clientIndex = playerRecord.ClientIndex
-		
+
 		-- Swap KDA/KAD
 		if CHUDGetOption("kda") and player["Assists"]:GetPosition().x < player["Deaths"]:GetPosition().x then
 			local temp = player["Assists"]:GetPosition()
@@ -239,7 +238,6 @@ function GUIScoreboard:SendKeyEvent(key, down)
 
 		local found = 0
 		local added = false
-		local titleColor = Color(0, 0, 0, 0)
 		local teamColorBg = Color(0.5, 0.5, 0.5, 0.5)
 		local teamColorHighlight = Color(0.75, 0.75, 0.75, 0.75)
 		local textColor = Color(1, 1, 1, 1)

@@ -347,7 +347,7 @@ local function CacheCinematics(className, groupName, values)
 	end
 end
 
-function CreateCinematic(className, groupName, values)
+function CreateCinematic(className, _, values)
 	if className == "cinematic" then
 	
 		local cinematic = Client.CreateCinematic(RenderScene.Zone_Default)
@@ -380,8 +380,8 @@ end
 local originalSetCommanderPropState = SetCommanderPropState
 function SetCommanderPropState(isComm)
 	originalSetCommanderPropState(isComm)
-	if propCache ~= nil then
-		for index, propPair in ipairs(propCache) do
+	if propCache then
+		for _, propPair in ipairs(propCache) do
 			local prop = propPair[1]
 			if prop.commAlpha < 1 then
 				prop:SetIsVisible(not isComm)
@@ -435,15 +435,15 @@ originalOnUpdateRender = Class_ReplaceMethod("PropDynamic", "OnUpdateRender",
 		
 function SetCHUDCinematics()
 	if not CHUDGetOption("mapparticles") then
-		if cinematicsCache ~= nil then
-			for index, cinematic in ipairs(cinematicsCache) do
+		if cinematicsCache then
+			for _, cinematic in ipairs(cinematicsCache) do
 				Client.DestroyCinematic(cinematic)
 			end
 			cinematicsCache = { }
 			cinematicsRemoved = true
 		end
-		if propCache ~= nil then
-			for index, models in ipairs(propCache) do
+		if propCache then
+			for _, models in ipairs(propCache) do
 				Client.DestroyRenderModel(models[1])
 				Shared.DestroyCollisionObject(models[2])
 			end
@@ -452,13 +452,13 @@ function SetCHUDCinematics()
 		end
 	else
 		if cinematicsRemoved then
-			for i, cinematic in pairs(cinematicsValuesCache) do
+			for _, cinematic in pairs(cinematicsValuesCache) do
 				CreateCinematic(cinematic.className, cinematic.groupName, cinematic.values)
 			end
 			cinematicsRemoved = false
 		end
 		if propsRemoved then
-			for i, prop in pairs(propValuesCache) do
+			for _, prop in pairs(propValuesCache) do
 				LoadMapEntity(prop.className, prop.groupName, prop.values)
 			end
 			propsRemoved = false

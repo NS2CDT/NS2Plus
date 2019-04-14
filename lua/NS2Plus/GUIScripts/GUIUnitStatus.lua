@@ -27,9 +27,7 @@ function GUIUnitStatus:UpdateUnitStatusBlip(blipIndex, localPlayerIsCommander, b
 	end
 	
 	local isEnemy = (playerTeamType ~= blipData.TeamType) and (blipData.TeamType ~= kNeutralTeamType)
-	local isCrosshairTarget = blipData.IsCrossHairTarget
-	local player = Client.GetLocalPlayer()
-	
+
 	local hideBg = false
 	if nameplates == 1 then
 		showHints = false

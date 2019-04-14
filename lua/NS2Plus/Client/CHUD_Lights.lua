@@ -43,7 +43,6 @@ local function UpdateValuesForObject(object, loading)
 end
 
 local function LoadLightData(filename)
-	local LoadData
 	local filePath = "lights/" .. filename .. ".json"
 	local fileExists = GetFileExists(filePath)
 	if fileExists then
@@ -53,7 +52,6 @@ local function LoadLightData(filename)
 			file:close()
 		end
 	end
-	return LoadData
 end
 
 -- Save the low lights group to a json file
@@ -87,10 +85,10 @@ function CHUDLoadLights()
 	
 		if CHUDGetOption("nsllights") or #Client.lowLightList == 0 then
 			if #cachedNSLLights == 0 then
-				LoadData = LoadLightData(Shared.GetMapName())
+				LoadLightData(Shared.GetMapName())
 			
 				if LoadData then
-					for i, object in pairs(LoadData) do
+					for _, object in pairs(LoadData) do
 						object.values = UpdateValuesForObject(object.values, true)
 					end
 					

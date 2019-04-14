@@ -10,9 +10,7 @@ function CHUDGUI_HiddenViewmodel:Initialize()
 
 	iconSize = GUIScale(Vector(64, 64, 0))
 	exoHUDSize = GUIScale(Vector(160, 160, 0))
-	
-	local player = Client.GetLocalPlayer()
-	
+
 	self.fireIndicator = GUIManager:CreateGraphicItem()
 	self.fireIndicator:SetAnchor(GUIItem.Left, GUIItem.Bottom)
 	self.fireIndicator:SetLayer(kGUILayerPlayerHUD)
@@ -64,7 +62,7 @@ function CHUDGUI_HiddenViewmodel:Initialize()
 end
 
 local lastLeft, lastRight, lastChange
-function CHUDGUI_HiddenViewmodel:Update(deltaTime)
+function CHUDGUI_HiddenViewmodel:Update(_)
 	local alienHUDScript = ClientUI.GetScript("GUIAlienHUD")
 	local exoHUDScript = ClientUI.GetScript("Hud/Marine/GUIExoHUD")
 	local player = Client.GetLocalPlayer()
@@ -149,7 +147,7 @@ function CHUDGUI_HiddenViewmodel:Update(deltaTime)
 	end
 end
 
-function CHUDGUI_HiddenViewmodel:OnResolutionChanged(oldX, oldY, newX, newY)
+function CHUDGUI_HiddenViewmodel:OnResolutionChanged(_, _, _, _)
 	self:Uninitialize()
 	self:Initialize()
 end

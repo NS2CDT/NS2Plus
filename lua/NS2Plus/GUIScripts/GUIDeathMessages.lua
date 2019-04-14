@@ -11,7 +11,7 @@ local originalDeathMessagesUpdate = GUIDeathMessages.Update
 function GUIDeathMessages:Update(deltaTime)
 	originalDeathMessagesUpdate(self, deltaTime)
 
-	for i, message in ipairs(self.messages) do
+	for _, message in ipairs(self.messages) do
 
 			local currentColor = message["Background"]:GetColor()
 

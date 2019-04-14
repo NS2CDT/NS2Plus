@@ -75,13 +75,6 @@ function UpdateCHUDOutlines()
 	end
 end
 
-local function GetMaxDistanceFor(player)
-	if player:isa("AlienCommander") then
-		return 63
-	end
-	return 33
-end
-
 local oldHVUpdate = HiveVisionMixin.OnUpdate
 function HiveVisionMixin:OnUpdate(deltaTime)
 	oldHVUpdate(self, deltaTime)

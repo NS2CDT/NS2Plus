@@ -54,6 +54,7 @@ function GUIMarineHUD:CHUDRepositionGUI()
 	if CHUDGetOption("hudbars_m") == 2 then
 		anchor = GUIItem.Middle
 	end
+	-- Fixme
 	self.statusDisplay.parasiteState:SetAnchor(anchor, GUIItem.Center)
 	self.statusDisplay.scanLinesForeground:SetAnchor(anchor, GUIItem.Top)
 end
@@ -156,7 +157,7 @@ function GUIMarineHUD:ResetMinimap()
 end
 
 local originalSetHUDMap = GUIMarineHUD.SetHUDMapEnabled
-function GUIMarineHUD:SetHUDMapEnabled(enabled)
+function GUIMarineHUD:SetHUDMapEnabled()
 	local minimap = CHUDGetOption("minimap")
 	originalSetHUDMap(self, minimap)
 	self.locationText:SetIsVisible(minimap)
@@ -224,7 +225,6 @@ function GUIMarineHUD:Update(deltaTime)
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
 	local hpbar = CHUDGetOption("hpbar") and CHUDGetOption("hudbars_m") ~= 2
-	local inventoryMode = CHUDGetOption("inventory")
 	local welderUpgrade = CHUDGetOption("welderup")
 
 	-- Minimal HUD pls go home, you're drunk

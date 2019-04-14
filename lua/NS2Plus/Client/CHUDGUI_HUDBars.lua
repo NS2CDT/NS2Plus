@@ -39,7 +39,7 @@ function CHUDGUI_HUDBars:Initialize()
 	-- Only scale if crosshair is scaling up
 	crosshairScale = ConditionalValue(CHUDGetOption("crosshairscale") > 1, CHUDGetOption("crosshairscale"), 1)
 	
-	local kBottomBarBgTexture, kBottomBarHPTexture, kBottomBarAPTexture, kBottomBarRightTexture
+	local _, _, _, _
 	local isMarine = self.team == kTeam1Index
 	hudbars = isMarine and CHUDGetOption("hudbars_m") or CHUDGetOption("hudbars_a")
 	

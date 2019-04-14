@@ -1,4 +1,4 @@
-function UnitStatusMixin:GetCHUDBlipData(forEntity, hint)
+function UnitStatusMixin:GetCHUDBlipData(_, hint)
 	local nameplates = CHUDGetOption("nameplates") or 0
 	if nameplates == 0 then return hint end
 

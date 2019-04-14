@@ -61,8 +61,8 @@ function CHUDGetOptionVals(key)
 end
 
 function CHUDSetOption(key, value)
-	local setValue = nil
-	
+	local setValue
+
 	if CHUDOptions[key] ~= nil then
 	
 		option = CHUDOptions[key]
@@ -213,7 +213,6 @@ end
 
 -- Through scientific methods like taking a screenshot of the console and guessing sizes
 -- I have determined that each line takes 18 pixels
-local sizePerLine = 18
 local SortedOptions = { }
 
 local function CHUDPrintCommandsPage(page)
@@ -222,7 +221,7 @@ local function CHUDPrintCommandsPage(page)
 	page = page-1
 	-- Sort the options if they aren't sorted yet
 	if #SortedOptions == 0 then
-		for idx, option in pairs(CHUDOptions) do
+		for idx, _ in pairs(CHUDOptions) do
 			table.insert(SortedOptions, idx)
 			table.sort(SortedOptions)
 		end
@@ -367,7 +366,6 @@ local function OnCommandCHUD(...)
 					elseif option.valueType == "int" then
 						mainMenu.CHUDOptionElements[option.name]:SetOptionActive(setValue+1)
 					elseif option.valueType == "float" then
-						local multiplier = option.multiplier or 1
 						local minValue = option.minValue or 0
 						local maxValue = option.maxValue or 1
 						local value = (setValue - minValue) / (maxValue - minValue)

@@ -1,14 +1,13 @@
-local oldInventoryUpdate = GUIInventory.Update
+-- Ignore HUD mode and use our own option
 function GUIInventory:Update(_, parameters)
+	PROFILE("GUIInventory:Update")
+
 	local inventoryMode = CHUDGetOption("inventory")
 
 	if inventoryMode == 1 then
 		self:SetIsVisible(false)
 	else
-		-- Ignore HUD mode and use our own option
 		-- Start original update
-		PROFILE("GUIInventory:Update")
-
 		local activeWeaponTechId, inventoryTechIds = parameters[1], parameters[2]
 
 		if #self.inventoryIcons > #inventoryTechIds then
@@ -32,9 +31,9 @@ function GUIInventory:Update(_, parameters)
 
 		local numItems = #inventoryTechIds
 		self.background:SetPosition(Vector(
-			self.scale * -0.5 * (numItems*GUIInventory.kItemSize.x + (numItems-1)*GUIInventory.kItemPadding),
-			GUIInventory.kBackgroundYOffset,
-			0))
+				self.scale * -0.5 * (numItems*GUIInventory.kItemSize.x + (numItems-1)*GUIInventory.kItemPadding),
+				GUIInventory.kBackgroundYOffset,
+				0))
 
 		local alienStyle = PlayerUI_GetTeamType() == kAlienTeamType
 
@@ -89,10 +88,8 @@ function GUIInventory:Update(_, parameters)
 		end
 
 		if isMarine and (inventoryMode == 2 or inventoryMode == 4) then
-			local activeWeaponTechId, inventoryTechIds = unpack(parameters)
 			for index, inventoryItem in ipairs(inventoryTechIds) do
 				local weapon = player:GetWeaponInHUDSlot(inventoryItem.HUDSlot)
-				local text = ""
 				if weapon and self.inventoryIcons[index] then
 					local ammo = CHUDGetWeaponAmmoString(weapon)
 					local reserveAmmo = CHUDGetWeaponReserveAmmoString(weapon)
@@ -101,7 +98,7 @@ function GUIInventory:Update(_, parameters)
 
 					if self.inventoryIcons[index].reserveFraction ~= reserveFraction then
 						self.inventoryIcons[index].reserveFraction = reserveFraction
-						self.inventoryIcons[index].Graphic:Pause(2, "ANIM_INVENTORY_ITEM_PAUSE", AnimateLinear, function(script, item) item:FadeOut(0.5, "ANIM_INVENTORY_ITEM") end )
+						self.inventoryIcons[index].Graphic:Pause(2, "ANIM_INVENTORY_ITEM_PAUSE", AnimateLinear, function(_, item) item:FadeOut(0.5, "ANIM_INVENTORY_ITEM") end )
 					end
 
 					if reserveFraction ~= -1 then

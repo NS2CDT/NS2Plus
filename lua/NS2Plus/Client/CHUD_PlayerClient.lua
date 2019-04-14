@@ -40,10 +40,6 @@ function UpdateDSPEffects()
 	--end
 end
 
-local lastIngameNumPlayers = 0
-local totalNumPlayers = 0
-local nextUpdateTotalNumPlayers = 0
-
 local chatInterval = 15
 local lastChatCommand = -chatInterval
 
@@ -100,11 +96,11 @@ originalPlayerOnInit = Class_ReplaceMethod("Player", "OnInitialized",
 		message.overkill = CHUDGetOption("overkilldamagenumbers")
 		Client.SendNetworkMessage("SetCHUDOverkill", message)
 		
-		local message = { }
+		message = { }
 		message.serverblood = CHUDGetOption("serverblood")
 		Client.SendNetworkMessage("SetCHUDServerBlood", message)
 
-		local message = {
+		message = {
 			slotMode = CHUDGetOption("alien_weaponslots")
 		}
 		Client.SendNetworkMessage("SetCHUDAlienWeaponSlot", message)

@@ -34,7 +34,7 @@ function GUIAlienHUD:CHUDRepositionGUI()
 	biomass.background:SetPosition(kBioMassBackgroundPos)
 end
 
-function GUIAlienHUD:OnLocalPlayerChanged(newPlayer)
+function GUIAlienHUD:OnLocalPlayerChanged()
 	
 	if Client.GetIsControllingPlayer() then
 		Client.GetLocalPlayer():SetDarkVision(CHUDGetOption("avstate"))
@@ -197,7 +197,6 @@ local originalAlienUpdate = GUIAlienHUD.Update
 function GUIAlienHUD:Update(deltaTime)
 	originalAlienUpdate(self, deltaTime)
 
-	local mingui = not CHUDGetOption("mingui")
 	local rtcount = CHUDGetOption("rtcount")
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
@@ -288,7 +287,6 @@ function GUIAlienHUD:Uninitialize()
 end
 
 function updateAlienVision()
-    local player = Client.GetLocalPlayer()
     local useShader = Player.screenEffects.darkVision
     local av_close = ColorIntToColor(CHUDGetOption("av_closecolor"))
     local av_distant = ColorIntToColor(CHUDGetOption("av_distantcolor"))

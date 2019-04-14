@@ -1,5 +1,4 @@
-local isPlaying = false
-local globeModel, originalSKE, lastDown
+local globeModel
 
 local function GoldenMode()
 	if trollModes["goldenMode"] then

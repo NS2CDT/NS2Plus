@@ -11,8 +11,7 @@ local function CHUDDisplayModUpdateMessage()
 		SendCHUDMessage("Detected mod update. New players won't be able to join until map change.")
 	end
 	local modsStringList = "Mods updated:"
-	local i = 0
-	for index, value in pairs(updatedMods) do
+	for _, value in pairs(updatedMods) do
 		modsStringList = modsStringList .. " " .. value .. "."
 	end
 	SendCHUDMessage(modsStringList)

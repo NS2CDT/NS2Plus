@@ -106,7 +106,7 @@ local function CHUDSaveServerConfig()
 end
 
 function CHUDSetServerOption(key, value)
-	local setValue = nil
+	local setValue
 
 	if CHUDServerOptions[key] ~= nil then
 	
@@ -151,14 +151,14 @@ local function CHUDServerHelp(...)
 	if #args == 1 then
 		-- Show the options in alphabetical order
 		local SortedOptions = { }
-		for idx, option in pairs(CHUDServerOptions) do
+		for idx, _ in pairs(CHUDServerOptions) do
 			table.insert(SortedOptions, idx)
 			table.sort(SortedOptions)
 		end
 		CHUDServerAdminPrint(client, "-------------------------------------")
 		CHUDServerAdminPrint(client, "NS2+ Server Settings")
 		CHUDServerAdminPrint(client, "-------------------------------------")
-		for name, origOption in pairs(SortedOptions) do
+		for _, origOption in pairs(SortedOptions) do
 			local option = CHUDServerOptions[origOption]
 			local helpStr = "sv_plus " .. origOption
 			if option.valueType == "float" then
@@ -213,7 +213,6 @@ local function CHUDServerSetting(...)
 	elseif #args == 3 then
 		if CHUDServerOptions[args[2]] ~= nil then
 			option = CHUDServerOptions[args[2]]
-			local setValue = CHUDSetServerOption(args[2], args[3])
 		end
 		
 		if setValue ~= nil then
@@ -255,11 +254,11 @@ for index, option in pairs(CHUDServerOptions) do
 	
 	local _, pos = string.find(index, "allow_")
 	if pos and CHUDServerOptions[index].currentValue == false then
-		local option = string.sub(index, pos+1)
-		table.insert(CHUDClientOptions, option)
+		local optionName = string.sub(index, pos+1)
+		table.insert(CHUDClientOptions, optionName)
 		
 		-- Add server tags for disabled features
-		AddCHUDTagBitmask(CHUDTagBitmask[option])
+		AddCHUDTagBitmask(CHUDTagBitmask[optionName])
 	end
 end
 

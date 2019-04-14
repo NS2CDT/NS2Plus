@@ -26,7 +26,7 @@ function CHUDGUI_ComparisonBarGraph:toGameTimeString(timeInt)
     return string.format("%d:%02d", minutes, seconds)
 end
 
-function CHUDGUI_ComparisonBarGraph:OnResolutionChanged(oldX, oldY, newX, newY)
+function CHUDGUI_ComparisonBarGraph:OnResolutionChanged(_, _, _, _)
     kFontScale = GUILinearScale(Vector(1,1,0))
     textPadding = GUILinearScale(Vector(15,0,0))
 end
