@@ -54,8 +54,7 @@ function GUIMarineHUD:CHUDRepositionGUI()
 	if CHUDGetOption("hudbars_m") == 2 then
 		anchor = GUIItem.Middle
 	end
-	-- Fixme
-	self.statusDisplay.parasiteState:SetAnchor(anchor, GUIItem.Center)
+
 	self.statusDisplay.scanLinesForeground:SetAnchor(anchor, GUIItem.Top)
 end
 
