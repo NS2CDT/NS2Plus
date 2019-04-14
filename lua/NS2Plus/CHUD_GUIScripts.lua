@@ -40,6 +40,3 @@ ModLoader.SetupFileHook("lua/GUICommanderButtons.lua", "lua/NS2Plus/GUIScripts/G
 ModLoader.SetupFileHook("lua/GUIFeedback.lua", "lua/NS2Plus/GUIScripts/GUIFeedback.lua", "post")
 ModLoader.SetupFileHook("lua/GUIJetpackFuel.lua", "lua/NS2Plus/GUIScripts/GUIJetpackFuel.lua", "post")
 ModLoader.SetupFileHook("lua/GUIHiveStatus.lua", "lua/NS2Plus/GUIScripts/GUIHiveStatus.lua", "post")
-
--- I suppose these aren't really GUIScripts, but... they still draw stuff on screen? :D
-ModLoader.SetupFileHook("lua/Hud/Commander/GhostModel.lua", "lua/NS2Plus/GUIScripts/GhostModel.lua", "post")
