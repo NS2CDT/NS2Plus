@@ -46,6 +46,12 @@ VS_OUTPUT SFXBasicVS(VS_INPUT input)
 
 }
 
+float2 clamp_tex2D( sampler2D tex, float2 coord )
+{
+    // TODO: remove this and fix sampler using wrapped instead of clamped addressing for depthTexture
+    return tex2D( tex, clamp( coord, float2( 0.001, 0.001 ), float2( 0.999, 0.999 ) ) );
+}
+
 float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
 {
 
@@ -57,7 +63,7 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
 
     float2 texCoord = input.texCoord;
 
-    float2 depth1    = tex2D(depthTexture, input.texCoord).rg;
+    float2 depth1    = clamp_tex2D(depthTexture, input.texCoord).rg;
     float4 inputPixel = tex2D(baseTexture, input.texCoord);
     
     if (amount == 0) {
@@ -72,10 +78,10 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
 	float fadeout = pow(2.71828182846, -depth1.r * 0.23 + 0.23);
 	
     const float offset = 0.0005 + distanceSq * 0.005 * (1 + depth1.g);
-	float  depth2 = tex2D(depthTexture, input.texCoord + float2( offset, 0)).rg;
-	float  depth3 = tex2D(depthTexture, input.texCoord + float2(-offset, 0)).rg;
-	float  depth4 = tex2D(depthTexture, input.texCoord + float2( 0,  offset)).rg;
-	float  depth5 = tex2D(depthTexture, input.texCoord + float2( 0, -offset)).rg;
+	float  depth2 = clamp_tex2D(depthTexture, input.texCoord + float2( offset, 0)).rg;
+	float  depth3 = clamp_tex2D(depthTexture, input.texCoord + float2(-offset, 0)).rg;
+	float  depth4 = clamp_tex2D(depthTexture, input.texCoord + float2( 0,  offset)).rg;
+	float  depth5 = clamp_tex2D(depthTexture, input.texCoord + float2( 0, -offset)).rg;
 
 
 	float edge;
