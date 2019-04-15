@@ -42,10 +42,62 @@ function GUIAlienHUD:OnLocalPlayerChanged()
 
 end
 
+function GUIAlienHUD:InitializeCHUDAlienCircles()
+	local aliencircles = CHUDGetOption("aliencircles")
+
+	if aliencircles == 0 then return end -- vanilla circles
+
+	local kTextureNameCHUD = CHUDGetOptionAssocVal("aliencircles")
+
+	self.healthBall:SetForegroundTexture(kTextureNameCHUD)
+	self.armorBall:SetForegroundTexture(kTextureNameCHUD)
+	self.energyBall:SetForegroundTexture(kTextureNameCHUD)
+	self.adrenalineEnergy:SetForegroundTexture(kTextureNameCHUD)
+
+	local healthColor = ConditionalValue(aliencircles == 2, Color(1, 1, 1, 1), Color(230/255, 171/255, 46/255, 1))
+	local armorColor = ConditionalValue(aliencircles == 2, Color(1, 1, 1, 1), Color(1, 121/255, 12/255, 1))
+	local adrenalineColor = ConditionalValue(aliencircles == 2, Color(1, 1, 1, 1), Color(1, 121/255, 12/255, 1))
+	local energyColor = ConditionalValue(aliencircles == 2, Color(1, 1, 1, 1), Color(230/255, 171/255, 46/255, 1))
+
+	self.healthBall:GetLeftSide():SetColor(healthColor)
+	self.healthBall:GetRightSide():SetColor(healthColor)
+
+	self.armorBall:GetLeftSide():SetColor(armorColor)
+	self.armorBall:GetRightSide():SetColor(armorColor)
+
+	self.energyBall:GetLeftSide():SetColor(energyColor)
+	self.energyBall:GetRightSide():SetColor(energyColor)
+
+	self.adrenalineEnergy:GetLeftSide():SetColor(adrenalineColor)
+	self.adrenalineEnergy:GetRightSide():SetColor(adrenalineColor)
+
+	self.healthBall:GetLeftSide():SetTexturePixelCoordinates(0, 128, 64, 256)
+	self.healthBall:GetRightSide():SetTexturePixelCoordinates(64, 128, 128, 256)
+
+	if aliencircles == 1 or aliencircles == 3 then -- oma's or old vanilla circles
+		self.armorBall:GetLeftSide():SetTexturePixelCoordinates(128, 0, 192, 128)
+		self.armorBall:GetRightSide():SetTexturePixelCoordinates(192, 0, 256, 128)
+
+		self.energyBall:GetLeftSide():SetTexturePixelCoordinates(0, 128, 64, 256)
+		self.energyBall:GetRightSide():SetTexturePixelCoordinates(64, 128, 128, 256)
+
+		self.adrenalineEnergy:GetLeftSide():SetTexturePixelCoordinates(128, 0, 192, 128)
+		self.adrenalineEnergy:GetRightSide():SetTexturePixelCoordinates(192, 0, 256, 128)
+	else -- rant's circles
+		self.armorBall:GetLeftSide():SetTexturePixelCoordinates(0, 0, 64, 128)
+		self.armorBall:GetRightSide():SetTexturePixelCoordinates(64, 0, 128, 128)
+
+		self.energyBall:GetLeftSide():SetTexturePixelCoordinates(128, 128, 192, 256)
+		self.energyBall:GetRightSide():SetTexturePixelCoordinates(192, 128, 256, 256)
+
+		self.adrenalineEnergy:GetLeftSide():SetTexturePixelCoordinates(128, 0, 192, 128)
+		self.adrenalineEnergy:GetRightSide():SetTexturePixelCoordinates(192, 0, 256, 128)
+	end
+end
+
 local originalAlienInit = GUIAlienHUD.Initialize
 function GUIAlienHUD:Initialize()
 	local mingui = not CHUDGetOption("mingui")
-	local aliencircles = CHUDGetOption("aliencircles")
 
 	originalAlienInit(self)
 
@@ -61,7 +113,6 @@ function GUIAlienHUD:Initialize()
 	self.realTime:SetLayer(kGUILayerPlayerHUDForeground2)
 	self.realTime:SetColor(kAlienTeamColorFloat)
 
-	local kTextureNameCHUD = CHUDGetOptionAssocVal("aliencircles")
 	local kBackgroundCHUD = ConditionalValue(mingui, PrecacheAsset("ui/alien_commander_bg_smoke.dds"), PrecacheAsset("ui/transparent.dds"))
 
 	-- Backgrounds of health/energy
@@ -70,34 +121,7 @@ function GUIAlienHUD:Initialize()
 	self.secondaryAbilityBackground:SetAdditionalTexture("noise", kBackgroundCHUD)
 
 	-- Alien bars
-	self.healthBall:SetForegroundTexture(kTextureNameCHUD)
-	self.armorBall:SetForegroundTexture(kTextureNameCHUD)
-	self.energyBall:SetForegroundTexture(kTextureNameCHUD)
-	self.adrenalineEnergy:SetForegroundTexture(kTextureNameCHUD)
-
-	local healthColor = ConditionalValue(aliencircles == 2, Color(1, 1, 1, 1), Color(230/255, 171/255, 46/255, 1))
-	local armorColor = ConditionalValue(aliencircles == 2, Color(1, 1, 1, 1), Color(1, 121/255, 12/255, 1))
-	local adrenalineColor = ConditionalValue(aliencircles == 2, Color(1, 1, 1, 1), Color(1, 121/255, 12/255, 1))
-
-	self.healthBall:GetLeftSide():SetColor(healthColor)
-	self.healthBall:GetRightSide():SetColor(healthColor)
-
-	self.armorBall:GetLeftSide():SetColor(armorColor)
-	self.armorBall:GetRightSide():SetColor(armorColor)
-
-	self.adrenalineEnergy:GetLeftSide():SetColor(adrenalineColor)
-	self.adrenalineEnergy:GetRightSide():SetColor(adrenalineColor)
-
-	if aliencircles == 2 then
-		self.armorBall:GetLeftSide():SetTexturePixelCoordinates(0, 0, 64, 128)
-		self.armorBall:GetRightSide():SetTexturePixelCoordinates(64, 0, 128, 128)
-
-		self.energyBall:GetLeftSide():SetTexturePixelCoordinates(128, 128, 192, 256)
-		self.energyBall:GetRightSide():SetTexturePixelCoordinates(192, 128, 256, 256)
-
-		self.adrenalineEnergy:GetLeftSide():SetTexturePixelCoordinates(128, 0, 192, 128)
-		self.adrenalineEnergy:GetRightSide():SetTexturePixelCoordinates(192, 0, 256, 128)
-	end
+	self:InitializeCHUDAlienCircles()
 
 	if CHUDGetOption("mingui") then
 		self.resourceDisplay.background:SetColor(Color(1,1,1,0))
