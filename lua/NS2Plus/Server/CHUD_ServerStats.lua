@@ -1,4 +1,5 @@
 -- Todo: Optimize so that stats are processed faster and use less network bandwidth
+-- Todo: Remodel stats data model (big mess at the moment and not easy to parse)
 
 local CHUDClientStats = {}
 local CHUDTeamStats = {}
@@ -12,7 +13,6 @@ local CHUDExportResearch = {}
 local CHUDExportBuilding = {}
 
 local serverStatsPath = "NS2Plus\\Stats\\"
-local lastRoundStats = {}
 local locationsTable = {}
 local locationsLookup = {}
 local minimapExtents = {}
@@ -28,10 +28,6 @@ local function OnMapLoadEntity(className, _, values)
 	end
 end
 Event.Hook("MapLoadEntity", OnMapLoadEntity)
-
-function CHUDGetLastRoundStats()
-	return lastRoundStats
-end
 
 local function CHUDGetGameStarted()
 	return GetGamerules():GetGameStarted()
@@ -461,14 +457,19 @@ local originalUpdateScore
 originalUpdateScore = Class_ReplaceMethod("PlayerInfoEntity", "UpdateScore",
 	function(self)
 		originalUpdateScore(self)
-		
-		MaybeInitCHUDClientStats(self.steamId, nil, self.teamNumber)
-		local stat = CHUDClientStats[self.steamId]
-		
-		if stat then
-			stat.playerName = self.playerName
-			stat.hiveSkill = self.playerSkill
-			stat.isRookie = self.isRookie
+
+		local steamId = self.steamId
+		if steamId > 0 then
+
+			MaybeInitCHUDClientStats(self.steamId, nil, self.teamNumber)
+			local stat = CHUDClientStats[self.steamId]
+
+			if stat then
+				stat.playerName = self.playerName
+				stat.hiveSkill = self.playerSkill
+				stat.isRookie = self.isRookie
+			end
+
 		end
 		
 		return true
@@ -485,27 +486,24 @@ statusGrouping[kPlayerStatus.Evolving] = kPlayerStatus.Embryo
 -- Add commander playing teams separate per team
 -- Vanilla only tracks overall commanding time
 function ScoringMixin:UpdatePlayerStats(deltaTime)
-	if self.clientIndex and self.clientIndex > 0 then
-		local steamId = GetSteamIdForClientIndex(self.clientIndex)
-		local teamNumber = self:GetTeamNumber()
+	local steamId = self:GetSteamId()
+	if steamId > 0 then -- ignore players without a valid steamid (bots etc.)
 		local paused = GetIsGamePaused and GetIsGamePaused()
-		if not paused and steamId and steamId > 0 and (teamNumber == 1 or teamNumber == 2) and CHUDClientStats[steamId] then
+		if not paused and self:GetIsPlaying() and CHUDClientStats[steamId] then
+			local teamNumber = self:GetTeamNumber()
 			local statusPlayer = CHUDClientStats[steamId]
 			local statusRoot = CHUDClientStats[steamId]["status"]
 			local stat = CHUDClientStats[steamId][teamNumber]
 			-- Make sure we update times only once per frame
-			if self:GetIsPlaying() and (not statusPlayer.lastUpdate or statusPlayer.lastUpdate < Shared.GetTime()) then
+			if not statusPlayer.lastUpdate or statusPlayer.lastUpdate < Shared.GetTime() then
 				statusPlayer.lastUpdate = Shared.GetTime()
 				if self:isa("Commander") then
 					stat.commanderTime = stat.commanderTime + deltaTime
 				end
 				stat.timePlayed = stat.timePlayed + deltaTime
-				local status = statusGrouping[self:GetPlayerStatusDesc()] ~= nil and statusGrouping[self:GetPlayerStatusDesc()] or self:GetPlayerStatusDesc()
+				local status = statusGrouping[self:GetPlayerStatusDesc()] or self:GetPlayerStatusDesc()
 
-				if statusRoot[status] == nil then
-					statusRoot[status] = 0
-				end
-				statusRoot[status] = statusRoot[status] + deltaTime
+				statusRoot[status] = (statusRoot[status] or 0) + deltaTime
 			end
 		end
 	end
@@ -528,9 +526,9 @@ end
 local originalScoringAddKill = ScoringMixin.AddKill
 function ScoringMixin:AddKill()
 	originalScoringAddKill(self)
-	
-	if self.clientIndex and self.clientIndex > 0 then
-		local steamId = GetSteamIdForClientIndex(self.clientIndex)
+
+	local steamId = self:GetSteamId()
+	if steamId > 0 then
 		local teamNumber = self:GetTeamNumber()
 		MaybeInitCHUDClientStats(steamId, nil, teamNumber)
 		local stat = CHUDClientStats[steamId] and CHUDClientStats[steamId][teamNumber]
@@ -544,9 +542,9 @@ end
 local originalScoringAddAssist = ScoringMixin.AddAssistKill
 function ScoringMixin:AddAssistKill()
 	originalScoringAddAssist(self)
-	
-	if self.clientIndex and self.clientIndex > 0 then
-		local steamId = GetSteamIdForClientIndex(self.clientIndex)
+
+	local steamId = self:GetSteamId()
+	if steamId > 0 then
 		local teamNumber = self:GetTeamNumber()
 		MaybeInitCHUDClientStats(steamId, nil, teamNumber)
 		local stat = CHUDClientStats[steamId] and CHUDClientStats[steamId][teamNumber]
@@ -560,9 +558,9 @@ end
 local originalScoringAddDeath = ScoringMixin.AddDeaths
 function ScoringMixin:AddDeaths()
 	originalScoringAddDeath(self)
-	
-	if self.clientIndex and self.clientIndex > 0 then
-		local steamId = GetSteamIdForClientIndex(self.clientIndex)
+
+	local steamId = self:GetSteamId()
+	if steamId > 0 then
 		local teamNumber = self:GetTeamNumber()
 		MaybeInitCHUDClientStats(steamId, nil, teamNumber)
 		local stat = CHUDClientStats[steamId] and CHUDClientStats[steamId][teamNumber]
@@ -576,9 +574,9 @@ end
 local originalScoringAddScore = ScoringMixin.AddScore
 function ScoringMixin:AddScore(points, res, wasKill)
 	originalScoringAddScore(self, points, res, wasKill)
-	
-	if points ~= nil and self.clientIndex and self.clientIndex > 0 then
-		local steamId = GetSteamIdForClientIndex(self.clientIndex)
+
+	local steamId = self:GetSteamId()
+	if steamId > 0 and points then
 		local teamNumber = self:GetTeamNumber()
 		MaybeInitCHUDClientStats(steamId, nil, teamNumber)
 		local stat = CHUDClientStats[steamId] and CHUDClientStats[steamId][teamNumber]
@@ -672,7 +670,7 @@ function LiveMixin:TakeDamage(damage, attacker, doer, point, direction, armorUse
 end
 
 local function CHUDResetCommStats(commSteamId)
-	if not CHUDCommStats[commSteamId] then
+	if commSteamId > 0 and not CHUDCommStats[commSteamId] then
 		CHUDCommStats[commSteamId] = { }
 		CHUDCommStats[commSteamId]["medpack"] = { }
 		CHUDCommStats[commSteamId]["ammopack"] = { }
@@ -726,7 +724,6 @@ local function CHUDResetStats()
 	
 	-- Do this so we can spawn items without a commander with cheats on
 	CHUDMarineComm = 0
-	CHUDResetCommStats(0)
 
 	CHUDHiveSkillGraph = {}
 	
@@ -785,18 +782,18 @@ end
 local originalCommandStructureLoginPlayer
 originalCommandStructureLoginPlayer = Class_ReplaceMethod("CommandStructure", "LoginPlayer",
 	function(self, player, forced)
-	
 		originalCommandStructureLoginPlayer(self, player, forced)
-		
-		local teamNumber = player:isa("Marine") and 1 or player:isa("Alien") and 2 or -1
-		
-		-- Init the player stats in case they haven't attacked at all so they still show up in the stats
-		MaybeInitCHUDClientStats(GetSteamIdForClientIndex(player.clientIndex), nil, teamNumber)
-		
-		if teamNumber == kTeam1Index then
-			CHUDMarineComm = GetSteamIdForClientIndex(player.clientIndex)
 
-			if not CHUDCommStats[CHUDMarineComm] then
+		local steamId = player:GetSteamId()
+		if steamId > 0 then
+			local teamNumber = player:GetTeamNumber()
+
+			-- Init the player stats in case they haven't attacked at all so they still show up in the stats
+			MaybeInitCHUDClientStats(steamId, nil, teamNumber)
+
+			if teamNumber == kTeam1Index then
+				CHUDMarineComm = player:GetSteamId()
+
 				CHUDResetCommStats(CHUDMarineComm)
 			end
 		end
@@ -868,310 +865,339 @@ originalDrifterEggHatch = Class_ReplaceMethod("DrifterEgg", "Hatch",
 		AddBuildingStat(self:GetTeamNumber(), kTechId.Drifter, false)
 		AddExportBuilding(self:GetTeamNumber(), kTechId.Drifter, true, false, false) -- Drifter Hatch 100
 	end)
-	
+
+local function FormatRoundStats()
+	local finalStats = {}
+	finalStats[1] = {}
+	finalStats[2] = {}
+
+	-- reformat stats for export
+	for steamId, stats in pairs(CHUDClientStats) do
+		-- Easier format for easy parsing server-side
+		local newWeaponsTable = {}
+		for wTechId, wStats in pairs(stats["weapons"]) do
+			-- Use more consistent naming for exported stats
+			newWeaponsTable[EnumToString(kTechId, wTechId)] = wStats
+		end
+		stats["weapons"] = newWeaponsTable
+
+		-- Easier format for easy parsing server-side
+		local newStatusTable = {}
+		for statusId, classTime in pairs(stats["status"]) do
+			table.insert(newStatusTable, {statusId = EnumToString(kPlayerStatus, statusId), classTime = classTime})
+		end
+		stats["status"] = newStatusTable
+
+		for teamNumber = 1, 2 do
+			local entry = stats[teamNumber]
+			if entry.timePlayed and entry.timePlayed > 0 then
+				local statEntry = {}
+
+				local accuracy, accuracyOnos = CHUDGetAccuracy(entry.hits, entry.misses, entry.onosHits)
+
+				statEntry.isMarine = teamNumber == 1
+				statEntry.playerName = stats.playerName
+				statEntry.hiveSkill = stats.hiveSkill
+				statEntry.kills = entry.kills
+				statEntry.killstreak = entry.killstreak
+				statEntry.assists = entry.assists
+				statEntry.deaths = entry.deaths
+				statEntry.score = entry.score
+				statEntry.accuracy = accuracy
+				statEntry.accuracyOnos = accuracyOnos
+				statEntry.pdmg = entry.pdmg
+				statEntry.sdmg = entry.sdmg
+				statEntry.minutesBuilding = entry.timeBuilding/60
+				statEntry.minutesPlaying = entry.timePlayed/60
+				statEntry.minutesComm = entry.commanderTime/60
+				statEntry.isRookie = entry.isRookie
+				statEntry.steamId = steamId
+
+				if teamNumber == 1 then
+					table.insert(finalStats[1], statEntry)
+				else
+					table.insert(finalStats[2], statEntry)
+				end
+			end
+
+			-- Use more consistent naming for exported stats
+			entry.playerDamage = entry.pdmg
+			entry.structureDamage = entry.sdmg
+
+			entry.pdmg = nil
+			entry.sdmg = nil
+		end
+
+		-- Remove last life stats and last update time from exported data
+		stats.last = nil
+		stats.lastUpdate = nil
+	end
+
+	local newBuildingSummaryTable = {}
+	for teamNumber, team in pairs(CHUDBuildingSummary) do
+		for techId, entry in pairs(team) do
+			entry.teamNumber = teamNumber
+			entry.techId = EnumToString(kTechId, techId)
+			table.insert(newBuildingSummaryTable, entry)
+		end
+	end
+	CHUDBuildingSummary = newBuildingSummaryTable
+
+	return finalStats
+end
+
+local function SendClientCommanderStats(client, steamId)
+	if not CHUDCommStats[steamId] then return end
+
+	local msg = {}
+	msg.medpackAccuracy = 0
+	msg.medpackResUsed = 0
+	msg.medpackResExpired = 0
+	msg.medpackEfficiency = 0
+	msg.medpackRefill = 0
+	msg.ammopackResUsed = 0
+	msg.ammopackResExpired = 0
+	msg.ammopackEfficiency = 0
+	msg.ammopackRefill = 0
+	msg.catpackResUsed = 0
+	msg.catpackResExpired = 0
+	msg.catpackEfficiency = 0
+
+	for index, commStats in pairs(CHUDCommStats[steamId]) do
+		if commStats.picks and commStats.picks > 0 or commStats.misses and commStats.misses > 0 then
+			if index == "medpack" then
+				-- Add medpacks that were picked up later to the misses count for accuracy
+				msg.medpackAccuracy = CHUDGetAccuracy(commStats.hitsAcc, (commStats.picks- commStats.hitsAcc)+ commStats.misses)
+				msg.medpackResUsed = commStats.picks*kMedPackCost
+				msg.medpackResExpired = commStats.misses*kMedPackCost
+				msg.medpackEfficiency = CHUDGetAccuracy(commStats.picks, commStats.misses)
+				msg.medpackRefill = commStats.refilled
+			elseif index == "ammopack" then
+				msg.ammopackResUsed = commStats.picks*kAmmoPackCost
+				msg.ammopackResExpired = commStats.misses*kAmmoPackCost
+				msg.ammopackEfficiency = CHUDGetAccuracy(commStats.picks, commStats.misses)
+				msg.ammopackRefill = commStats.refilled
+			elseif index == "catpack" then
+				msg.catpackResUsed = commStats.picks*kCatPackCost
+				msg.catpackResExpired = commStats.misses*kCatPackCost
+				msg.catpackEfficiency = CHUDGetAccuracy(commStats.picks, commStats.misses)
+			end
+		end
+	end
+
+	Server.SendNetworkMessage(client, "CHUDMarineCommStats", msg, true)
+end
+
+local function SendPlayerStats(player)
+
+	local client = player:GetClient()
+	if not client then return end
+
+	local steamId = player:GetSteamId()
+	if not steamId or steamId < 1 then return end
+
+	local stats = CHUDClientStats[steamId]
+	if not stats then return end
+
+	-- Commander stats
+	SendClientCommanderStats(client, steamId)
+
+	for wTechId, wStats in pairs(stats["weapons"]) do
+		local accuracy, accuracyOnos = CHUDGetAccuracy(wStats.hits, wStats.misses, wStats.onosHits)
+
+		local msg = {}
+		msg.wTechId = kTechId[wTechId]
+		msg.accuracy = accuracy
+		msg.accuracyOnos = accuracyOnos
+		msg.kills = wStats.kills
+		msg.pdmg = wStats.playerDamage
+		msg.sdmg = wStats.playerDamage
+		msg.teamNumber = wStats.teamNumber
+		--Log("NS2+ %s : %s -> %s", wTechId, wStats, msg )
+		Server.SendNetworkMessage(client, "CHUDEndStatsWeapon", msg, true)
+	end
+
+	for i = 1, #stats.status do
+		local entry = stats[i]
+
+		local msg = {}
+		msg.statusId = kPlayerStatus[entry.statusId]
+		msg.timeMinutes = entry.classTime/60
+
+		Server.SendNetworkMessage(client, "CHUDEndStatsStatus", msg, true)
+	end
+end
+
+local function SendTeamStats()
+	local team1Accuracy, team1OnosAccuracy = CHUDGetAccuracy(CHUDTeamStats[1].hits, CHUDTeamStats[1].misses, CHUDTeamStats[1].onosHits)
+	local team2Accuracy = CHUDGetAccuracy(CHUDTeamStats[2].hits, CHUDTeamStats[2].misses)
+
+	local msg = {}
+	msg.marineAcc = team1Accuracy
+	msg.marineOnosAcc = team1OnosAccuracy
+	msg.marineRTsBuilt = CHUDTeamStats[1]["rts"].built
+	msg.marineRTsLost = CHUDTeamStats[1]["rts"].lost
+	msg.alienAcc = team2Accuracy
+	msg.alienRTsBuilt = CHUDTeamStats[2]["rts"].built
+	msg.alienRTsLost = CHUDTeamStats[2]["rts"].lost
+	msg.gameLengthMinutes = CHUDGetGameTime(true)
+
+	Server.SendNetworkMessage("CHUDGameData", msg, true)
+
+	for _, entry in ipairs(CHUDResearchTree) do
+		-- Exclude the initial buildings (finishedMinute is 0 and teamRes is 0)
+		if entry.finishedMinute > 0 or entry.teamRes > 0 then
+			Server.SendNetworkMessage("CHUDTechLog", entry, true)
+		end
+	end
+
+	for _, entry in ipairs(CHUDHiveSkillGraph) do
+		Server.SendNetworkMessage("CHUDHiveSkillGraph", entry, true)
+	end
+
+	for _, entry in ipairs(CHUDRTGraph) do
+		Server.SendNetworkMessage("CHUDRTGraph", entry, true)
+	end
+
+	for _, entry in ipairs(CHUDKillGraph) do
+		Server.SendNetworkMessage("CHUDKillGraph", entry, true)
+		-- Remove the game minute so it doesn't get exported
+		entry.gameMinute = nil
+	end
+
+	for _, entry in pairs(CHUDBuildingSummary) do
+		local buildMsg = {}
+		buildMsg.teamNumber = entry.teamNumber
+		buildMsg.techId = kTechId[entry.techId]
+		buildMsg.built = entry.built
+		buildMsg.lost = entry.lost
+		Server.SendNetworkMessage("CHUDBuildingSummary", buildMsg, true)
+	end
+end
+
+local function SaveRoundStats()
+	if not CHUDServerOptions["savestats"].currentValue then return end
+
+	local lastRoundStats = {}
+	lastRoundStats.MarineCommStats = CHUDCommStats
+	lastRoundStats.PlayerStats = CHUDClientStats
+	lastRoundStats.KillFeed = CHUDKillGraph
+	lastRoundStats.ServerInfo = {}
+	lastRoundStats.ServerInfo["ip"] = Server.GetIpAddress()
+	lastRoundStats.ServerInfo["port"] = Server.GetPort()
+	lastRoundStats.ServerInfo["name"] = Server.GetName()
+	lastRoundStats.ServerInfo["slots"] = Server.GetMaxPlayers()
+	lastRoundStats.ServerInfo["buildNumber"] = Shared.GetBuildNumber()
+	lastRoundStats.ServerInfo["rookieOnly"] = Server.GetHasTag("rookie_only")
+	lastRoundStats.ServerInfo["mods"] = {}
+	local activeModIds = {}
+
+	-- Can't get the mod title correctly unless we do this
+	-- GetModTitle can't get it from the active mod list index, it uses the normal one
+	for modNum = 1, Server.GetNumActiveMods() do
+		activeModIds[Server.GetActiveModId(modNum)] = true
+	end
+	for modNum = 1, Server.GetNumMods() do
+		if activeModIds[Server.GetModId(modNum)] then
+			table.insert(lastRoundStats.ServerInfo["mods"], {modId = Server.GetModId(modNum), name = Server.GetModTitle(modNum)})
+		end
+	end
+	lastRoundStats.RoundInfo = {}
+	lastRoundStats.RoundInfo["mapName"] = Shared.GetMapName()
+	lastRoundStats.RoundInfo["minimapExtents"] = minimapExtents
+	lastRoundStats.RoundInfo["roundDate"] = Shared.GetSystemTime()
+	lastRoundStats.RoundInfo["roundLength"] = CHUDGetGameTime()
+	lastRoundStats.RoundInfo["startingLocations"] = CHUDStartingTechPoints
+	lastRoundStats.RoundInfo["winningTeam"] = winningTeam and winningTeam.GetTeamType and winningTeam:GetTeamType() or kNeutralTeamType
+	lastRoundStats.RoundInfo["tournamentMode"] = GetTournamentModeEnabled()
+	lastRoundStats.RoundInfo["maxPlayers1"] = CHUDTeamStats[1].maxPlayers
+	lastRoundStats.RoundInfo["maxPlayers2"] = CHUDTeamStats[2].maxPlayers
+	lastRoundStats.Locations = locationsTable
+	lastRoundStats.Buildings = CHUDExportBuilding
+	lastRoundStats.Research = CHUDExportResearch
+
+	local savedServerFile = io.open("config://" .. serverStatsPath .. Shared.GetSystemTime() .. ".json", "w+")
+	if savedServerFile then
+		savedServerFile:write(json.encode(lastRoundStats, { indent = true }))
+		io.close(savedServerFile)
+	end
+end
+
+local function SendGlobalCommanderStats()
+	local medpackHitsAcc = 0
+	local medpackMisses = 0
+	local medpackPicks = 0
+	local medpackRefill = 0
+	local ammopackPicks = 0
+	local ammopackMisses = 0
+	local ammopackRefill = 0
+	local catpackPicks = 0
+	local catpackMisses = 0
+	local sendCommStats = false
+
+	for _, playerStats in pairs(CHUDCommStats) do
+		for index, stats in pairs(playerStats) do
+			if stats.picks and stats.picks > 0 or stats.misses and stats.misses > 0 then
+				sendCommStats = true
+				if index == "medpack" then
+					medpackHitsAcc = medpackHitsAcc + stats.hitsAcc
+					medpackPicks = medpackPicks + stats.picks
+					medpackMisses = medpackMisses + stats.misses
+					medpackRefill = medpackRefill + stats.refilled
+				elseif index == "ammopack" then
+					ammopackPicks = ammopackPicks + stats.picks
+					ammopackMisses = ammopackMisses + stats.misses
+					ammopackRefill = ammopackRefill + stats.refilled
+				elseif index == "catpack" then
+					catpackPicks = catpackPicks + stats.picks
+					catpackMisses = catpackMisses + stats.misses
+				end
+			end
+		end
+	end
+
+	if sendCommStats then
+		local comMsg = {}
+		comMsg.medpackAccuracy = CHUDGetAccuracy(medpackHitsAcc, (medpackPicks-medpackHitsAcc)+medpackMisses)
+		comMsg.medpackResUsed = medpackPicks
+		comMsg.medpackResExpired = medpackMisses
+		comMsg.medpackEfficiency = CHUDGetAccuracy(medpackPicks, medpackMisses)
+		comMsg.medpackRefill = medpackRefill
+		comMsg.ammopackResUsed = ammopackPicks
+		comMsg.ammopackResExpired = ammopackMisses
+		comMsg.ammopackEfficiency = CHUDGetAccuracy(ammopackPicks, ammopackMisses)
+		comMsg.ammopackRefill = ammopackRefill
+		comMsg.catpackResUsed = catpackPicks
+		comMsg.catpackResExpired = catpackMisses
+		comMsg.catpackEfficiency = CHUDGetAccuracy(catpackPicks, catpackMisses)
+
+		Server.SendNetworkMessage("CHUDGlobalCommStats", comMsg, true)
+	end
+end
+
 local originalNS2GamerulesEndGame
 originalNS2GamerulesEndGame = Class_ReplaceMethod("NS2Gamerules", "EndGame",
 	function(self, winningTeam)
-		local newCommStatsTable = {}
-		for _, playerInfo in ientitylist(Shared.GetEntitiesWithClassname("PlayerInfoEntity")) do
-			local client = Server.GetClientById(playerInfo.clientId)
-			
-			-- Commander stats
-			if CHUDCommStats[playerInfo.steamId] and client then
-				if playerInfo.steamId ~= 0 then
-					newCommStatsTable[playerInfo.steamId] = CHUDCommStats[playerInfo.steamId]
-				end
-				local msg = {}
-				msg.medpackAccuracy = 0
-				msg.medpackResUsed = 0
-				msg.medpackResExpired = 0
-				msg.medpackEfficiency = 0
-				msg.medpackRefill = 0
-				msg.ammopackResUsed = 0
-				msg.ammopackResExpired = 0
-				msg.ammopackEfficiency = 0
-				msg.ammopackRefill = 0
-				msg.catpackResUsed = 0
-				msg.catpackResExpired = 0
-				msg.catpackEfficiency = 0
-				
-				for index, stats in pairs(CHUDCommStats[playerInfo.steamId]) do
-					if stats.picks and stats.picks > 0 or stats.misses and stats.misses > 0 then
-						if index == "medpack" then
-							-- Add medpacks that were picked up later to the misses count for accuracy
-							msg.medpackAccuracy = CHUDGetAccuracy(stats.hitsAcc, (stats.picks-stats.hitsAcc)+stats.misses)
-							msg.medpackResUsed = stats.picks*kMedPackCost
-							msg.medpackResExpired = stats.misses*kMedPackCost
-							msg.medpackEfficiency = CHUDGetAccuracy(stats.picks, stats.misses)
-							msg.medpackRefill = stats.refilled
-						elseif index == "ammopack" then
-							msg.ammopackResUsed = stats.picks*kAmmoPackCost
-							msg.ammopackResExpired = stats.misses*kAmmoPackCost
-							msg.ammopackEfficiency = CHUDGetAccuracy(stats.picks, stats.misses)
-							msg.ammopackRefill = stats.refilled
-						elseif index == "catpack" then
-							msg.catpackResUsed = stats.picks*kCatPackCost
-							msg.catpackResExpired = stats.misses*kCatPackCost
-							msg.catpackEfficiency = CHUDGetAccuracy(stats.picks, stats.misses)
-						end
-					end
-				end
-				
-				Server.SendNetworkMessage(client, "CHUDMarineCommStats", msg, true)
-			end
-			
-			-- Player stats
-			if CHUDClientStats[playerInfo.steamId] and client then
-				local stats = CHUDClientStats[playerInfo.steamId]
-				
-				-- Easier format for easy parsing server-side
-				local newWeaponsTable = {}
-				for wTechId, wStats in pairs(stats["weapons"]) do
-					local accuracy, accuracyOnos = CHUDGetAccuracy(wStats.hits, wStats.misses, wStats.onosHits)
-					
-					local msg = {}
-					msg.wTechId = wTechId
-					msg.accuracy = accuracy
-					msg.accuracyOnos = accuracyOnos
-					msg.kills = wStats.kills
-					msg.pdmg = wStats.pdmg
-					msg.sdmg = wStats.sdmg
-					msg.teamNumber = wStats.teamNumber
-					--Log("NS2+ %s : %s -> %s", wTechId, wStats, msg ) 
-					Server.SendNetworkMessage(client, "CHUDEndStatsWeapon", msg, true)
-					
-					-- Use more consistent naming for exported stats
-					wStats.playerDamage = wStats.pdmg
-					wStats.structureDamage = wStats.sdmg
-					wStats.pdmg = nil
-					wStats.sdmg = nil
-					newWeaponsTable[EnumToString(kTechId, wTechId)] = wStats
-				end
-				stats["weapons"] = newWeaponsTable
-				
-				-- Easier format for easy parsing server-side
-				local newStatusTable = {}
-				for statusId, classTime in pairs(stats["status"]) do
-					local msg = {}
-					msg.statusId = statusId
-					msg.timeMinutes = classTime/60
-					
-					table.insert(newStatusTable, {statusId = EnumToString(kPlayerStatus, statusId), classTime = classTime})
-					Server.SendNetworkMessage(client, "CHUDEndStatsStatus", msg, true)
-				end
-				stats["status"] = newStatusTable
-			end
-		
-		end
+		local roundStats = FormatRoundStats()
 
-		local finalStats = {}
-		finalStats[1] = {}
-		finalStats[2] = {}
-		
-		for steamId, stats in pairs(CHUDClientStats) do
-			local tmp = {}
-			table.insert(tmp, stats[1])
-			table.insert(tmp, stats[2])
-			for teamNumber, entry in pairs(tmp) do
-				if entry.timePlayed and entry.timePlayed > 0 then
-					local statEntry = {}
-					
-					local accuracy, accuracyOnos = CHUDGetAccuracy(entry.hits, entry.misses, entry.onosHits)
-					
-					statEntry.isMarine = teamNumber == 1
-					statEntry.playerName = stats.playerName
-					statEntry.hiveSkill = stats.hiveSkill
-					statEntry.kills = entry.kills
-					statEntry.killstreak = entry.killstreak
-					statEntry.assists = entry.assists
-					statEntry.deaths = entry.deaths
-					statEntry.score = entry.score
-					statEntry.accuracy = accuracy
-					statEntry.accuracyOnos = accuracyOnos
-					statEntry.pdmg = entry.pdmg
-					statEntry.sdmg = entry.sdmg
-					statEntry.minutesBuilding = entry.timeBuilding/60
-					statEntry.minutesPlaying = entry.timePlayed/60
-					statEntry.minutesComm = entry.commanderTime/60
-					statEntry.isRookie = entry.isRookie
-					statEntry.steamId = steamId
-					
-					if teamNumber == 1 then
-						table.insert(finalStats[1], statEntry)
-					elseif teamNumber == 2 then
-						table.insert(finalStats[2], statEntry)
-					end
-				end
-				-- Use more consistent naming for exported stats
-				entry.playerDamage = entry.pdmg
-				entry.structureDamage = entry.sdmg
-				entry.pdmg = nil
-				entry.sdmg = nil
-			end
-			-- Remove last life stats and last update time from exported data
-			stats.last = nil
-			stats.lastUpdate = nil
-		end
-		
-		local team1Accuracy, team1OnosAccuracy = CHUDGetAccuracy(CHUDTeamStats[1].hits, CHUDTeamStats[1].misses, CHUDTeamStats[1].onosHits)
-		local team2Accuracy = CHUDGetAccuracy(CHUDTeamStats[2].hits, CHUDTeamStats[2].misses)
-		
-		local msg = {}
-		msg.marineAcc = team1Accuracy
-		msg.marineOnosAcc = team1OnosAccuracy
-		msg.marineRTsBuilt = CHUDTeamStats[1]["rts"].built
-		msg.marineRTsLost = CHUDTeamStats[1]["rts"].lost
-		msg.alienAcc = team2Accuracy
-		msg.alienRTsBuilt = CHUDTeamStats[2]["rts"].built
-		msg.alienRTsLost = CHUDTeamStats[2]["rts"].lost
-		msg.gameLengthMinutes = CHUDGetGameTime(true)
-		
+		Server.ForAllPlayers(SendPlayerStats)
+
 		-- Don't send the round data if there's no player data
-		if #finalStats[1] > 0 or #finalStats[2] > 0 then
-			Server.SendNetworkMessage("CHUDGameData", msg, true)
-			
-			for _, entry in ipairs(CHUDResearchTree) do
-				-- Exclude the initial buildings (finishedMinute is 0 and teamRes is 0)
-				if entry.finishedMinute > 0 or entry.teamRes > 0 then
-					Server.SendNetworkMessage("CHUDTechLog", entry, true)
+		if #roundStats[1] > 0 or #roundStats[2] > 0 then
+
+			for _, teamStats in ipairs(roundStats) do
+				for _, entry in ipairs(teamStats) do
+					Server.SendNetworkMessage("CHUDPlayerStats", entry, true)
 				end
-			end
-			
-			for _, entry in ipairs(CHUDHiveSkillGraph) do
-				Server.SendNetworkMessage("CHUDHiveSkillGraph", entry, true)
 			end
 
-			for _, entry in ipairs(CHUDRTGraph) do
-				Server.SendNetworkMessage("CHUDRTGraph", entry, true)
-			end
-			
-			for _, entry in ipairs(CHUDKillGraph) do
-				Server.SendNetworkMessage("CHUDKillGraph", entry, true)
-				-- Remove the game minute so it doesn't get exported
-				entry.gameMinute = nil
-			end
-			
-			local newBuildingSummaryTable = {}
-			for teamNumber, team in pairs(CHUDBuildingSummary) do
-				for techId, entry in pairs(team) do
-						local buildMsg = {}
-						buildMsg.teamNumber = teamNumber
-						buildMsg.techId = techId
-						buildMsg.built = entry.built
-						buildMsg.lost = entry.lost
-						Server.SendNetworkMessage("CHUDBuildingSummary", buildMsg, true)
-						
-						buildMsg.techId = EnumToString(kTechId, techId)
-						table.insert(newBuildingSummaryTable, buildMsg)
-				end
-			end
-			CHUDBuildingSummary = newBuildingSummaryTable
-		end
-		
-		for _, finalStat in ipairs(finalStats) do
-			for _, entry in ipairs(finalStat) do
-				Server.SendNetworkMessage("CHUDPlayerStats", entry, true)
-			end
-		end
-		
-		local medpackHitsAcc = 0
-		local medpackMisses = 0
-		local medpackPicks = 0
-		local medpackRefill = 0
-		local ammopackPicks = 0
-		local ammopackMisses = 0
-		local ammopackRefill = 0
-		local catpackPicks = 0
-		local catpackMisses = 0
-		local sendCommStats = false
-		
-		for _, playerStats in pairs(CHUDCommStats) do
-			for index, stats in pairs(playerStats) do
-				if stats.picks and stats.picks > 0 or stats.misses and stats.misses > 0 then
-					sendCommStats = true
-					if index == "medpack" then
-						medpackHitsAcc = medpackHitsAcc + stats.hitsAcc
-						medpackPicks = medpackPicks + stats.picks
-						medpackMisses = medpackMisses + stats.misses
-						medpackRefill = medpackRefill + stats.refilled
-					elseif index == "ammopack" then
-						ammopackPicks = ammopackPicks + stats.picks
-						ammopackMisses = ammopackMisses + stats.misses
-						ammopackRefill = ammopackRefill + stats.refilled
-					elseif index == "catpack" then
-						catpackPicks = catpackPicks + stats.picks
-						catpackMisses = catpackMisses + stats.misses
-					end
-				end
-			end
-		end
-		
-		if sendCommStats then
-			local comMsg = {}
-			comMsg.medpackAccuracy = CHUDGetAccuracy(medpackHitsAcc, (medpackPicks-medpackHitsAcc)+medpackMisses)
-			comMsg.medpackResUsed = medpackPicks
-			comMsg.medpackResExpired = medpackMisses
-			comMsg.medpackEfficiency = CHUDGetAccuracy(medpackPicks, medpackMisses)
-			comMsg.medpackRefill = medpackRefill
-			comMsg.ammopackResUsed = ammopackPicks
-			comMsg.ammopackResExpired = ammopackMisses
-			comMsg.ammopackEfficiency = CHUDGetAccuracy(ammopackPicks, ammopackMisses)
-			comMsg.ammopackRefill = ammopackRefill
-			comMsg.catpackResUsed = catpackPicks
-			comMsg.catpackResExpired = catpackMisses
-			comMsg.catpackEfficiency = CHUDGetAccuracy(catpackPicks, catpackMisses)
-			
-			Server.SendNetworkMessage("CHUDGlobalCommStats", comMsg, true)
-		end
-		
-		-- Don't save the round data if there's no player data
-		if #finalStats[1] > 0 or #finalStats[2] > 0 then
-			lastRoundStats = {}
-			lastRoundStats.MarineCommStats = CHUDCopyTable(newCommStatsTable)
-			lastRoundStats.PlayerStats = CHUDCopyTable(CHUDClientStats)
-			lastRoundStats.KillFeed = CHUDCopyTable(CHUDKillGraph)
-			lastRoundStats.ServerInfo = {}
-			lastRoundStats.ServerInfo["ip"] = Server.GetIpAddress()
-			lastRoundStats.ServerInfo["port"] = Server.GetPort()
-			lastRoundStats.ServerInfo["name"] = Server.GetName()
-			lastRoundStats.ServerInfo["slots"] = Server.GetMaxPlayers()
-			lastRoundStats.ServerInfo["buildNumber"] = Shared.GetBuildNumber()
-			lastRoundStats.ServerInfo["rookieOnly"] = Server.GetHasTag("rookie_only")
-			lastRoundStats.ServerInfo["mods"] = {}
-			local activeModIds = {}
+			SendTeamStats()
 
-			-- Can't get the mod title correctly unless we do this
-			-- GetModTitle can't get it from the active mod list index, it uses the normal one
-			for modNum = 1, Server.GetNumActiveMods() do
-				activeModIds[Server.GetActiveModId(modNum)] = true
-			end
-			for modNum = 1, Server.GetNumMods() do
-				if activeModIds[Server.GetModId(modNum)] then
-					table.insert(lastRoundStats.ServerInfo["mods"], {modId = Server.GetModId(modNum), name = Server.GetModTitle(modNum)})
-				end
-			end
-			lastRoundStats.RoundInfo = {}
-			lastRoundStats.RoundInfo["mapName"] = Shared.GetMapName()
-			lastRoundStats.RoundInfo["minimapExtents"] = minimapExtents
-			lastRoundStats.RoundInfo["roundDate"] = Shared.GetSystemTime()
-			lastRoundStats.RoundInfo["roundLength"] = CHUDGetGameTime()
-			lastRoundStats.RoundInfo["startingLocations"] = CHUDCopyTable(CHUDStartingTechPoints)
-			lastRoundStats.RoundInfo["winningTeam"] = winningTeam and winningTeam.GetTeamType and winningTeam:GetTeamType() or kNeutralTeamType
-			lastRoundStats.RoundInfo["tournamentMode"] = GetTournamentModeEnabled()
-			lastRoundStats.RoundInfo["maxPlayers1"] = CHUDTeamStats[1].maxPlayers
-			lastRoundStats.RoundInfo["maxPlayers2"] = CHUDTeamStats[2].maxPlayers
-			lastRoundStats.Locations = locationsTable
-			lastRoundStats.Buildings = CHUDCopyTable(CHUDExportBuilding)
-			lastRoundStats.Research = CHUDCopyTable(CHUDExportResearch)
+			SendGlobalCommanderStats()
 
-			if CHUDServerOptions["savestats"].currentValue == true then
-				local savedServerFile = io.open("config://" .. serverStatsPath .. Shared.GetSystemTime() .. ".json", "w+")
-				if savedServerFile then
-					savedServerFile:write(json.encode(lastRoundStats, { indent = true }))
-					io.close(savedServerFile)
-				end
-			end
 		end
+
+		SaveRoundStats()
 		
 		originalNS2GamerulesEndGame(self, winningTeam)
 	end)
