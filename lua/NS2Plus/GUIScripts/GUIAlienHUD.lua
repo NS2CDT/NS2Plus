@@ -1,5 +1,7 @@
 PrecacheAsset("ui/oma_alien_hud_health.dds")
 PrecacheAsset("ui/rant_alien_hud_health.dds")
+PrecacheAsset("ui/old_alien_hud_health.dds")
+PrecacheAsset("ui/vanilla_hud_health.dds")
 
 function GUIAlienHUD:CHUDRepositionGUI()
 	local gametime = CHUDGetOption("gametime")
@@ -44,15 +46,14 @@ end
 
 function GUIAlienHUD:InitializeCHUDAlienCircles()
 	local aliencircles = CHUDGetOption("aliencircles")
-
-	if aliencircles == 0 then return end -- vanilla circles
-
 	local kTextureNameCHUD = CHUDGetOptionAssocVal("aliencircles")
 
 	self.healthBall:SetForegroundTexture(kTextureNameCHUD)
 	self.armorBall:SetForegroundTexture(kTextureNameCHUD)
 	self.energyBall:SetForegroundTexture(kTextureNameCHUD)
 	self.adrenalineEnergy:SetForegroundTexture(kTextureNameCHUD)
+
+	if aliencircles == 0 then return end -- vanilla circles
 
 	local healthColor = ConditionalValue(aliencircles == 2, Color(1, 1, 1, 1), Color(230/255, 171/255, 46/255, 1))
 	local armorColor = ConditionalValue(aliencircles == 2, Color(1, 1, 1, 1), Color(1, 121/255, 12/255, 1))
