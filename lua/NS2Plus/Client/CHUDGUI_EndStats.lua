@@ -151,9 +151,9 @@ local function estimateHiveSkillGraph()
 			for i, player in ipairs(team) do
 				if player and player.minutesPlaying then
 					if left - player.minutesPlaying >= 0 then
-						table.insert(hiveSkillGraphTable,{ gameMinute = gameLength-left, joined = true, teamNumber = player.teamNumber, steamId = player.steamId })
+						table.insert(hiveSkillGraphTable,{ gameMinute = gameLength - left, joined = true, teamNumber = player.teamNumber, steamId = player.steamId })
 						left = left - player.minutesPlaying
-						table.insert(hiveSkillGraphTable,{ gameMinute = gameLength-left, joined = false, teamNumber = player.teamNumber, steamId = player.steamId })
+						table.insert(hiveSkillGraphTable,{ gameMinute = gameLength - left, joined = false, teamNumber = player.teamNumber, steamId = player.steamId })
 						-- allow some time for others to reach and join instead
 						left = left - 10/60
 						team[i] = {}
@@ -2143,19 +2143,20 @@ function CHUDGUI_EndStats:ProcessStats()
 	self.team2UI.background:SetIsVisible(teamStatsVisible)
 	self.teamStatsTextShadow:SetIsVisible(teamStatsVisible)
 
-	self.roundDate:SetText("Round date: " .. miscDataTable.roundDateString)
-	self.gameLength:SetText("Game length: " .. miscDataTable.gameLength)
-	self.serverName:SetText("Server name: " .. miscDataTable.serverName)
-	self.mapName:SetText("Map: " .. miscDataTable.mapName)
+	self.roundDate:SetText(string.format("Round date: %s", miscDataTable.roundDateString))
+	self.gameLength:SetText(string.format("Game length: %s", miscDataTable.gameLength))
+	self.serverName:SetText(string.format("Server name: %s", miscDataTable.serverName))
+	self.mapName:SetText(string.format("Map: %s", miscDataTable.mapName))
 
-	table.sort(statusSummaryTable, function(a, b)
-		if a.timeMinutes == b.timeMinutes then
-			return a.className < b.className
-		else
-			return a.timeMinutes > b.timeMinutes
-		end
-	end)
 	if #statusSummaryTable > 0 then
+		table.sort(statusSummaryTable, function(a, b)
+			if a.timeMinutes == b.timeMinutes then
+				return a.className < b.className
+			else
+				return a.timeMinutes > b.timeMinutes
+			end
+		end)
+
 		local bgColor = kStatusStatsColor
 		local statCard = self:CreateGraphicHeader("Class time distribution", bgColor)
 		statCard.rows = {}
