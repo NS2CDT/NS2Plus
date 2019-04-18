@@ -1018,7 +1018,7 @@ local function SendPlayerStats(player)
 	end
 
 	for i = 1, #stats.status do
-		local entry = stats[i]
+		local entry = stats.status[i]
 
 		local msg = {}
 		msg.statusId = kPlayerStatus[entry.statusId]
