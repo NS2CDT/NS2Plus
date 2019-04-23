@@ -2897,12 +2897,27 @@ local function CHUDSetTechLog(message)
 	lastStatsMsg = Shared.GetTime()
 end
 
+local function GetIsOnNeutralTeam()
+	local player = Client.GetLocalPlayer()
+	local teamNumber = player and player:GetTeamNumber()
+	return teamNumber == kTeamReadyRoom or
+			teamNumber == kSpectatorIndex
+end
+
+local function GetGameStarted()
+	local gameInfo = GetGameInfoEntity()
+	return gameInfo and gameInfo:GetGameStarted()
+end
+
 local lastDisplayStatus = false
 local lastDown = 0
 local kKeyTapTiming = 0.2
 function CHUDGUI_EndStats:SendKeyEvent(key, down)
 
-	if GetIsBinding(key, "RequestMenu") and CHUDGetOption("deathstats") > 0 and (GetGameInfoEntity() and not GetGameInfoEntity():GetGameStarted() or Client.GetLocalPlayer():GetTeamNumber() == kTeamReadyRoom or Client.GetLocalPlayer():GetTeamNumber() == kSpectatorIndex) and not ChatUI_EnteringChatMessage() and not MainMenu_GetIsOpened() and self.prevRequestKey ~= down then
+	if GetIsBinding(key, "RequestMenu") and CHUDGetOption("deathstats") > 0
+			and (not GetGameStarted() or GetIsOnNeutralTeam())
+			and not ChatUI_EnteringChatMessage() and not MainMenu_GetIsOpened()
+			and self.prevRequestKey ~= down then
 		
 		self.prevRequestKey = down
 		
@@ -2914,7 +2929,7 @@ function CHUDGUI_EndStats:SendKeyEvent(key, down)
 			local isVisible = self:GetIsVisible()
 			if isVisible then
 				self:SetIsVisible(false)
-			elseif lastDown+kKeyTapTiming > Shared.GetTime() then
+			elseif lastDown + kKeyTapTiming > Shared.GetTime() then
 				self:SetIsVisible(true)
 			end
 		end
