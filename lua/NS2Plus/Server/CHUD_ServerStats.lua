@@ -671,7 +671,7 @@ function LiveMixin:TakeDamage(damage, attacker, doer, point, direction, armorUse
 end
 
 local function CHUDResetCommStats(commSteamId)
-	if commSteamId > 0 and not CHUDCommStats[commSteamId] then
+	if not CHUDCommStats[commSteamId] then
 		CHUDCommStats[commSteamId] = { }
 		CHUDCommStats[commSteamId]["medpack"] = { }
 		CHUDCommStats[commSteamId]["ammopack"] = { }
@@ -867,6 +867,11 @@ originalDrifterEggHatch = Class_ReplaceMethod("DrifterEgg", "Hatch",
 		AddExportBuilding(self:GetTeamNumber(), kTechId.Drifter, true, false, false) -- Drifter Hatch 100
 	end)
 
+local lastRoundStats = {}
+function CHUDGetLastRoundStats()
+	return lastRoundStats
+end
+
 local function FormatRoundStats()
 	local finalStats = {}
 	finalStats[1] = {}
@@ -950,37 +955,38 @@ end
 local function SendClientCommanderStats(client, steamId)
 	if not CHUDCommStats[steamId] then return end
 
-	local msg = {}
-	msg.medpackAccuracy = 0
-	msg.medpackResUsed = 0
-	msg.medpackResExpired = 0
-	msg.medpackEfficiency = 0
-	msg.medpackRefill = 0
-	msg.ammopackResUsed = 0
-	msg.ammopackResExpired = 0
-	msg.ammopackEfficiency = 0
-	msg.ammopackRefill = 0
-	msg.catpackResUsed = 0
-	msg.catpackResExpired = 0
-	msg.catpackEfficiency = 0
+	local msg = {
+		medpackAccuracy = 0,
+		medpackResUsed = 0,
+		medpackResExpired = 0,
+		medpackEfficiency = 0,
+		medpackRefill = 0,
+		ammopackResUsed = 0,
+		ammopackResExpired = 0,
+		ammopackEfficiency = 0,
+		ammopackRefill = 0,
+		catpackResUsed = 0,
+		catpackResExpired = 0,
+		catpackEfficiency = 0
+	}
 
 	for index, commStats in pairs(CHUDCommStats[steamId]) do
 		if commStats.picks and commStats.picks > 0 or commStats.misses and commStats.misses > 0 then
 			if index == "medpack" then
 				-- Add medpacks that were picked up later to the misses count for accuracy
 				msg.medpackAccuracy = CHUDGetAccuracy(commStats.hitsAcc, (commStats.picks- commStats.hitsAcc)+ commStats.misses)
-				msg.medpackResUsed = commStats.picks*kMedPackCost
-				msg.medpackResExpired = commStats.misses*kMedPackCost
+				msg.medpackResUsed = commStats.picks * kMedPackCost
+				msg.medpackResExpired = commStats.misses * kMedPackCost
 				msg.medpackEfficiency = CHUDGetAccuracy(commStats.picks, commStats.misses)
 				msg.medpackRefill = commStats.refilled
 			elseif index == "ammopack" then
-				msg.ammopackResUsed = commStats.picks*kAmmoPackCost
-				msg.ammopackResExpired = commStats.misses*kAmmoPackCost
+				msg.ammopackResUsed = commStats.picks * kAmmoPackCost
+				msg.ammopackResExpired = commStats.misses * kAmmoPackCost
 				msg.ammopackEfficiency = CHUDGetAccuracy(commStats.picks, commStats.misses)
 				msg.ammopackRefill = commStats.refilled
 			elseif index == "catpack" then
-				msg.catpackResUsed = commStats.picks*kCatPackCost
-				msg.catpackResExpired = commStats.misses*kCatPackCost
+				msg.catpackResUsed = commStats.picks * kCatPackCost
+				msg.catpackResExpired = commStats.misses * kCatPackCost
 				msg.catpackEfficiency = CHUDGetAccuracy(commStats.picks, commStats.misses)
 			end
 		end
@@ -1075,48 +1081,56 @@ local function SendTeamStats()
 	end
 end
 
-local function SaveRoundStats()
-	if not CHUDServerOptions["savestats"].currentValue then return end
-
-	local lastRoundStats = {}
-	lastRoundStats.MarineCommStats = CHUDCommStats
-	lastRoundStats.PlayerStats = CHUDClientStats
-	lastRoundStats.KillFeed = CHUDKillGraph
-	lastRoundStats.ServerInfo = {}
-	lastRoundStats.ServerInfo["ip"] = Server.GetIpAddress()
-	lastRoundStats.ServerInfo["port"] = Server.GetPort()
-	lastRoundStats.ServerInfo["name"] = Server.GetName()
-	lastRoundStats.ServerInfo["slots"] = Server.GetMaxPlayers()
-	lastRoundStats.ServerInfo["buildNumber"] = Shared.GetBuildNumber()
-	lastRoundStats.ServerInfo["rookieOnly"] = Server.GetHasTag("rookie_only")
-	lastRoundStats.ServerInfo["mods"] = {}
-	local activeModIds = {}
+local function GetServerMods()
+		local mods = {}
 
 	-- Can't get the mod title correctly unless we do this
 	-- GetModTitle can't get it from the active mod list index, it uses the normal one
+	local activeModIds = {}
 	for modNum = 1, Server.GetNumActiveMods() do
 		activeModIds[Server.GetActiveModId(modNum)] = true
 	end
+
 	for modNum = 1, Server.GetNumMods() do
-		if activeModIds[Server.GetModId(modNum)] then
-			table.insert(lastRoundStats.ServerInfo["mods"], {modId = Server.GetModId(modNum), name = Server.GetModTitle(modNum)})
+		local modId = Server.GetModId(modNum)
+		if activeModIds[modId] then
+			table.insert(mods, {modId = modId, name = Server.GetModTitle(modNum)})
 		end
 	end
-	lastRoundStats.RoundInfo = {}
-	lastRoundStats.RoundInfo["mapName"] = Shared.GetMapName()
-	lastRoundStats.RoundInfo["minimapExtents"] = minimapExtents
-	lastRoundStats.RoundInfo["roundDate"] = Shared.GetSystemTime()
-	lastRoundStats.RoundInfo["roundLength"] = CHUDGetGameTime()
-	lastRoundStats.RoundInfo["startingLocations"] = CHUDStartingTechPoints
-	lastRoundStats.RoundInfo["winningTeam"] = winningTeam and winningTeam.GetTeamType and winningTeam:GetTeamType() or kNeutralTeamType
-	lastRoundStats.RoundInfo["tournamentMode"] = GetTournamentModeEnabled()
-	lastRoundStats.RoundInfo["maxPlayers1"] = CHUDTeamStats[1].maxPlayers
-	lastRoundStats.RoundInfo["maxPlayers2"] = CHUDTeamStats[2].maxPlayers
+
+	return mods
+end
+
+local function SaveRoundStats(winningTeam)
+	lastRoundStats = {}
+	lastRoundStats.MarineCommStats = CHUDCommStats
+	lastRoundStats.PlayerStats = CHUDClientStats
+	lastRoundStats.KillFeed = CHUDKillGraph
+	lastRoundStats.ServerInfo = {
+		ip = Server.GetIpAddress(),
+		port = Server.GetPort(),
+		name = Server.GetName(),
+		slots = Server.GetMaxPlayers(),
+		buildNumber = Shared.GetBuildNumber(),
+		rookieOnly = Server.GetHasTag("rookie_only"),
+		mods = GetServerMods()
+	}
+	lastRoundStats.RoundInfo = {
+		mapName = Shared.GetMapName(),
+		minimapExtents = minimapExtents,
+		roundDate = Shared.GetSystemTime(),
+		roundLength = CHUDGetGameTime(),
+		startingLocations = CHUDStartingTechPoints,
+		winningTeam = winningTeam and winningTeam.GetTeamType and winningTeam:GetTeamType() or kNeutralTeamType,
+		tournamentMode = GetTournamentModeEnabled(),
+		maxPlayers1 = CHUDTeamStats[1].maxPlayers,
+		maxPlayers2 = CHUDTeamStats[2].maxPlayers
+	}
 	lastRoundStats.Locations = locationsTable
 	lastRoundStats.Buildings = CHUDExportBuilding
 	lastRoundStats.Research = CHUDExportResearch
 
-	local savedServerFile = io.open("config://" .. serverStatsPath .. Shared.GetSystemTime() .. ".json", "w+")
+	local savedServerFile = io.open(string.format("config://%s%s.json", serverStatsPath, Shared.GetSystemTime()), "w+")
 	if savedServerFile then
 		savedServerFile:write(json.encode(lastRoundStats, { indent = true }))
 		io.close(savedServerFile)
@@ -1157,19 +1171,20 @@ local function SendGlobalCommanderStats()
 	end
 
 	if sendCommStats then
-		local comMsg = {}
-		comMsg.medpackAccuracy = CHUDGetAccuracy(medpackHitsAcc, (medpackPicks-medpackHitsAcc)+medpackMisses)
-		comMsg.medpackResUsed = medpackPicks
-		comMsg.medpackResExpired = medpackMisses
-		comMsg.medpackEfficiency = CHUDGetAccuracy(medpackPicks, medpackMisses)
-		comMsg.medpackRefill = medpackRefill
-		comMsg.ammopackResUsed = ammopackPicks
-		comMsg.ammopackResExpired = ammopackMisses
-		comMsg.ammopackEfficiency = CHUDGetAccuracy(ammopackPicks, ammopackMisses)
-		comMsg.ammopackRefill = ammopackRefill
-		comMsg.catpackResUsed = catpackPicks
-		comMsg.catpackResExpired = catpackMisses
-		comMsg.catpackEfficiency = CHUDGetAccuracy(catpackPicks, catpackMisses)
+		local comMsg = {
+			medpackAccuracy = CHUDGetAccuracy(medpackHitsAcc, (medpackPicks-medpackHitsAcc)+medpackMisses),
+			medpackResUsed = medpackPicks,
+			medpackResExpired = medpackMisses,
+			medpackEfficiency = CHUDGetAccuracy(medpackPicks, medpackMisses),
+			medpackRefill = medpackRefill,
+			ammopackResUsed = ammopackPicks,
+			ammopackResExpired = ammopackMisses,
+			ammopackEfficiency = CHUDGetAccuracy(ammopackPicks, ammopackMisses),
+			ammopackRefill = ammopackRefill,
+			catpackResUsed = catpackPicks,
+			catpackResExpired = catpackMisses,
+			catpackEfficiency = CHUDGetAccuracy(catpackPicks, catpackMisses)
+		}
 
 		Server.SendNetworkMessage("CHUDGlobalCommStats", comMsg, true)
 	end
@@ -1197,7 +1212,7 @@ originalNS2GamerulesEndGame = Class_ReplaceMethod("NS2Gamerules", "EndGame",
 
 		end
 
-		SaveRoundStats()
+		SaveRoundStats(winningTeam)
 		
 		originalNS2GamerulesEndGame(self, winningTeam)
 	end)
