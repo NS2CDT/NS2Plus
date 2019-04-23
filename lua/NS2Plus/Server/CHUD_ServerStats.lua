@@ -800,7 +800,18 @@ originalCommandStructureLoginPlayer = Class_ReplaceMethod("CommandStructure", "L
 		end
 	
 	end)
-	
+
+local originalDropPackOnInit
+originalDropPackOnInit = Class_ReplaceMethod( "DropPack", "OnInitialized",
+		function(self)
+			originalDropPackOnInit(self)
+
+			local mapName = self:GetMapName()
+			if mapName and CHUDCommStats[CHUDMarineComm] and CHUDCommStats[CHUDMarineComm][mapName] then
+				CHUDCommStats[CHUDMarineComm][mapName].misses = CHUDCommStats[CHUDMarineComm][mapName].misses + 1
+			end
+
+		end)
 
 local originalMedPackOnTouch
 originalMedPackOnTouch = Class_ReplaceMethod("MedPack", "OnTouch",
