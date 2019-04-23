@@ -1018,15 +1018,14 @@ local function SendPlayerStats(player)
 		Server.SendNetworkMessage(client, "CHUDEndStatsWeapon", msg, true)
 	end
 
-	for i = 1, #stats.status do
-		local entry = stats[i]
-
-		local msg = {}
-		msg.statusId = kPlayerStatus[entry.statusId]
-		msg.timeMinutes = entry.classTime/60
-
-		Server.SendNetworkMessage(client, "CHUDEndStatsStatus", msg, true)
-	end
+    for i = 1, #stats.status do
+        local entry = stats.status[i]
+        local msg = {}
+        
+        msg.statusId = kPlayerStatus[entry.statusId]
+        msg.timeMinutes = entry.classTime / 60
+        Server.SendNetworkMessage(client, "CHUDEndStatsStatus", msg, true)
+    end
 end
 
 local function SendTeamStats()
