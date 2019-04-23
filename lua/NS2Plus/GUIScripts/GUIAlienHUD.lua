@@ -124,7 +124,7 @@ function GUIAlienHUD:Initialize()
 	-- Alien bars
 	self:InitializeCHUDAlienCircles()
 
-	if CHUDGetOption("mingui") then
+	if mingui then
 		self.resourceDisplay.background:SetColor(Color(1,1,1,0))
 	else
 		self.resourceDisplay.background:SetColor(Color(1,1,1,1))
@@ -291,6 +291,13 @@ function GUIAlienHUD:Update(deltaTime)
 	end
 	self.gorgeBuiltText:SetIsVisible(gorgeBuiltTextVisible)
 	self.activeAbilityIcon:SetIsVisible(not gorgeBuiltTextVisible)
+
+	if Client.GetOptionInteger("hudmode", kHUDMode.Full) ~= kHUDMode.Full then
+		self.statusDisplays:SetIsVisible(gCHUDHiddenViewModel)
+	elseif not gCHUDHiddenViewModel then
+		self.statusDisplays:SetIsVisible(CHUDGetOption("mingui"))
+	end
+
 end
 	
 local originalAlienReset = GUIAlienHUD.Reset

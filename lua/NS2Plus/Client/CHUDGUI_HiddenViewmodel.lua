@@ -23,7 +23,7 @@ function CHUDGUI_HiddenViewmodel:Initialize()
 end
 
 local lastLeft, lastRight, lastChange
-function CHUDGUI_HiddenViewmodel:Update(_)
+function CHUDGUI_HiddenViewmodel:Update()
 	local exoHUDScript = ClientUI.GetScript("Hud/Marine/GUIExoHUD")
 	if exoHUDScript then
 		local player = Client.GetLocalPlayer()
@@ -58,7 +58,7 @@ function CHUDGUI_HiddenViewmodel:Update(_)
 	end
 end
 
-function CHUDGUI_HiddenViewmodel:OnResolutionChanged(_, _, _, _)
+function CHUDGUI_HiddenViewmodel:OnResolutionChanged()
 	self:Uninitialize()
 	self:Initialize()
 end

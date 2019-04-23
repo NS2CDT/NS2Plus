@@ -307,7 +307,8 @@ function GUIMarineHUD:Update(deltaTime)
 	-- Update commander name
 	local commanderName = PlayerUI_GetCommanderName()
 
-	if Client.GetOptionInteger("hudmode", kHUDMode.Full) ~= kHUDMode.Full and showcomm then
+	local minMode = Client.GetOptionInteger("hudmode", kHUDMode.Full) ~= kHUDMode.Full
+	if minMode and showcomm then
 
 		if commanderName == nil then
 
@@ -349,6 +350,10 @@ function GUIMarineHUD:Update(deltaTime)
 		if commanderName ~= nil then
 			self.commanderName:SetColor(GUIMarineHUD.kActiveCommanderColor)
 		end
+	end
+
+	if self.statusDisplayVisible then
+		self.statusDisplays:SetIsVisible(not minMode and not mingui or gCHUDHiddenViewModel)
 	end
 end
 	

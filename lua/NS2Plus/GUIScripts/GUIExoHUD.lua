@@ -11,5 +11,11 @@ function GUIExoHUD:Update(deltaTime)
 		self.leftInfoBar:SetIsVisible(mingui)
 		self.rightInfoBar:SetIsVisible(mingui)
 		self.staticRing:SetIsVisible(mingui)
+
+		if not gCHUDHiddenViewModel then
+			self.playerStatusIcons:SetIsVisible(mingui)
+		end
+	else
+		self.playerStatusIcons:SetIsVisible(gCHUDHiddenViewModel)
 	end
 end
