@@ -2,6 +2,7 @@
 -- Todo: Remodel stats data model (big mess at the moment and not easy to parse)
 
 local CHUDClientStats = {}
+local CHUDCommStats = {}
 local CHUDTeamStats = {}
 local CHUDRTGraph = {}
 local CHUDHiveSkillGraph = {}
