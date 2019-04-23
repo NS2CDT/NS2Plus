@@ -534,7 +534,7 @@ function ScoringMixin:AddKill()
 		MaybeInitCHUDClientStats(steamId, nil, teamNumber)
 		local stat = CHUDClientStats[steamId] and CHUDClientStats[steamId][teamNumber]
 		
-		if stat then
+		if stat and stat.kills then
 			stat.kills = Clamp(stat.kills + 1, 0, kMaxKills)
 		end
 	end
@@ -550,7 +550,7 @@ function ScoringMixin:AddAssistKill()
 		MaybeInitCHUDClientStats(steamId, nil, teamNumber)
 		local stat = CHUDClientStats[steamId] and CHUDClientStats[steamId][teamNumber]
 		
-		if stat then
+		if stat and stat.assists then
 			stat.assists = Clamp(stat.assists + 1, 0, kMaxKills)
 		end
 	end
@@ -566,7 +566,7 @@ function ScoringMixin:AddDeaths()
 		MaybeInitCHUDClientStats(steamId, nil, teamNumber)
 		local stat = CHUDClientStats[steamId] and CHUDClientStats[steamId][teamNumber]
 		
-		if stat then
+		if stat and stat.deaths then
 			stat.deaths = Clamp(stat.deaths + 1, 0, kMaxDeaths)
 		end
 	end
@@ -582,7 +582,7 @@ function ScoringMixin:AddScore(points, res, wasKill)
 		MaybeInitCHUDClientStats(steamId, nil, teamNumber)
 		local stat = CHUDClientStats[steamId] and CHUDClientStats[steamId][teamNumber]
 		
-		if stat then
+		if stat and stat.score then
 			stat.score = Clamp(stat.score + points, 0, kMaxScore)
 		end
 	end
@@ -807,7 +807,7 @@ originalDropPackOnInit = Class_ReplaceMethod( "DropPack", "OnInitialized",
 			originalDropPackOnInit(self)
 
 			local mapName = self:GetMapName()
-			if mapName and CHUDCommStats[CHUDMarineComm] and CHUDCommStats[CHUDMarineComm][mapName] then
+			if mapName and CHUDCommStats[CHUDMarineComm] then
 				CHUDCommStats[CHUDMarineComm][mapName].misses = CHUDCommStats[CHUDMarineComm][mapName].misses + 1
 			end
 
@@ -819,6 +819,11 @@ originalMedPackOnTouch = Class_ReplaceMethod("MedPack", "OnTouch",
 	
 		local oldHealth = recipient:GetHealth()
 		originalMedPackOnTouch(self, recipient)
+
+		if not (CHUDMarineComm and CHUDCommStats[CHUDMarineComm]) then
+			return
+		end
+
 		if oldHealth < recipient:GetHealth() then
 			-- If the medpack hits immediatly expireTime is 0
 			if ConditionalValue(self.expireTime == 0, Shared.GetTime(), self.expireTime - kItemStayTime) + 0.025 > Shared.GetTime() then
@@ -850,6 +855,11 @@ originalAmmoPackOnTouch = Class_ReplaceMethod("AmmoPack", "OnTouch",
 	
 		local oldAmmo = GetAmmoCount(recipient)
 		originalAmmoPackOnTouch(self, recipient)
+
+		if not (CHUDMarineComm and CHUDCommStats[CHUDMarineComm]) then
+			return
+		end
+
 		local newAmmo = GetAmmoCount(recipient)
 		if oldAmmo < newAmmo then
 			CHUDCommStats[CHUDMarineComm]["ammopack"].misses = CHUDCommStats[CHUDMarineComm]["ammopack"].misses - 1
@@ -862,8 +872,12 @@ originalAmmoPackOnTouch = Class_ReplaceMethod("AmmoPack", "OnTouch",
 local originalCatPackOnTouch
 originalCatPackOnTouch = Class_ReplaceMethod("CatPack", "OnTouch",
 	function(self, recipient)
-	
 		originalCatPackOnTouch(self, recipient)
+
+		if not (CHUDMarineComm and CHUDCommStats[CHUDMarineComm]) then
+			return
+		end
+
 		CHUDCommStats[CHUDMarineComm]["catpack"].misses = CHUDCommStats[CHUDMarineComm]["catpack"].misses - 1
 		CHUDCommStats[CHUDMarineComm]["catpack"].picks = CHUDCommStats[CHUDMarineComm]["catpack"].picks + 1
 	
