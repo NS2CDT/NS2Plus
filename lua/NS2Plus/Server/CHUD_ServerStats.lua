@@ -807,7 +807,7 @@ originalDropPackOnInit = Class_ReplaceMethod( "DropPack", "OnInitialized",
 			originalDropPackOnInit(self)
 
 			local mapName = self:GetMapName()
-			if mapName and CHUDCommStats[CHUDMarineComm] then
+			if mapName and CHUDCommStats[CHUDMarineComm] and CHUDCommStats[CHUDMarineComm][mapName] then
 				CHUDCommStats[CHUDMarineComm][mapName].misses = CHUDCommStats[CHUDMarineComm][mapName].misses + 1
 			end
 
@@ -856,7 +856,7 @@ originalAmmoPackOnTouch = Class_ReplaceMethod("AmmoPack", "OnTouch",
 		local oldAmmo = GetAmmoCount(recipient)
 		originalAmmoPackOnTouch(self, recipient)
 
-		if not (CHUDMarineComm and CHUDCommStats[CHUDMarineComm]) then
+		if self:GetMapName() ~= "ammopack" or not (CHUDMarineComm and CHUDCommStats[CHUDMarineComm]) then
 			return
 		end
 
