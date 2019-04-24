@@ -297,6 +297,8 @@ local viewModelCinematics = set {
 						"cinematics/marine/rifle/shell_looping_1p.cinematic",
 						"cinematics/marine/shotgun/muzzle_flash.cinematic",
 						"cinematics/marine/shotgun/shell.cinematic",
+						"cinematics/marine/hmg/muzzle_flash.cinematic",
+						"cinematics/marine/hmg/shell_looping_1p.cinematic",
 }
 
 -- Precache all the new cinematics
