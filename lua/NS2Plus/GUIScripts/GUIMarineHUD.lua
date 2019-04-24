@@ -217,7 +217,7 @@ end
 
 local originalMarineHUDUpdate = GUIMarineHUD.Update
 function GUIMarineHUD:Update(deltaTime)
-	local mingui = not CHUDGetOption("mingui")
+	local mingui = CHUDGetOption("mingui")
 	local showcomm = CHUDGetOption("showcomm")
 	local rtcount = CHUDGetOption("rtcount")
 	local commactions = CHUDGetOption("commactions")
@@ -276,7 +276,7 @@ function GUIMarineHUD:Update(deltaTime)
 	self.resourceDisplay.teamText:SetIsVisible(showcomm)
 
 	-- Disable that rotating border around the HP Bars if we have MinGUI or disabled bars
-	if not mingui or not hpbar then
+	if mingui or not hpbar then
 		self.statusDisplay.healthBorderMask:SetColor(Color(1,1,1,0))
 		self.statusDisplay.armorBorderMask:SetColor(Color(1,1,1,0))
 	end
@@ -291,7 +291,7 @@ function GUIMarineHUD:Update(deltaTime)
 		self.statusDisplay.healthText:SetIsVisible(false)
 		self.statusDisplay.armorText:SetIsVisible(true)
 	else
-		if mingui then
+		if not mingui then
 			self.statusDisplay.scanLinesForeground:SetColor(kBrightColorTransparent)
 		end
 		self.statusDisplay.healthBar:SetIsVisible(hpbar)
