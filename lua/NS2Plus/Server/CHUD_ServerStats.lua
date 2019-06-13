@@ -1034,16 +1034,16 @@ local function SendPlayerStats(player)
 	-- Commander stats
 	SendClientCommanderStats(client, steamId)
 
-	for wTechId, wStats in pairs(stats["weapons"]) do
+	for wTechName, wStats in pairs(stats["weapons"]) do
 		local accuracy, accuracyOnos = CHUDGetAccuracy(wStats.hits, wStats.misses, wStats.onosHits)
 
 		local msg = {}
-		msg.wTechId = kTechId[wTechId]
+		msg.wTechId = kTechId[wTechName]
 		msg.accuracy = accuracy
 		msg.accuracyOnos = accuracyOnos
 		msg.kills = wStats.kills
-		msg.pdmg = wStats.playerDamage
-		msg.sdmg = wStats.playerDamage
+		msg.pdmg = wStats.pdmg
+		msg.sdmg = wStats.sdmg
 		msg.teamNumber = wStats.teamNumber
 		--Log("NS2+ %s : %s -> %s", wTechId, wStats, msg )
 		Server.SendNetworkMessage(client, "CHUDEndStatsWeapon", msg, true)
