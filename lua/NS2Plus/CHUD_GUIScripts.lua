@@ -24,15 +24,6 @@ ModLoader.SetupFileHook("lua/GUINotifications.lua", "lua/NS2Plus/GUIScripts/GUIN
 ModLoader.SetupFileHook("lua/GUIDeathMessages.lua", "lua/NS2Plus/GUIScripts/GUIDeathMessages.lua", "post")
 ModLoader.SetupFileHook("lua/GUICrosshair.lua", "lua/NS2Plus/GUIScripts/GUICrosshair.lua", "post")
 ModLoader.SetupFileHook("lua/GUICommanderAlerts.lua", "lua/NS2Plus/GUIScripts/GUICommanderAlerts.lua", "post")
-
-if Shared.GetBuildNumber() < 326 then
-	ModLoader.SetupFileHook("lua/menu/GUIHoverTooltip.lua", "lua/NS2Plus/GUIScripts/GUIHoverTooltip.lua", "post")
-	ModLoader.SetupFileHook("lua/GUIInsight_Overhead.lua", "lua/NS2Plus/GUIScripts/GUIInsight_Overhead.lua", "post")
-	ModLoader.SetupFileHook("lua/GUIInsight_PlayerFrames.lua", "lua/NS2Plus/GUIScripts/GUIInsight_PlayerFrames.lua", "post")
-	ModLoader.SetupFileHook("lua/GUIInsight_PlayerHealthbars.lua", "lua/NS2Plus/GUIScripts/GUIInsight_PlayerHealthbars.lua", "post")
-	ModLoader.SetupFileHook("lua/GUIInsight_OtherHealthbars.lua", "lua/NS2Plus/GUIScripts/GUIInsight_OtherHealthbars.lua", "post")
-end
-
 ModLoader.SetupFileHook("lua/Hud/GUIInventory.lua", "lua/NS2Plus/GUIScripts/GUIInventory.lua", "post")
 ModLoader.SetupFileHook("lua/GUIProduction.lua", "lua/NS2Plus/GUIScripts/GUIProduction.lua", "post")
 ModLoader.SetupFileHook("lua/Commander_Client.lua", "lua/NS2Plus/GUIScripts/Commander_Client.lua", "post")
