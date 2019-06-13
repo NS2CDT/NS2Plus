@@ -528,8 +528,103 @@ local function OnCommandPlusExport()
 		io.close(settingsFile)
 	end
 end
-
 Event.Hook("Console_plus_export", OnCommandPlusExport)
+
+local function OnCommandPlusExportOptionTable()
+	local settingsFileName = "config://NS2Plus/ExportedOptions.csv"
+	local settingsFile = io.open(settingsFileName, "w+")
+	if settingsFile then
+		local OptionsMenuTable = {}
+		local categoryOrder = {
+			ui = 1,
+			hud = 2,
+			damage = 3,
+			minimap = 4,
+			sound = 5,
+			graphics = 6,
+			stats = 7,
+			misc = 8
+		}
+
+		local function AddParent(option)
+			if option.children then
+				for i = 1, #option.children do
+					local child = option.children[i]
+					CHUDOptions[child].parent = option.label
+				end
+			end
+		end
+
+		for idx, option in pairs(CHUDOptions) do
+			if not OptionsMenuTable[option.category] then
+				OptionsMenuTable[option.category] = {}
+			end
+			AddParent(option)
+			table.insert(OptionsMenuTable[option.category], CHUDOptions[idx])
+		end
+
+		local function CHUDOptionsSort(a, b)
+			if a.sort == nil then
+				a.sort = "Z" .. a.name
+			end
+			if b.sort == nil then
+				b.sort = "Z" .. b.name
+			end
+
+			return a.sort < b.sort
+		end
+
+		local CHUDOptionsMenu = {}
+		for name, category in pairs(OptionsMenuTable) do
+			table.sort(category, CHUDOptionsSort)
+			table.insert(CHUDOptionsMenu, {
+				name = string.upper(name) .. " TAB",
+				options = OptionsMenuTable[name],
+				sort = categoryOrder[name],
+			})
+		end
+
+		table.sort(CHUDOptionsMenu, CHUDOptionsSort)
+
+		local function PrintSetting(optionIdx)
+			local parent = optionIdx.parent or ""
+
+			local values = ""
+			local default = ""
+			local valueType = optionIdx.valueType
+
+			if valueType == "float" then
+				local multi = optionIdx.multiplier or 1
+				default = tostring(optionIdx.defaultValue * multi)
+				values = string.format("%s - %s", optionIdx.minValue * multi, optionIdx.maxValue * multi)
+			elseif valueType == "bool" then
+				default = optionIdx.defaultValue and optionIdx.values[2] or optionIdx.values[1]
+				values = table.concat(optionIdx.values, ";")
+			elseif valueType == "int" then
+				default = optionIdx.values[optionIdx.defaultValue + 1]
+				values = table.concat(optionIdx.values, ";")
+			elseif valueType == "color" then
+				local tmpColor = ColorIntToColor(optionIdx.defaultValue)
+				default = string.format("(%s;%s;%s)", math.floor(tmpColor.r*255), math.floor(tmpColor.g*255), math.floor(tmpColor.b*255))
+				values = "(0;0;0) to (255;255;255)"
+			end
+			local optionString = optionIdx.label .. "," .. optionIdx.tooltip:gsub(",", ";"):gsub("\n", " ") .. "," .. optionIdx.category .. "," ..
+					parent .. "," .. valueType .. "," .. values .. "," .. default .. ",".. "\r\n"
+
+			settingsFile:write(optionString)
+		end
+
+		settingsFile:write("Name,Description,Category,Parent,Typ,Values,Default\r\n")
+		for _, category in pairs(CHUDOptionsMenu) do
+			for _, option in ipairs(category.options) do
+				PrintSetting(option)
+			end
+		end
+
+		io.close(settingsFile)
+	end
+end
+Event.Hook("Console_plus_export_option_table", OnCommandPlusExportOptionTable)
 
 Event.Hook("Console_plus", OnCommandCHUD)
 if not CHUDMainMenu then
