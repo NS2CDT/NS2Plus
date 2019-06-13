@@ -372,6 +372,13 @@ function CreateCinematic(className, _, values)
 		cinematic.commanderInvisible = values.commanderInvisible
 		cinematic.className = className
 		cinematic.coords = coords
+
+		if values.commanderInvisible then
+			local player = Client.GetLocalPlayer()
+			if player and player:isa("Commander") then
+				cinematic:SetIsVisible(false)
+			end
+		end
 		
 		if className == "cinematic" and mapCinematicNames[values.cinematicName] then
 			table.insert(cinematicsCache, cinematic)
@@ -387,6 +394,18 @@ function SetCommanderPropState(isComm)
 			local prop = propPair[1]
 			if prop.commAlpha < 1 then
 				prop:SetIsVisible(not isComm)
+			end
+		end
+	end
+end
+
+local originalSetLocalPlayerIsOverhead = SetLocalPlayerIsOverhead
+function SetLocalPlayerIsOverhead(isOverhead)
+	originalSetLocalPlayerIsOverhead(isOverhead)
+	if cinematicsCache then
+		for _, cinematic in ipairs(cinematicsCache) do
+			if cinematic.commanderInvisible then
+				cinematic:SetIsVisible(not isOverhead)
 			end
 		end
 	end
@@ -430,6 +449,12 @@ originalOnUpdateRender = Class_ReplaceMethod("PropDynamic", "OnUpdateRender",
 			end
 		elseif showParticles and self.originalModelName then
 			self:SetModel(self.originalModelName)
+
+			local player = Client.GetLocalPlayer()
+			if player and self.commAlpha < 1 then
+				self:SetIsVisible(not player:isa("Commander"))
+			end
+
 			self.originalModelName = nil
 		end
 	end
