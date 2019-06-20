@@ -155,16 +155,18 @@ oldJoinTeam = Class_ReplaceMethod("NS2Gamerules", "JoinTeam",
 		local oldTeamNumber = player:GetTeamNumber()
 		local success, newPlayer, c, d, e, f = oldJoinTeam(self, player, newTeamNumber, ...)
 
-		if success and CHUDGetGameStarted() then
+		if success and CHUDGetGameStarted() and oldTeamNumber ~= newTeamNumber then
 			CHUDTeamStats[1].maxPlayers = math.max(CHUDTeamStats[1].maxPlayers, self.team1:GetNumPlayers())
 			CHUDTeamStats[2].maxPlayers = math.max(CHUDTeamStats[2].maxPlayers, self.team2:GetNumPlayers())
 
-			local joined = isPlayingTeam(newTeamNumber)
-			local left = isPlayingTeam(oldTeamNumber)
-			if joined or left then
-				local steamId = newPlayer:GetSteamId()
-				local affectedTeamNumber = ConditionalValue(joined, newTeamNumber, oldTeamNumber)
-				table.insert(CHUDHiveSkillGraph, { gameMinute = CHUDGetGameTime(true), joined = joined, teamNumber = affectedTeamNumber, steamId = steamId } )
+			local steamId = newPlayer:GetSteamId()
+			local gameTime = CHUDGetGameTime(true)
+			if isPlayingTeam(newTeamNumber) then
+				table.insert(CHUDHiveSkillGraph, { gameMinute = gameTime, joined = true, teamNumber = newTeamNumber, steamId = steamId } )
+			end
+
+			if isPlayingTeam(oldTeamNumber) then
+				table.insert(CHUDHiveSkillGraph, { gameMinute = gameTime, joined = false, teamNumber = oldTeamNumber, steamId = steamId } )
 			end
 		end
 		
