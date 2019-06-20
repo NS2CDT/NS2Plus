@@ -6,7 +6,13 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
-
+- 20/06/2019
+    - Removed server options to display numeric skill values directly at the scoreboard GUI
+    - Fixed that the team hive skill graph at the end game stats GUI wasn't tracking changes correctly
+    - Fixed that the commander visibility value of map cinematics and props wasn't applied properly.
+    - Fixed that player and structure damage values for each weapon weren't displayed at the end game stats GUI
+    - Added a console command to export available ns2plus options and their descriptions to a csv table
+    
 - 20/12/2018
     - Fixed compatibility issues with ns2 build 326
     - Optimized server stats code
@@ -14,12 +20,6 @@ Latest changes
 - 12/11/2018
     - Fixed that the separate team color option for the cr4zy alien vision didn't work anymore (Thanks to Handschuh)
     - Fixed that the low lights for ns2_descent were too dark in many areas (Thanks Zavaro)
-    
-- 29/10/2018
-    - Optimized the reload indicator code (Thanks Handschuh)
-    - Refactored the map particles option code. The option now takes effect immediably.
-    - Optimized the usage of certain event hooks to avoid causing engine crashes.
-    - Fixed and optimized the low lights for ns2_descent (Thanks Zavaro)
 
 Server settings
 ===============

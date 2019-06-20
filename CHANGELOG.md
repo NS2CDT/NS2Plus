@@ -1,5 +1,11 @@
 Changelog
 ============
+- 20/06/2019
+    - Removed server options to display numeric skill values directly at the scoreboard GUI
+    - Fixed that the team hive skill graph at the end game stats GUI wasn't tracking changes correctly
+    - Fixed that the commander visibility value of map cinematics and props wasn't applied properly.
+    - Fixed that player and structure damage values for each weapon weren't displayed at the end game stats GUI
+    - Added a console command to export available ns2plus options and their descriptions to a csv table
 - 20/12/2018
     - Fixed compatibility issues with ns2 build 326
     - Optimized server stats code
