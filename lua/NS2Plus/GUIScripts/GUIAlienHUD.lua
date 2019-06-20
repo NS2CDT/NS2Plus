@@ -1,7 +1,7 @@
 PrecacheAsset("ui/oma_alien_hud_health.dds")
 PrecacheAsset("ui/rant_alien_hud_health.dds")
 PrecacheAsset("ui/old_alien_hud_health.dds")
-PrecacheAsset("ui/vanilla_hud_health.dds")
+PrecacheAsset("ui/vanilla_alien_hud_health.dds")
 
 function GUIAlienHUD:CHUDRepositionGUI()
 	local gametime = CHUDGetOption("gametime")
