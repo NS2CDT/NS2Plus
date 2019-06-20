@@ -196,18 +196,24 @@ Some fields will be null sometimes like in Suicides or death by Natural Causes o
 
 Credits/Thanks to
 =================
-- Regular contributors
+- Contributors
 	- [**Mendasp**](https://github.com/mendasp)
 	- [**remi.D**](https://github.com/sclark39)
-	- **rantology**
+	- [**rantology**](https://github.com/rantology)
+    - [**Ghoul**](https://github.com/GhoulofGSG9)
+    - [**keatsandyeats**](https://github.com/keatsandyeats)
+    - [**Cr4zy**](https://github.com/Cr4zyy)
+    - [**BeigeAlert**](https://github.com/BeigeAlert)
+    - [**Dragon**](https://github.com/xToken)
+    - [**Handschuuh**](https://github.com/Handschuuh)
+    - [**eBrute**](https://github.com/eBrute)
 
-- Also thanks to
+- Special thanks to
 	- [**Unknown Worlds Entertainment**](http://unknownworlds.com)
-	- [**Dragon**](https://github.com/xToken)
 	- [**bawNg**](https://github.com/bawNg)
 	- **lwf** - [(Better NS2)](http://steamcommunity.com/sharedfiles/filedetails/?id=113116595)
-	- [**Ghoul**](https://github.com/BrightPaul)
 	- **Sewlek**
+	- **Huze**
 	- [**Person8880**](https://github.com/Person8880)
 
 Past NS2+ features now included in vanilla NS2:
@@ -290,4 +296,4 @@ Past NS2+ fixes now included in vanilla NS2:
 - [265] Fixed inactive/unbuilt structures not blinking red when under attack.
 - [265] Fixed alien structures not blinking red when uncysted.
 
-Copyright 2017 - Unknown Worlds Entertainment. All rights reserved.
+Copyright 2019 - Unknown Worlds Entertainment. All rights reserved.
