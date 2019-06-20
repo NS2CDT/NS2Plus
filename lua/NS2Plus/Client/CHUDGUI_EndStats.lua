@@ -2970,9 +2970,6 @@ function CHUDGUI_EndStats:SendKeyEvent(key, down)
 				
 				self.hoverMenu:SetBackgroundColor(bgColor)
 				local name = self.lastRow.playerName:GetText()
-				if self.lastRow.hiveSkill ~= nil and self.lastRow.hiveSkill > -1 then
-					name = "[" .. self.lastRow.hiveSkill .. "] " .. name
-				end
 				self.hoverMenu:AddButton(name, nameBgColor, nameBgColor, textColor)
 				self.hoverMenu:AddButton(Locale.ResolveString("SB_MENU_STEAM_PROFILE"), teamColorBg, teamColorHighlight, textColor, openSteamProf)
 				self.hoverMenu:AddButton("Observatory profile", teamColorBg, teamColorHighlight, textColor, openObservatoryProf)

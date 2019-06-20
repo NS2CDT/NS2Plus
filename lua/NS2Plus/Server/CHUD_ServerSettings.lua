@@ -67,24 +67,6 @@ CHUDServerOptions =
 		minValue = 0,
 		maxValue = 999,
 		},
-	show_avgteamskill = {
-		label   = "Show average team skills",
-		tooltip = "Shows the average team skill on the scoreboard for clients.",
-		valueType = "bool",
-		defaultValue = false,
-		},
-	show_probabilityofteamvictory = {
-		label   = "Show probability of victory for each team",
-		tooltip = "Shows the probability of victory for each team on the scoreboard for clients.",
-		valueType = "bool",
-		defaultValue = false,
-		},
-	show_playerskill = {
-		label   = "Show player skill pregame",
-		tooltip = "Shows each player's Hive skill on the scoreboard before the game starts.",
-		valueType = "bool",
-		defaultValue = false,
-		},
 	savestats = {
 		label   = "Save round stats",
 		tooltip = "Saves the last round stats in the NS2Plus\\Stats\\ folder in your config path in json format. Each round played will be saved in a separate file. The file name for each round is the epoch time at round end.",

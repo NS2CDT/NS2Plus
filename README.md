@@ -37,8 +37,6 @@ Server operators can adjust some features for NS2+ through the console (typing "
 	- **modupdater:** Enables or disables the mod update checker. This will notify players that mods running on the server have been updated during the round and that new players cannot join until the map is changed. If the server is using a mod backup server it will display a different notification.
 	- **modupdatercheckinterval:** Sets the update check interval for the mod updater (in minutes).
 	- **modupdaterreminderinterval:** Sets the time between reminders when an update has been found. Set to 0 to disable (only shows once).
-	- **showavgteamskill:** Shows the average team skill at the top of the scoreboard for clients.
-	- **showplayerskill:** Shows each player's Hive skill on the scoreboard before the game starts.
 	- **savestats:** Saves the last round stats in the NS2Plus\\Stats\\ folder in your config path in json format. Each round played will be saved in a separate file. The file name for each round is the epoch time at round end. Disabled by default.
 
 Stats format

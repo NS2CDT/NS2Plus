@@ -30,15 +30,10 @@ if #CHUDClientOptions > 0 then
 	Shared.Message("Blocked client options: " .. blockedString)
 end
 
-local showAvgSkill = ConditionalValue(CHUDServerOptions["show_avgteamskill"].currentValue, "Enabled", "Disabled")
-local showProbability = ConditionalValue(CHUDServerOptions["show_probabilityofteamvictory"].currentValue, "Enabled", "Disabled")
-local showPlayerSkill = ConditionalValue(CHUDServerOptions["show_playerskill"].currentValue, "Enabled", "Disabled")
+
 local showEndStatsAuto = ConditionalValue(CHUDServerOptions["autodisplayendstats"].currentValue, "Enabled", "Disabled")
 local showEndStatsTeamBreakdown = ConditionalValue(CHUDServerOptions["endstatsteambreakdown"].currentValue, "Enabled", "Disabled")
 local saveStats = ConditionalValue(CHUDServerOptions["savestats"].currentValue, "Enabled", "Disabled")
-Shared.Message("Display team avg. skill: " .. showAvgSkill)
-Shared.Message("Display team's probability of victory: " .. showProbability)
-Shared.Message("Display player skill pregame: " .. showPlayerSkill)
 Shared.Message("Display end game stats automatically on round end: " .. showEndStatsAuto)
 Shared.Message("End game team stats scoreboard: " .. showEndStatsTeamBreakdown)
 Shared.Message("Save end round stats to file: " .. saveStats)

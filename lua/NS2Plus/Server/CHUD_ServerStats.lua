@@ -145,6 +145,10 @@ local techLogBuildings = set {
 	"Hive",
 }
 
+local function isPlayingTeam(tn)
+	return tn == kTeam1Index or tn == kTeam2Index
+end
+
 local oldJoinTeam
 oldJoinTeam = Class_ReplaceMethod("NS2Gamerules", "JoinTeam",
 	function(self, player, newTeamNumber, ...)
@@ -154,10 +158,6 @@ oldJoinTeam = Class_ReplaceMethod("NS2Gamerules", "JoinTeam",
 		if success and CHUDGetGameStarted() then
 			CHUDTeamStats[1].maxPlayers = math.max(CHUDTeamStats[1].maxPlayers, self.team1:GetNumPlayers())
 			CHUDTeamStats[2].maxPlayers = math.max(CHUDTeamStats[2].maxPlayers, self.team2:GetNumPlayers())
-
-			local function isPlayingTeam(tn)
-				return tn == kTeam1Index or tn == kTeam2Index
-			end
 
 			local joined = isPlayingTeam(newTeamNumber)
 			local left = isPlayingTeam(oldTeamNumber)

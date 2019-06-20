@@ -8,60 +8,24 @@ function GUIScoreboard:UpdateTeam(updateTeam)
 	originalScoreboardUpdateTeam(self, updateTeam)
 	
 	local teamGUIItem = updateTeam["GUIs"]["Background"]
-	local teamNumber = updateTeam["TeamNumber"]
 	local teamScores = updateTeam["GetScores"]()
 	local playerList = updateTeam["PlayerList"]
-	
-	local teamSumSkill = 0
+
 	local numPlayers = #teamScores
-	
 	-- Resize the player list if it doesn't match.
 	if #playerList ~= numPlayers then
 		self:ResizePlayerList(playerList, numPlayers, teamGUIItem)
 	end
-	
-	-- Recount the players so we can exclude bots
-	numPlayers = 0
-	local currentPlayerIndex = 1
-	for _, player in ipairs(playerList) do
-		local playerRecord = teamScores[currentPlayerIndex]
-		currentPlayerIndex = currentPlayerIndex + 1
 
+	for _, player in ipairs(playerList) do
 		-- Swap KDA/KAD
 		if CHUDGetOption("kda") and player["Assists"]:GetPosition().x < player["Deaths"]:GetPosition().x then
 			local temp = player["Assists"]:GetPosition()
 			player["Assists"]:SetPosition(player["Deaths"]:GetPosition())
 			player["Deaths"]:SetPosition(temp)
 		end
-		
-		if self.showPlayerSkill and playerRecord.Skill > 0 then
-			player["Name"]:SetText(string.format("[%s] %s", playerRecord.Skill, player["Name"]:GetText()))
-		end
-		
-		if playerRecord.SteamId > 0 then
-
-			if playerRecord.Skill >= 0 then
-				teamSumSkill = teamSumSkill + playerRecord.Skill
-				numPlayers = numPlayers + 1
-			end
-		end
 	end
 
-	if (teamNumber == 1 or teamNumber == 2) and (self.showAvgSkill or self.showProbability)then
-		local avgskill = numPlayers > 0 and teamSumSkill/numPlayers or 0
-		if teamNumber == 1 then
-			team1Skill = avgskill
-			skillPlayers = #playerList
-			skillDiff = teamSumSkill + avgskill * (skillPlayers- numPlayers)
-		elseif teamNumber == 2 then
-			team2Skill = avgskill
-			skillPlayers = skillPlayers + #playerList
-			skillDiff = skillDiff - teamSumSkill - avgskill * (#playerList - numPlayers)
-
-			-- calculate probability of victory
-			team1VictoryP = math.min(Round(100 / (1 + math.exp(-skillDiff / (100 * skillPlayers)))), 99)
-		end
-	end
 end
 
 local originalScoreboardInit = GUIScoreboard.Initialize
@@ -119,105 +83,6 @@ function GUIScoreboard:Update(deltaTime)
 	
 	if self.visible then
 		self.centerOnPlayer = CHUDGetOption("sbcenter")
-
-		self.showPlayerSkill = GetGameInfoEntity().showPlayerSkill and not PlayerUI_GetHasGameStarted()
-		self.showAvgSkill = GetGameInfoEntity().showAvgSkill
-		self.showProbability = GetGameInfoEntity().showProbability
-
-
-		if self.showAvgSkill or self.showProbability then
-			local team1Players = #self.teams[2]["GetScores"]()
-			local team2Players = #self.teams[3]["GetScores"]()
-			local hasText = false
-			
-			self.avgSkillItemBg:SetIsVisible(true)
-			self.avgSkillItem2Bg:SetIsVisible(true)
-			
-			self.scoreboardBackground:AddChild(self.avgSkillItem)
-			self.scoreboardBackground:AddChild(self.avgSkillItem2)
-
-			local team1Text = ""
-			local team2Text = ""
-
-			if self.showAvgSkill then
-				team1Text = string.format("Avg. skill: %d", team1Skill)
-				team2Text = string.format("Avg. skill: %d", team2Skill)
-			end
-
-			if team1Players > 0 and team2Players > 0 then
-
-				if self.showAvgSkill and self.showProbability then
-					team1Text = string.format("Avg. skill: %d, Probability of victory: %d%%", team1Skill, team1VictoryP)
-					team2Text = string.format("Avg. skill: %d, Probability of victory: %d%%", team2Skill, 100 - team1VictoryP)
-				elseif self.showProbability then
-					team1Text = string.format("Probability of victory: %d%%", team1VictoryP)
-					team2Text = string.format("Probability of victory: %d%%", 100 - team1VictoryP)
-				end
-
-				self.avgSkillItem:SetText(team1Text)
-				self.avgSkillItem2:SetText(team2Text)
-				hasText = true
-				
-				if teamItemWidth*2 > self.scoreboardBackground:GetSize().x then
-					local team1TextWidth = self.avgSkillItem:GetTextWidth(self.avgSkillItem:GetText()) * self.avgSkillItem:GetScale().x
-					local team2TextWidth = self.avgSkillItem2:GetTextWidth(self.avgSkillItem2:GetText()) * self.avgSkillItem2:GetScale().x
-					
-					self.avgSkillItem:SetPosition(Vector(-20*GUIScoreboard.kScalingFactor-team1TextWidth/2, textHeight/2+5*GUIScoreboard.kScalingFactor, 0))
-					self.avgSkillItem2:SetPosition(Vector(20*GUIScoreboard.kScalingFactor+team2TextWidth/2, textHeight/2+5*GUIScoreboard.kScalingFactor, 0))
-					self.avgSkillItem2Bg:SetIsVisible(false)
-				else
-					self.avgSkillItemBg:AddChild(self.avgSkillItem)
-					self.avgSkillItem2Bg:AddChild(self.avgSkillItem2)
-					self.avgSkillItem:SetPosition(Vector(0, textHeight/2+5*GUIScoreboard.kScalingFactor, 0))
-					self.avgSkillItem2:SetPosition(Vector(0, textHeight/2+5*GUIScoreboard.kScalingFactor, 0))
-				end
-			elseif team1Players > 0 then
-				self.avgSkillItem:SetText(team1Text)
-				self.avgSkillItem:SetPosition(Vector(0, textHeight/2+5*GUIScoreboard.kScalingFactor, 0))
-				
-				self.avgSkillItem2:SetText("")
-				self.avgSkillItem2Bg:SetIsVisible(false)
-				
-				hasText = true
-			elseif team2Players > 0 then
-				self.avgSkillItem2:SetText(team2Text)
-				self.avgSkillItem2:SetPosition(Vector(0, textHeight/2+5*GUIScoreboard.kScalingFactor, 0))
-				
-				self.avgSkillItem:SetText("")
-				self.avgSkillItemBg:SetIsVisible(false)
-				
-				hasText = true
-			else
-				self.avgSkillItem:SetText("")
-				self.avgSkillItemBg:SetIsVisible(false)
-				
-				self.avgSkillItem2:SetText("")
-				self.avgSkillItem2Bg:SetIsVisible(false)
-			end
-			
-			local sliderbarBgYSize = GUIScoreboard.kBgMaxYSpace-20*GUIScoreboard.kScalingFactor
-			if hasText then
-				self.background:SetPosition(Vector(self.background:GetPosition().x, self.background:GetPosition().y+textHeight, 0))
-				self.backgroundStencil:SetPosition(Vector(self.backgroundStencil:GetPosition().x, self.backgroundStencil:GetPosition().y+textHeight, 0))
-				if self.slidebarBg:GetIsVisible() then
-					self.backgroundStencil:SetSize(Vector(self.backgroundStencil:GetSize().x, self.backgroundStencil:GetSize().y-textHeight, 0))
-					sliderbarBgYSize = sliderbarBgYSize-textHeight
-				end
-				
-				self.avgSkillItemBg:SetPosition(Vector(self.teams[2].GUIs.Background:GetPosition().x, ConditionalValue(GUIScoreboard.kScalingFactor == 1, 5*GUIScoreboard.kScalingFactor, 0), 0))
-				self.avgSkillItem2Bg:SetPosition(Vector(self.teams[3].GUIs.Background:GetPosition().x,  ConditionalValue(GUIScoreboard.kScalingFactor == 1, 5*GUIScoreboard.kScalingFactor, 0), 0))
-				
-				-- Reposition the slider
-				local sliderPos = (self.slidePercentage * self.slidebarBg:GetSize().y/100)
-				if sliderPos < self.slidebar:GetSize().y/2 then
-					sliderPos = 0
-				end
-				if sliderPos > self.slidebarBg:GetSize().y - self.slidebar:GetSize().y then
-					sliderPos = self.slidebarBg:GetSize().y - self.slidebar:GetSize().y
-				end
-				self.slidebar:SetPosition(Vector(0, sliderPos, 0))
-			end
-		end
 	end
 end
 
