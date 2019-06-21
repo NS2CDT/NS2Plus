@@ -2534,6 +2534,10 @@ function CHUDGUI_EndStats:Update()
 	end
 end
 
+function CHUDGUI_EndStats:GetShouldUpdate()
+	return true
+end
+
 Script.Load("lua/GUIGameEnd.lua")
 local originalGameEnded
 originalGameEnded = Class_ReplaceMethod( "GUIGameEnd", "SetGameEnded",
