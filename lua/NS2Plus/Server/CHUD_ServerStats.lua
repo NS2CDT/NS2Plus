@@ -145,33 +145,31 @@ local techLogBuildings = set {
 	"Hive",
 }
 
-local function isPlayingTeam(tn)
-	return tn == kTeam1Index or tn == kTeam2Index
+local function AddHiveSkillEntry(player, teamNumber, joined)
+	local gamerules = GetGamerules()
+	if gamerules and gamerules:GetGameStarted() then
+		CHUDTeamStats[1].maxPlayers = math.max(CHUDTeamStats[1].maxPlayers, gamerules.team1:GetNumPlayers())
+		CHUDTeamStats[2].maxPlayers = math.max(CHUDTeamStats[2].maxPlayers, gamerules.team2:GetNumPlayers())
+
+		local steamId = player:GetSteamId()
+		local gameTime = CHUDGetGameTime(true)
+		table.insert(CHUDHiveSkillGraph, { gameMinute = gameTime, joined = joined, teamNumber = teamNumber, steamId = steamId } )
+	end
 end
 
-local oldJoinTeam
-oldJoinTeam = Class_ReplaceMethod("NS2Gamerules", "JoinTeam",
-	function(self, player, newTeamNumber, ...)
-		local oldTeamNumber = player:GetTeamNumber()
-		local success, newPlayer, c, d, e, f = oldJoinTeam(self, player, newTeamNumber, ...)
+local oldSetEntranceTime = PlayerRanking.SetEntranceTime
+function PlayerRanking:SetEntranceTime( player, teamNumber )
+	oldSetEntranceTime(self, player, teamNumber)
 
-		if success and CHUDGetGameStarted() and oldTeamNumber ~= newTeamNumber then
-			CHUDTeamStats[1].maxPlayers = math.max(CHUDTeamStats[1].maxPlayers, self.team1:GetNumPlayers())
-			CHUDTeamStats[2].maxPlayers = math.max(CHUDTeamStats[2].maxPlayers, self.team2:GetNumPlayers())
+	AddHiveSkillEntry(player, teamNumber, true)
+end
 
-			local steamId = newPlayer:GetSteamId()
-			local gameTime = CHUDGetGameTime(true)
-			if isPlayingTeam(newTeamNumber) then
-				table.insert(CHUDHiveSkillGraph, { gameMinute = gameTime, joined = true, teamNumber = newTeamNumber, steamId = steamId } )
-			end
+local oldSetExitTime = PlayerRanking.SetExitTime
+function PlayerRanking:SetExitTime( player, teamNumber )
+	oldSetExitTime(self, player, teamNumber)
 
-			if isPlayingTeam(oldTeamNumber) then
-				table.insert(CHUDHiveSkillGraph, { gameMinute = gameTime, joined = false, teamNumber = oldTeamNumber, steamId = steamId } )
-			end
-		end
-		
-		return success, newPlayer, c, d, e, f
-	end)
+	AddHiveSkillEntry(player, teamNumber, false)
+end
 
 local oldTechResearched = ResearchMixin.TechResearched
 function ResearchMixin:TechResearched(structure, researchId)
@@ -731,7 +729,6 @@ local function CHUDResetStats()
 	CHUDHiveSkillGraph = {}
 	
 	for _, playerInfo in ientitylist(Shared.GetEntitiesWithClassname("PlayerInfoEntity")) do
-
 		local teamNumber = playerInfo.teamNumber
 		local steamId = playerInfo.steamId
 
@@ -743,11 +740,6 @@ local function CHUDResetStats()
 			-- Init the commander player stats so they show up at the end-game stats
 			MaybeInitCHUDClientStats(steamId, nil, teamNumber)
 		end
-
-		if teamNumber == kTeam1Index or teamNumber == kTeam2Index then
-			table.insert(CHUDHiveSkillGraph, { gameMinute = 0, joined = true, teamNumber = teamNumber, steamId = steamId } )
-		end
-
 	end
 end
 
