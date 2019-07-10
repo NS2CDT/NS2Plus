@@ -2323,8 +2323,7 @@ function CHUDGUI_EndStats:ProcessStats()
 		local lineOffset = {0, 0.5}
 		local maxHiveSkill = 0
 		local minHiveSkill = 0
-		local players = {0,0}
-		local curMaxPlayers = 1
+		local players = {0, 0}
 
 		-- Handle gameMinute 0 special to avoid artificially spikes because of arbitrary joining order
 		local next = 1
@@ -2339,12 +2338,11 @@ function CHUDGUI_EndStats:ProcessStats()
 			local playerEntry = playerStatMap[teamNumber] and playerStatMap[teamNumber][entry.steamId]
 			local playerSkill = playerEntry and math.max(playerEntry.hiveSkill, 0) or 0
 
-			players[teamNumber] = math.max(0,players[teamNumber] + ConditionalValue(entry.joined, 1, -1))
-			curMaxPlayers = math.max(1,players[1],players[2])
-			hiveSkill[teamNumber] = math.max(0,hiveSkill[teamNumber] + ConditionalValue(entry.joined, playerSkill, -playerSkill))
+			players[teamNumber] = math.max(0, players[teamNumber] + ConditionalValue(entry.joined, 1, -1))
+			hiveSkill[teamNumber] = math.max(0, hiveSkill[teamNumber] + ConditionalValue(entry.joined, playerSkill, -playerSkill))
 		end
 
-		local avgTeam1Skill, avgTeam2Skill = hiveSkill[1]/curMaxPlayers, hiveSkill[2]/curMaxPlayers
+		local avgTeam1Skill, avgTeam2Skill = hiveSkill[1] / math.max(players[1], 1) , hiveSkill[2] / math.max(players[2], 1)
 		maxHiveSkill = math.max(maxHiveSkill, avgTeam1Skill, avgTeam2Skill)
 		minHiveSkill = math.min(maxHiveSkill, avgTeam1Skill, avgTeam2Skill)
 
@@ -2365,11 +2363,10 @@ function CHUDGUI_EndStats:ProcessStats()
 			local playerEntry = playerStatMap[teamNumber] and playerStatMap[teamNumber][entry.steamId]
 			local playerSkill = playerEntry and math.max(playerEntry.hiveSkill, 0) or 0
 
-			players[teamNumber] = math.max(0,players[teamNumber] + ConditionalValue(entry.joined, 1, -1))
-			curMaxPlayers = math.max(1,players[1],players[2])
-			hiveSkill[teamNumber] = math.max(0,hiveSkill[teamNumber] + ConditionalValue(entry.joined, playerSkill, -playerSkill))
+			players[teamNumber] = math.max(0, players[teamNumber] + ConditionalValue(entry.joined, 1, -1))
+			hiveSkill[teamNumber] = math.max(0, hiveSkill[teamNumber] + ConditionalValue(entry.joined, playerSkill, -playerSkill))
 
-			avgTeam1Skill, avgTeam2Skill = hiveSkill[1]/curMaxPlayers, hiveSkill[2]/curMaxPlayers
+			avgTeam1Skill, avgTeam2Skill = hiveSkill[1] / math.max(players[1], 1) , hiveSkill[2] / math.max(players[2], 1)
 			maxHiveSkill = math.max(maxHiveSkill, avgTeam1Skill, avgTeam2Skill)
 			minHiveSkill = math.min(minHiveSkill, avgTeam1Skill, avgTeam2Skill)
 
