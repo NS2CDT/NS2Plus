@@ -6,6 +6,10 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
+- 12/07/2019
+   - Fixed incorrect calculation of average team skill for the end game hive skill graph (Thanks to Glitch)
+   - Removed link to player's observaotry profile at scoreboard
+   
 - 20/06/2019
     - Removed server options to display numeric skill values directly at the scoreboard GUI
     - Fixed that the team hive skill graph at the end game stats GUI wasn't tracking changes correctly
@@ -16,10 +20,6 @@ Latest changes
 - 20/12/2018
     - Fixed compatibility issues with ns2 build 326
     - Optimized server stats code
-    
-- 12/11/2018
-    - Fixed that the separate team color option for the cr4zy alien vision didn't work anymore (Thanks to Handschuh)
-    - Fixed that the low lights for ns2_descent were too dark in many areas (Thanks Zavaro)
 
 Server settings
 ===============
