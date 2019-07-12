@@ -6,9 +6,9 @@ function GUIScoreboard:UpdateTeam(updateTeam)
 		-- Swap KDA/KAD
 		local playerList = updateTeam["PlayerList"]
 		for _, player in ipairs(playerList) do
-			local assistsPosition = player["Assists"]:GetPosition().x
-			local deathsPosition = player["Deaths"]:GetPosition().x
-			if assistsPosition < deathsPosition then
+			local assistsPosition = player["Assists"]:GetPosition()
+			local deathsPosition = player["Deaths"]:GetPosition()
+			if assistsPosition.x < deathsPosition.x then
 				player["Assists"]:SetPosition(deathsPosition)
 				player["Deaths"]:SetPosition(assistsPosition)
 			end
