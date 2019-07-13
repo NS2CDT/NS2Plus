@@ -2,7 +2,7 @@ Changelog
 ============
 - 12/07/2019
    - Fixed incorrect calculation of average team skill for the end game hive skill graph (Thanks to Glitch)
-   - Removed link to player's observaotry profile at scoreboard
+   - Removed link to player's observatory profile at scoreboard
    
 - 20/06/2019
     - Removed server options to display numeric skill values directly at the scoreboard GUI
