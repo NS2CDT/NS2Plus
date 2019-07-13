@@ -901,7 +901,13 @@ local function FormatRoundStats()
 		-- Easier format for easy parsing server-side
 		local newWeaponsTable = {}
 		for wTechId, wStats in pairs(stats["weapons"]) do
-			-- Use more consistent naming for exported stats
+			-- Use more consistent naming for exporting stats
+			wStats.playerDamage = wStats.pdmg
+			wStats.structureDamage = wStats.sdmg
+
+			wStats.pdmg = nil
+			wStats.sdmg = nil
+
 			newWeaponsTable[EnumToString(kTechId, wTechId)] = wStats
 		end
 		stats["weapons"] = newWeaponsTable
@@ -945,7 +951,7 @@ local function FormatRoundStats()
 				end
 			end
 
-			-- Use more consistent naming for exported stats
+			-- Use more consistent naming for exporting stats
 			entry.playerDamage = entry.pdmg
 			entry.structureDamage = entry.sdmg
 
@@ -1036,8 +1042,8 @@ local function SendPlayerStats(player)
 		msg.accuracy = accuracy
 		msg.accuracyOnos = accuracyOnos
 		msg.kills = wStats.kills
-		msg.pdmg = wStats.pdmg
-		msg.sdmg = wStats.sdmg
+		msg.pdmg = wStats.playerDamage
+		msg.sdmg = wStats.structureDamage
 		msg.teamNumber = wStats.teamNumber
 		--Log("NS2+ %s : %s -> %s", wTechId, wStats, msg )
 		Server.SendNetworkMessage(client, "CHUDEndStatsWeapon", msg, true)
@@ -1154,6 +1160,7 @@ local function SaveRoundStats(winningTeam)
 		savedServerFile:write(json.encode(lastRoundStats, { indent = true }))
 		io.close(savedServerFile)
 	end
+	
 end
 
 local function SendGlobalCommanderStats()
