@@ -147,7 +147,7 @@ local techLogBuildings = set {
 
 local function AddHiveSkillEntry(player, teamNumber, joined)
 	local gamerules = GetGamerules()
-	if gamerules and gamerules:GetGameStarted() then
+	if gamerules then
 		CHUDTeamStats[1].maxPlayers = math.max(CHUDTeamStats[1].maxPlayers, gamerules.team1:GetNumPlayers())
 		CHUDTeamStats[2].maxPlayers = math.max(CHUDTeamStats[2].maxPlayers, gamerules.team2:GetNumPlayers())
 
