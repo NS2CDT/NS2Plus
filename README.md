@@ -6,6 +6,12 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
+- 14/07/2019
+    - Fixed invalid export format for weapons stats
+    - Fixed that not all player team changes were tracked
+    - Added a ns2plus dev mode. You can enable it via the plus_dev console command
+    - Only show the average hive skill graph with ns2plus dev mode enabled. Need to confirm it's accurate before displaying it to everybody again.
+    
 - 12/07/2019
    - Fixed incorrect calculation of average team skill for the end game hive skill graph (Thanks to Glitch)
    - Removed link to player's observatory profile at scoreboard
@@ -17,10 +23,6 @@ Latest changes
     - Fixed that player and structure damage values for each weapon weren't displayed at the end game stats GUI
     - Added a console command to export available ns2plus options and their descriptions to a csv table
     
-- 20/12/2018
-    - Fixed compatibility issues with ns2 build 326
-    - Optimized server stats code
-
 Server settings
 ===============
 Server operators can adjust some features for NS2+ through the console (typing "sv_plus" in console), or change them in the NS2PlusServerSettings.json file located in the server config folder.

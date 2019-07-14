@@ -1,5 +1,11 @@
 Changelog
 ============
+- 14/07/2019
+    - Fixed invalid export format for weapons stats
+    - Fixed that not all player team changes were tracked
+    - Added a ns2plus dev mode. You can enable it via the plus_dev console command
+    - Only show the average hive skill graph with ns2plus dev mode enabled. Need to confirm it's accurate before displaying it to everybody again.
+    
 - 12/07/2019
    - Fixed incorrect calculation of average team skill for the end game hive skill graph (Thanks to Glitch)
    - Removed link to player's observatory profile at scoreboard
