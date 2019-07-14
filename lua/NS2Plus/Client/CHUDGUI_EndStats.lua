@@ -1520,10 +1520,12 @@ function CHUDGUI_EndStats:SetIsVisible(visible)
 		
 		CHUDEndStatsVisible = visible
 		self.slideOffset = 0
-		
+
 		if not visible then
 			self.hoverMenu:Hide()
 			self.tooltip:Hide(0)
+		else
+			self:RepositionStats()
 		end
 		
 		MouseTracker_SetIsVisible(visible)
@@ -1589,7 +1591,7 @@ local function repositionStatsCards(self)
 	return yPos - ySize
 end
 
-local function repositionStats(self)
+function CHUDGUI_EndStats:RepositionStats()
 	local yPos = GUILinearScale(16)
 
 	self.yourStatsTextShadow:SetIsVisible(#self.statsCards > 0)
@@ -1613,8 +1615,9 @@ local function repositionStats(self)
 		yPos = yPos + repositionStatsCards(self)
 	end
 
-	self.techLogTextShadow:SetIsVisible(#self.techLogs > 0)
-	if #self.techLogs > 0 then
+	local showTechLog = #self.techLogs > 0
+	self.techLogTextShadow:SetIsVisible(showTechLog)
+	if showTechLog then
 		self.techLogTextShadow:SetPosition(Vector((kTitleSize.x-GUILinearScale(32))/2, yPos, 0))
 		yPos = yPos + GUILinearScale(32)
 
@@ -1627,11 +1630,12 @@ local function repositionStats(self)
 		yPos = yPos + GUILinearScale(32) + math.max(team1YSize, team2YSize)
 	end
 
-	self.rtGraphTextShadow:SetIsVisible(#self.rtGraphs > 0)
-	self.rtGraph:SetIsVisible(#self.rtGraphs > 0)
-	self.builtRTsComp:SetIsVisible(#self.rtGraphs > 0)
-	self.lostRTsComp:SetIsVisible(#self.rtGraphs > 0)
-	if #self.rtGraphs > 0 then
+	local showRTGraph = #self.rtGraphs > 0
+	self.rtGraphTextShadow:SetIsVisible(showRTGraph)
+	self.rtGraph:SetIsVisible(showRTGraph)
+	self.builtRTsComp:SetIsVisible(showRTGraph)
+	self.lostRTsComp:SetIsVisible(showRTGraph)
+	if showRTGraph then
 		self.rtGraphTextShadow:SetPosition(Vector((kTitleSize.x-GUILinearScale(32))/2, yPos, 0))
 		yPos = yPos + GUILinearScale(32)
 
@@ -1645,10 +1649,11 @@ local function repositionStats(self)
 		yPos = yPos + comparisonSize.y + GUILinearScale(48)
 	end
 
-	self.killGraphTextShadow:SetIsVisible(#self.killGraphs > 0)
-	self.killGraph:SetIsVisible(#self.killGraphs > 0)
-	self.killComparison:SetIsVisible(#self.killGraphs > 0)
-	if #self.killGraphs > 0 then
+	local showKillGraph = #self.killGraphs > 0
+	self.killGraphTextShadow:SetIsVisible(showKillGraph)
+	self.killGraph:SetIsVisible(showKillGraph)
+	self.killComparison:SetIsVisible(showKillGraph)
+	if showKillGraph then
 		self.killGraphTextShadow:SetPosition(Vector((kTitleSize.x-GUILinearScale(32))/2, yPos, 0))
 		yPos = yPos + GUILinearScale(32)
 
@@ -1659,9 +1664,10 @@ local function repositionStats(self)
 		yPos = yPos + comparisonSize.y + GUILinearScale(48)
 	end
 
-	self.hiveSkillGraphTextShadow:SetIsVisible(#self.hiveSkillGraphs > 0)
-	self.hiveSkillGraph:SetIsVisible(#self.hiveSkillGraphs > 0)
-	if #self.hiveSkillGraphs > 0 then
+	local showHiveSkillGraph = CHUDDevMode and #self.hiveSkillGraphs > 0
+	self.hiveSkillGraphTextShadow:SetIsVisible(showHiveSkillGraph)
+	self.hiveSkillGraph:SetIsVisible(showHiveSkillGraph)
+	if showHiveSkillGraph then
 		self.hiveSkillGraphTextShadow:SetPosition(Vector((kTitleSize.x-GUILinearScale(32))/2, yPos, 0))
 		yPos = yPos + GUILinearScale(32)
 
@@ -2479,7 +2485,7 @@ function CHUDGUI_EndStats:ProcessStats()
 		end
 	end
 
-	repositionStats(self)
+	self:RepositionStats()
 
 	pcall(self.SaveLastRoundStats, self)
 
