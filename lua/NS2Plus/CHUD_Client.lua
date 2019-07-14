@@ -172,3 +172,14 @@ local function OnCommandClearBinding(keyName)
 	end
 end
 Event.Hook("Console_unbind", OnCommandClearBinding)
+
+CHUDDevMode = false
+local function OnCommandDevMode(arg)
+	if arg == nil then
+		Print("NS2Plus dev mode is %s", CHUDDevMode and "enabled" or "disabled")
+	else
+		CHUDDevMode = string.ToBoolean(arg)
+		Print("NS2Plus dev mode is now %s", CHUDDevMode and "enabled" or "disabled")
+	end
+end
+Event.Hook("Console_plus_dev", OnCommandDevMode)
