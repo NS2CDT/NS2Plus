@@ -1,3 +1,13 @@
+CHUDMainMenu = decoda_name == "Main"
+
+Script.Load("lua/Class.lua")
+Script.Load("lua/NS2Plus/Client/CHUD_ServerBrowser.lua")
+Script.Load("lua/NS2Plus/CHUD_Shared.lua")
+Script.Load("lua/NS2Plus/Shared/CHUD_Utility.lua")
+Script.Load("lua/NS2Plus/Client/CHUD_Settings.lua")
+Script.Load("lua/NS2Plus/Client/CHUD_Options.lua")
+Script.Load("lua/NS2Plus/Client/CHUD_Hitsounds.lua")
+
 local mainMenu
 LoadCSSFile("lua/NS2Plus/Client/chud.css")
 
@@ -792,4 +802,11 @@ function GUIMainMenu:CreateColorPickerWindow()
 		end,
 	})
 	
+end
+
+
+-- Main Menu VM
+if CHUDMainMenu then
+	GetCHUDSettings()
+	Shared.Message("NS2+ Main Menu mods loaded. Build " .. kCHUDVersion .. ".")
 end

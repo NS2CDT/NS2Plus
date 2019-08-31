@@ -1,3 +1,7 @@
+-- Old Main Menu
+ModLoader.SetupFileHook( "lua/menu/GUIMainMenu.lua", "lua/NS2Plus/Client/CHUD_MainMenu.lua", "post")
+
+-- GUIScripts
 ModLoader.SetupFileHook("lua/GUIAlienHUD.lua", "lua/NS2Plus/GUIScripts/GUIAlienHUD.lua", "post")
 ModLoader.SetupFileHook("lua/GUIAlienTeamMessage.lua", "lua/NS2Plus/GUIScripts/GUIAlienTeamMessage.lua", "post")
 ModLoader.SetupFileHook("lua/Hud/Marine/GUIMarineHUD.lua", "lua/NS2Plus/GUIScripts/GUIMarineHUD.lua", "post")
