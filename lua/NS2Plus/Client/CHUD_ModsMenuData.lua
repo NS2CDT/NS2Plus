@@ -7,6 +7,8 @@ Script.Load("lua/NS2Plus/Client/CHUD_Settings.lua")
 Script.Load("lua/NS2Plus/Client/CHUD_Options.lua")
 Script.Load("lua/NS2Plus/Client/CHUD_Hitsounds.lua")
 
+Script.Load("lua/menu2/widgets/GUIMenuColorPickerWidget.lua") -- doesn't get loaded by vanilla menu
+
 local function SyncContentsSize(self, size)
 
 	self:SetContentsSize(size)
@@ -137,6 +139,41 @@ local function CreateNS2PlusOptionChildrenMenuEntries(option, entry)
 	return entry
 end
 
+OP_TT_Expandable_ColorPicker  = GetMultiWrappedClass(GUIMenuColorPickerWidget, {"Option", "Tooltip", "Expandable"})
+OP_TT_ColorPicker  = GetMultiWrappedClass(GUIMenuColorPickerWidget, {"Option", "Tooltip"})
+
+local function CreateNS2PlusColorOptionMenuEntry(option, parent)
+	option.sort = option.sort or string.format("Z%s", option.name)
+	local entry = {
+		name = option.name,
+		sort = option.sort,
+		class = parent and OP_TT_Expandable_ColorPicker or OP_TT_ColorPicker,
+		params =
+		{
+			optionPath = option.name,
+			optionType = "color",
+			default = option.defaultValue,
+
+			tooltip = option.tooltip,
+		}
+	}
+
+	if not CHUDMainMenu and option.applyFunction then
+		entry.params.immediateUpdate = option.applyFunction
+	end
+
+	entry.properties =
+	{
+		{"Label", string.upper(option.label)},
+	}
+
+	if parent then
+		entry.postInit = CreateNS2PlusOptionMenuEntryPostInit(parent)
+	end
+
+	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
+end
+
 local function CreateNS2PlusSelectOptionMenuEntry(option, parent)
 	option.sort = option.sort or string.format("Z%s", option.name)
 	local entry = {
@@ -223,16 +260,18 @@ end
 
 local factories = {
 	select = CreateNS2PlusSelectOptionMenuEntry,
-	slider = CreateNS2PlusSliderOptionMenuEntry
+	slider = CreateNS2PlusSliderOptionMenuEntry,
+	color = CreateNS2PlusColorOptionMenuEntry
 }
 
 function CreateNS2PlusOptionMenuEntry(option, parent)
-	local factory = factories[option.type]
+	local type = option.type or option.valueType -- color option have no type declared
+	local factory = factories[type]
 	if factory then
 		return factory(option, parent)
 	end
 
-	Print("NS2Plus option entry %s is not yet supported!", option.name)
+	Print("NS2Plus option entry %s (%s) is not yet supported!", option.name, type)
 end
 
 function CreateNS2PlusOptionsMenu()
