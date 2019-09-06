@@ -61,11 +61,88 @@ local function CreateExpandablGroup(paramsTable)
 	}
 end
 
-local function CreateNS2PlusSelectOptionMenuEntry(option)
+local function sortOptionEntries(a, b)
+	return a.sort < b.sort
+end
+
+-- Yeah this is aweful but no way around it
+local function CreateNS2PlusOptionMenuEntryPostInit(parent)
+	if parent.valueType == "bool" then
+		return function(self)
+			self:HookEvent(GetOptionsMenu():GetOptionWidget(parent.name), "OnValueChanged",
+					function(self, value)
+						self:SetExpanded(value ~= parent.hideValues[1])
+					end)
+
+			local currentValue = GetOptionsMenu():GetOptionWidget(parent.name):GetValue()
+			self:SetExpanded(currentValue ~= parent.hideValues[1])
+		end
+	else
+		local hideMap = {}
+		for _, v in ipairs(parent.hideValues) do
+			hideMap[v] = true
+		end
+
+		return function(self)
+			self:HookEvent(GetOptionsMenu():GetOptionWidget(parent.name), "OnValueChanged",
+					function(self, value)
+						self:SetExpanded(not hideMap[value])
+					end)
+
+			local currentValue = GetOptionsMenu():GetOptionWidget(parent.name):GetValue()
+			self:SetExpanded(not hideMap[currentValue])
+		end
+	end
+end
+
+local function CreateNS2PlusOptionChildrenMenuEntries(option, entry)
+	if not option.children then
+		return entry
+	end
+
+	local children = {}
+	for _, v in ipairs(option.children) do
+		local childEntry = CHUDOptions[v]
+
+		if childEntry then
+			local childOptionEntry = CreateNS2PlusOptionMenuEntry(childEntry, option)
+			table.insert(children, childOptionEntry)
+		end
+	end
+	table.sort(children, sortOptionEntries)
+
+	table.insert(children, 1, entry)
+	entry = {
+		name = string.format("%sGroup", option.name),
+		class = GUIListLayout,
+
+		params =
+		{
+			orientation = "vertical",
+		},
+
+		properties =
+		{
+			{"FrontPadding", 0},
+			{"BackPadding", 0},
+			{"Spacing", 15},
+		},
+
+		children = children,
+
+		sort = option.sort
+
+	}
+
+	return entry
+end
+
+local function CreateNS2PlusSelectOptionMenuEntry(option, parent)
+	option.sort = option.sort or string.format("Z%s", option.name)
 	local entry = {
 		name = option.name,
-		sort = option.sort or string.format("Z%s", option.name),
-		class = OP_TT_Choice,
+		sort = option.sort,
+		class = parent and OP_TT_Expandable_Choice or OP_TT_Choice,
 		params =
 		{
 			optionPath = option.name,
@@ -76,7 +153,7 @@ local function CreateNS2PlusSelectOptionMenuEntry(option)
 		}
 	}
 
-	if option.applyFunction then
+	if not CHUDMainMenu and option.applyFunction then
 		entry.params.immediateUpdate = option.applyFunction
 	end
 
@@ -103,14 +180,18 @@ local function CreateNS2PlusSelectOptionMenuEntry(option)
 		}
 	}
 
-	return entry
+	if parent then
+		entry.postInit = CreateNS2PlusOptionMenuEntryPostInit(parent)
+	end
+
+	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
 end
 
-local function CreateNS2PlusSliderOptionMenuEntry(option)
+local function CreateNS2PlusSliderOptionMenuEntry(option, parent)
 	local entry = {
 		name = option.name,
 		sort = option.sort or string.format("Z%s", option.name),
-		class = OP_TT_Number,
+		class = parent and OP_TT_Expandable_Number or OP_TT_Number,
 		params =
 		{
 			optionPath = option.name,
@@ -133,7 +214,11 @@ local function CreateNS2PlusSliderOptionMenuEntry(option)
 		entry.params.immediateUpdate = option.applyFunction
 	end
 
-	return entry
+	if parent then
+		entry.postInit = CreateNS2PlusOptionMenuEntryPostInit(parent)
+	end
+
+	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
 end
 
 local factories = {
@@ -141,30 +226,29 @@ local factories = {
 	slider = CreateNS2PlusSliderOptionMenuEntry
 }
 
-local function CreateNS2PlusOptionMenuEntry(option)
+function CreateNS2PlusOptionMenuEntry(option, parent)
 	local factory = factories[option.type]
 	if factory then
-		return factory(option)
+		return factory(option, parent)
 	end
 
 	Print("NS2Plus option entry %s is not yet supported!", option.name)
-
 end
 
-local function sortOptionEntries(a, b)
-	return a.sort > b.sort
-end
-local function CreateNS2PlusOptionsMenu()
+function CreateNS2PlusOptionsMenu()
 	local options = {}
 	local menu = {}
 
 	for _, v in pairs(CHUDOptions) do
-		local category = v.category
-		local entry = CreateNS2PlusOptionMenuEntry(v)
+		if not v.parent then
+			local category = v.category
+			local entry = CreateNS2PlusOptionMenuEntry(v)
 
-		if entry then
-			if not options[category] then options[category] = {} end
-			table.insert(options[category], entry)
+			if entry then
+				if not options[category] then options[category] = {} end
+				table.insert(options[category], entry)
+			end
+
 		end
 	end
 
