@@ -155,6 +155,7 @@ local function CreateNS2PlusColorOptionMenuEntry(option, parent)
 			default = option.defaultValue,
 
 			tooltip = option.tooltip,
+			tooltipIcon = option.helpImage
 		}
 	}
 
@@ -187,6 +188,7 @@ local function CreateNS2PlusSelectOptionMenuEntry(option, parent)
 			default = option.defaultValue,
 
 			tooltip = option.tooltip,
+			tooltipIcon = option.helpImage
 		}
 	}
 
@@ -202,7 +204,6 @@ local function CreateNS2PlusSelectOptionMenuEntry(option, parent)
 		end
 	end
 
-	-- Todo: Bool should just use a checkbox
 	if option.valueType == "bool" then
 		for i, v in ipairs(option.values) do
 			table.insert(choices, {value = i == 2, displayString = string.upper(v)})
@@ -240,6 +241,7 @@ local function CreateNS2PlusSliderOptionMenuEntry(option, parent)
 			decimalPlaces = option.valueType == "int" and 0 or 2,
 
 			tooltip = option.tooltip,
+			tooltipIcon = option.helpImage
 		},
 		properties =
 		{
