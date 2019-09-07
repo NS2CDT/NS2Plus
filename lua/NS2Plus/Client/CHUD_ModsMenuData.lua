@@ -15,6 +15,13 @@ local function SyncContentsSize(self, size)
 
 end
 
+local function SyncToParentSize(self)
+	local parentObject = self:GetParent()
+	assert(parentObject)
+	self:HookEvent(parentObject, "OnSizeChanged", self.SetSize)
+end
+
+
 local function SyncParentContentsSizeToLayout(self)
 	local parent = self:GetParent():GetParent():GetParent()
 	assert(parent)
@@ -311,12 +318,6 @@ function CreateNS2PlusOptionsMenu()
 	return menu
 end
 
-local function SyncToParentSize(self)
-	local parentObject = self:GetParent()
-	assert(parentObject)
-	self:HookEvent(parentObject, "OnSizeChanged", self.SetSize)
-end
-
 local function CreateDefaultOptionsLayout(paramsTable)
 	return
 	{
@@ -333,9 +334,23 @@ local function CreateDefaultOptionsLayout(paramsTable)
 
 		children =
 		{
-			MenuData.CreateVerticalListLayout
 			{
-				children = paramsTable.children,
+				name = "filler",
+				class = GUIFillLayout,
+				params = {
+					orientation = "horizontal",
+					frontPadding = 64
+				},
+				postInit =
+				{
+					SyncToParentSize,
+				},
+				children = {
+					MenuData.CreateVerticalListLayout
+					{
+						children = paramsTable.children,
+					}
+				}
 			}
 		},
 	}
