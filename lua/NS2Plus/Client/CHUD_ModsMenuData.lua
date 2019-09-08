@@ -263,7 +263,7 @@ local function CreateNS2PlusSliderOptionMenuEntry(option, parent)
 		}
 	}
 
-	if option.applyFunction then
+	if not CHUDMainMenu and option.applyFunction then
 		entry.params.immediateUpdate = option.applyFunction
 	end
 
