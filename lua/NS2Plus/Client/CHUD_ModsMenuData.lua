@@ -280,6 +280,31 @@ local factories = {
 	color = CreateNS2PlusColorOptionMenuEntry
 }
 
+local optionDefaults = {}
+local function ResetAllOptions()
+	local optionMenu = GetOptionsMenu()
+	assert(optionMenu)
+
+	for i = 1, #optionDefaults do
+		local optionParams = optionDefaults[i]
+		local name = optionParams[1]
+		local widget = optionMenu:GetOptionWidget(name)
+		assert(widget)
+
+		-- Need to convert boolean values into the corrunsponsing choice value
+		local defaultValue = optionParams[2]
+		if type(defaultValue) == "boolean" then
+			defaultValue = defaultValue and 1 or 0
+		end
+
+		if widget:isa("GUIMenuColorPickerWidget") then
+			defaultValue = ColorIntToColor(defaultValue)
+		end
+
+		widget:SetValue(defaultValue)
+	end
+end
+
 function CreateNS2PlusOptionMenuEntry(option, parent)
 	local type = option.type or option.valueType -- color option have no type declared
 	local factory = factories[type]
@@ -294,7 +319,13 @@ function CreateNS2PlusOptionsMenu()
 	local options = {}
 	local menu = {}
 
+	optionDefaults = {}
+
 	for _, v in pairs(CHUDOptions) do
+		if v.defaultValue then
+			table.insert(optionDefaults, {v.name, v.defaultValue})
+		end
+
 		if not v.parent then
 			local category = v.category
 			local entry = CreateNS2PlusOptionMenuEntry(v)
@@ -321,6 +352,21 @@ function CreateNS2PlusOptionsMenu()
 			table.insert(menu, entry)
 		end
 	end
+
+	local resetButton = {
+		name = "CHUD_ResetAll",
+		class = GUIMenuButton,
+		properties = {
+			{"Label", "RESET NS2+ OPTIONS"}
+		},
+		postInit = {
+			function(self)
+				self:HookEvent(self, "OnPressed", ResetAllOptions)
+			end
+		}
+	}
+
+	table.insert(menu, resetButton)
 
 	return menu
 end
