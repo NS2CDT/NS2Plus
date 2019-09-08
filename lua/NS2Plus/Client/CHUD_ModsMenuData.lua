@@ -203,18 +203,25 @@ local function CreateNS2PlusSelectOptionMenuEntry(option, parent)
 		entry.params.immediateUpdate = option.applyFunction
 	end
 
-	-- Todo: Label default value as default
-	local choices = {}
-	if option.valueType == "int" then
-		for i, v in ipairs(option.values) do
-			table.insert(choices, {value = i - 1, displayString = string.upper(v)})
+	if option.valueType == "bool" then
+		local name = option.name
+		local defaultValue = option.defaultValue
+
+		entry.params.alternateSetter = function(value)
+			value = value == 1
+			Client.GetOptionBoolean(name, value)
+		end
+
+		entry.params.alternateGetter = function()
+			local value = Client.GetOptionBoolean(name, defaultValue)
+			return value and 1 or 0
 		end
 	end
 
-	if option.valueType == "bool" then
-		for i, v in ipairs(option.values) do
-			table.insert(choices, {value = i == 2, displayString = string.upper(v)})
-		end
+	-- Todo: Label default value as default
+	local choices = {}
+	for i, v in ipairs(option.values) do
+		table.insert(choices, {value = i - 1, displayString = string.upper(v)})
 	end
 
 	entry.properties =
