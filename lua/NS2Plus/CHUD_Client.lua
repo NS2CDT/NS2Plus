@@ -37,11 +37,12 @@ function GUIScale(size)
 end
 
 local originalGUISetColor = GUIItem.SetColor
-function GUIItem:SetColor(color)
+function GUIItem:SetColor(p1, p2, p3, p4)
 	if not trollModes["ironMode"] then
-		originalGUISetColor(self, color)
+		originalGUISetColor(self, p1, p2, p3, p4)
 	else
-		originalGUISetColor(self, Color(1, 0, 0, color and color.a or 1))
+		local color = ProcessColorInput(p1, p2, p3, p4) * Color(1, 0, 0, 1)
+		originalGUISetColor(self, color)
 	end
 end
 
