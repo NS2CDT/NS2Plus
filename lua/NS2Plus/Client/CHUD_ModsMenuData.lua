@@ -411,7 +411,7 @@ table.insert(gModsCategories,
 				class = GUIMenuCategoryDisplayBoxEntry,
 				params =
 				{
-					label = "NS2PLUS OPTIONS",
+					label = Locale.ResolveString("NS2PLUS_OPTIONS"),
 				},
 			},
 			contentsConfig = CreateDefaultOptionsLayout
