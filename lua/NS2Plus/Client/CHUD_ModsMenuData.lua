@@ -468,11 +468,11 @@ local function AddResetButtonToOption(config)
 						local opacityGoal = visible and 1.0 or 0.0
 						
 						-- DEBUG
-						Log("UpdateResetButtonOpacity()")
-						Log("    self = %s", self2)
-						Log("    value = %s", value)
-						Log("    visible = %s", visible)
-						Log("    defaultValue = %s", self2.default)
+						-- Log("UpdateResetButtonOpacity()")
+						-- Log("    self = %s", self2)
+						-- Log("    value = %s", value)
+						-- Log("    visible = %s", visible)
+						-- Log("    defaultValue = %s", self2.default)
 						
 						resetButton:AnimateProperty("Opacity", opacityGoal, MenuAnimations.Fade)
 					end
