@@ -411,16 +411,16 @@ end
 local function AddResetButtonToOption(config)
 	
 	-- DEBUG
-	--DebugPrintValue("config", config)
+	-- DebugPrintValue("config", config)
 	
 	local resetButtonClass = GUIButton
 	resetButtonClass = GetMenuFXWrappedClass(resetButtonClass)
 	resetButtonClass = GetTooltipWrappedClass(resetButtonClass)
 	
 	if config.class == GUIListLayout then
-		for i=1, #config.children do
+		for i = 1, #config.children do
 			config.children[i] = AddResetButtonToOption(config.children[i])
-			return
+			return config
 		end
 	end
 	
