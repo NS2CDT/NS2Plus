@@ -1,13 +1,15 @@
 CHUDMainMenu = decoda_name == "Main"
 
 Script.Load("lua/NS2Plus/Client/CHUD_Options.lua")
-Script.Load("lua/NS2Plus/CHUD_Shared.lua")
+--Script.Load("lua/NS2Plus/CHUD_Shared.lua")
 Script.Load("lua/NS2Plus/Shared/CHUD_Utility.lua")
 Script.Load("lua/NS2Plus/Client/CHUD_Settings.lua")
 Script.Load("lua/NS2Plus/Client/CHUD_Options.lua")
 Script.Load("lua/NS2Plus/Client/CHUD_Hitsounds.lua")
 
 Script.Load("lua/menu2/widgets/GUIMenuColorPickerWidget.lua") -- doesn't get loaded by vanilla menu
+
+local kResetButtonTexture = PrecacheAsset("ui/newMenu/resetToDefaultIcon.dds")
 
 local function SyncContentsSize(self, size)
 
@@ -38,9 +40,9 @@ local function CreateExpandablGroup(paramsTable)
 		name = paramsTable.name,
 		class = GUIMenuExpandableGroup,
 		params = CombineParams(paramsTable.params or {},
-				{
-					expansionMargin = 4, -- prevent outer stroke effect from being cropped away.
-				}),
+		{
+			expansionMargin = 4, -- prevent outer stroke effect from being cropped away.
+		}),
 		properties =
 		{
 			{"Label", paramsTable.label},
@@ -95,11 +97,11 @@ local function CreateNS2PlusOptionMenuEntryPostInit(parent)
 		return function(self)
 			self:HookEvent(GetOptionsMenu():GetOptionWidget(parent.name), "OnValueChanged",
 					function(self, value)
-						self:SetExpanded(not hideMap[value])
+						self:SetExpanded(hideMap[value] == nil)
 					end)
 
 			local currentValue = GetOptionsMenu():GetOptionWidget(parent.name):GetValue()
-			self:SetExpanded(not hideMap[currentValue])
+			self:SetExpanded(hideMap[currentValue] == nil)
 		end
 	end
 end
@@ -177,6 +179,7 @@ local function CreateNS2PlusColorOptionMenuEntry(option, parent)
 
 	if parent then
 		entry.postInit = CreateNS2PlusOptionMenuEntryPostInit(parent)
+		entry.params.expansionMargin = 4.0
 	end
 
 	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
@@ -203,6 +206,7 @@ local function CreateNS2PlusSelectOptionMenuEntry(option, parent)
 		entry.params.immediateUpdate = option.applyFunction
 	end
 
+	---[=[
 	if option.valueType == "bool" then
 		local name = option.name
 		local defaultValue = option.defaultValue
@@ -217,6 +221,7 @@ local function CreateNS2PlusSelectOptionMenuEntry(option, parent)
 			return value and 1 or 0
 		end
 	end
+	--]=]
 
 	-- Todo: Label default value as default
 	local choices = {}
@@ -234,9 +239,45 @@ local function CreateNS2PlusSelectOptionMenuEntry(option, parent)
 
 	if parent then
 		entry.postInit = CreateNS2PlusOptionMenuEntryPostInit(parent)
+		entry.params.expansionMargin = 4.0
 	end
 
 	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
+end
+
+local function CreateNS2PlusSelectBoolOptionMenuEntry(option, parent)
+	local entry =
+	{
+		name = option.name,
+		sort = option.sort or string.format("Z%s", option.name),
+		class = parent and OP_TT_Expandable_Checkbox or OP_TT_Checkbox,
+		params =
+		{
+			optionPath = option.name,
+			optionType = option.valueType,
+			default = option.defaultValue,
+			
+			tooltip = option.tooltip,
+			tooltipIcon = option.tooltipIcon,
+		}
+	}
+	
+	if not CHUDMainMenu and option.applyFunction then
+		entry.params.immediateUpdate = option.applyFunction
+	end
+	
+	entry.properties =
+	{
+		{"Label", string.upper(option.label)},
+	}
+	
+	if parent then
+		entry.postInit = CreateNS2PlusOptionMenuEntryPostInit(parent)
+		entry.params.expansionMargin = 4.0
+	end
+	
+	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
+	
 end
 
 local function CreateNS2PlusSliderOptionMenuEntry(option, parent)
@@ -269,6 +310,7 @@ local function CreateNS2PlusSliderOptionMenuEntry(option, parent)
 
 	if parent then
 		entry.postInit = CreateNS2PlusOptionMenuEntryPostInit(parent)
+		entry.params.expansionMargin = 4.0
 	end
 
 	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
@@ -276,6 +318,7 @@ end
 
 local factories = {
 	select = CreateNS2PlusSelectOptionMenuEntry,
+	selectBool = CreateNS2PlusSelectBoolOptionMenuEntry,
 	slider = CreateNS2PlusSliderOptionMenuEntry,
 	color = CreateNS2PlusColorOptionMenuEntry
 }
@@ -305,14 +348,168 @@ local function ResetAllOptions()
 	end
 end
 
-function CreateNS2PlusOptionMenuEntry(option, parent)
-	local type = option.type or option.valueType -- color option have no type declared
-	local factory = factories[type]
-	if factory then
-		return factory(option, parent)
+local function UpdateResetButtonOpacity(self)
+
+end
+
+-- Config is a GUIObject config.  postInit is either a function, or a list of functions.
+-- config.postInit can be either nil, function, or list of functions.
+-- Returns a copy of the config with the new postInit function(s) added.
+local function AddPostInits(config, postInit)
+	
+	RequireType({"function", "table"}, postInit, "postInit", 2)
+	
+	-- Full copy of the input table.
+	local result = {}
+	for key, value in pairs(config) do
+		result[key] = value
+	end
+	
+	-- Input table doesn't have postInit field, simple assignment.
+	if result.postInit == nil then
+		result.postInit = postInit
+		return result
+	end
+	
+	-- Ensure result.postInit is a table, so we can hold multiple postInit functions.
+	if type(result.postInit) == "function" then
+		result.postInit = { result.postInit }
+	end
+	
+	-- Ensure postInit is a table, for simpler code.
+	if type(postInit) == "function" then
+		postInit = { postInit }
+	end
+	
+	-- Append the postInit list to the result.postInit list.
+	for i=1, #postInit do
+		table.insert(result.postInit, postInit[i])
+	end
+	
+	return result
+end
+
+-- DEBUG
+local function DebugPrintValue(name, val, indent)
+	
+	indent = indent or 0
+	local indentStr = string.rep("    ", indent)
+	
+	if type(val) == "table" and not val.classname then
+		Log("%s%s =", indentStr, name)
+		Log("%s{", indentStr)
+		for key, value in pairs(val) do
+			DebugPrintValue(key, value, indent+1)
+		end
+		Log("%s}", indentStr)
+	else
+		Log("%s%s = %s", indentStr, name, val)
 	end
 
-	Print("NS2Plus option entry %s (%s) is not yet supported!", option.name, type)
+end
+
+local function AddResetButtonToOption(config)
+	
+	-- DEBUG
+	--DebugPrintValue("config", config)
+	
+	local resetButtonClass = GUIButton
+	resetButtonClass = GetMenuFXWrappedClass(resetButtonClass)
+	resetButtonClass = GetTooltipWrappedClass(resetButtonClass)
+	
+	if config.class == GUIListLayout then
+		for i=1, #config.children do
+			config.children[i] = AddResetButtonToOption(config.children[i])
+			return
+		end
+	end
+	
+	local wrappedOption =
+	{
+		sort = config.sort,
+		name = config.name.."_wrapped",
+		class = GUIListLayout,
+		params =
+		{
+			orientation = "horizontal",
+			spacing = 16,
+		},
+		children =
+		{
+			-- Reset Button
+			{
+				name = "resetButton",
+				class = resetButtonClass,
+				params =
+				{
+					defaultColor = HexToColor("971e1e"),
+					highlightColor = HexToColor("ff4141"),
+				},
+				postInit = function(self)
+					self:SetTexture(kResetButtonTexture)
+					self:SetSizeFromTexture()
+					self:AlignLeft()
+					self:SetTooltip(Locale.ResolveString("OPTION_RESET"))
+				end,
+			},
+			
+			-- Include original widget here.
+			AddPostInits(config,
+			{
+				function(self)
+					-- Post init to adjust the resetButton's opacity based on whether or not the
+					-- value selected is the default value.
+					local parent = self:GetParent()
+					local resetButton = parent:GetChild("resetButton")
+					assert(resetButton ~= nil)
+					local function UpdateResetButtonOpacity(self2)
+						local value = self2:GetValue()
+						local visible = not GetAreValuesTheSame(value, self2.default)
+						local opacityGoal = visible and 1.0 or 0.0
+						
+						-- DEBUG
+						Log("UpdateResetButtonOpacity()")
+						Log("    self = %s", self2)
+						Log("    value = %s", value)
+						Log("    visible = %s", visible)
+						Log("    defaultValue = %s", self2.default)
+						
+						resetButton:AnimateProperty("Opacity", opacityGoal, MenuAnimations.Fade)
+					end
+					self:HookEvent(self, "OnValueChanged", UpdateResetButtonOpacity)
+					UpdateResetButtonOpacity(self)
+				end,
+			}),
+		},
+	}
+	
+	return wrappedOption
+	
+end
+
+function CreateNS2PlusOptionMenuEntry(option, parent)
+	local optionType = option.type or option.valueType -- color option have no type declared
+	-- use checkbox type wherever possible
+	if optionType == "select" and option.values and #option.values == 2 and option.values[1] == "Off" and option.values[2] == "On" then
+		optionType = "selectBool"
+	end
+	local factory = factories[optionType]
+	if not factory then
+		Print("NS2Plus option entry %s (%s) is not yet supported!", option.name, optionType)
+		return
+	end
+	
+	local result = factory(option, parent)
+	
+	-- Add a "reset to default" button to the left of the option that will appear if the option is a
+	-- non-default value.
+	local wrappedOption = AddResetButtonToOption(result)
+	
+	-- DEBUG
+	--DebugPrintValue("wrappedOption", wrappedOption)
+	
+	return wrappedOption
+	
 end
 
 function CreateNS2PlusOptionsMenu()
@@ -329,7 +526,7 @@ function CreateNS2PlusOptionsMenu()
 		if not v.parent then
 			local category = v.category
 			local entry = CreateNS2PlusOptionMenuEntry(v)
-
+			
 			if entry then
 				if not options[category] then options[category] = {} end
 				table.insert(options[category], entry)
@@ -337,7 +534,7 @@ function CreateNS2PlusOptionsMenu()
 
 		end
 	end
-
+	
 	for category, v in pairs(options) do
 		if #v > 0 then
 			table.sort(v, sortOptionEntries)
@@ -352,7 +549,7 @@ function CreateNS2PlusOptionsMenu()
 			table.insert(menu, entry)
 		end
 	end
-
+	
 	local resetButton = {
 		name = "CHUD_ResetAll",
 		class = GUIMenuButton,
@@ -403,19 +600,19 @@ local function CreateDefaultOptionsLayout(paramsTable)
 end
 
 table.insert(gModsCategories,
+{
+	categoryName = "ns2Plus",
+	entryConfig =
+	{
+		name = "ns2PlusOptions",
+		class = GUIMenuCategoryDisplayBoxEntry,
+		params =
 		{
-			categoryName = "ns2Plus",
-			entryConfig =
-			{
-				name = "ns2PlusOptions",
-				class = GUIMenuCategoryDisplayBoxEntry,
-				params =
-				{
-					label = Locale.ResolveString("NS2PLUS_OPTIONS"),
-				},
-			},
-			contentsConfig = CreateDefaultOptionsLayout
-			{
-				children = CreateNS2PlusOptionsMenu(),
-			}
-		})
+			label = Locale.ResolveString("NS2PLUS_OPTIONS"),
+		},
+	},
+	contentsConfig = CreateDefaultOptionsLayout
+	{
+		children = CreateNS2PlusOptionsMenu(),
+	}
+})
