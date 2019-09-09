@@ -371,6 +371,10 @@ function CreateNS2PlusOptionsMenu()
 	return menu
 end
 
+local function HookupWidthSync(self)
+	self:HookEvent(self:GetParent(), "OnSizeChanged", self.SetWidth)
+end
+
 local function CreateDefaultOptionsLayout(paramsTable)
 	return
 	{
@@ -383,29 +387,18 @@ local function CreateDefaultOptionsLayout(paramsTable)
 		postInit =
 		{
 			SyncToParentSize,
+			function(self) self:HookEvent(self, "OnSizeChanged", self.SetPaneWidth) end,
 		},
-
 		children =
 		{
+			MenuData.CreateVerticalListLayout
 			{
-				name = "filler",
-				class = GUIFillLayout,
-				params = {
-					orientation = "horizontal",
-					frontPadding = 64
-				},
-				postInit =
-				{
-					SyncToParentSize,
-				},
-				children = {
-					MenuData.CreateVerticalListLayout
-					{
-						children = paramsTable.children,
-					}
-				}
+				children = paramsTable.children,
+				fixedSize = false,
+				position = Vector(100, 0, 0),
+				
 			}
-		},
+		}
 	}
 end
 
@@ -423,6 +416,6 @@ table.insert(gModsCategories,
 			},
 			contentsConfig = CreateDefaultOptionsLayout
 			{
-				children = CreateNS2PlusOptionsMenu()
+				children = CreateNS2PlusOptionsMenu(),
 			}
 		})
