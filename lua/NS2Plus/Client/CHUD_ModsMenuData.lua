@@ -484,6 +484,11 @@ function CreateNS2PlusOptionMenuEntry(option, parent)
 			local value = this:GetValue()
 			local key = option.key
 			CHUDSetOption(key, value)
+
+			local immediateUpdate = option.immediateUpdate
+			if immediateUpdate then
+				immediateUpdate(this)
+			end
 		end
 		self:HookEvent(self, "OnValueChanged", ApplyOptions)
 	end)

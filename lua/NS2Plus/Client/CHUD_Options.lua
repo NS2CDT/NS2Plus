@@ -1260,6 +1260,10 @@ CHUDOptions =
 				children = { "hitsounds_pitch" },
 				hideValues = { 0 },
 				sort = "A01",
+				immediateUpdate = function()
+					HitSounds_SyncOptions()
+					HitSounds_PlayHitsound(1)
+				end
 			},
 			hitsounds_pitch = { 
 				name = "CHUD_HitsoundsPitch",
@@ -1271,7 +1275,13 @@ CHUDOptions =
 				category = "sound",
 				valueType = "int",
 				sort = "A02",
-				parent = "hitsounds"
+				parent = "hitsounds",
+				immediateUpdate = function(self)
+					HitSounds_SyncOptions()
+
+					local pitch = self:GetValue() == 0 and 1 or 3
+					HitSounds_PlayHitsound(pitch)
+				end
 			},
 			ambient = {
 				name = "CHUD_Ambient",
