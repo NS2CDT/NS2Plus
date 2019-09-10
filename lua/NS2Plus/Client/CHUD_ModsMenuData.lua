@@ -78,11 +78,13 @@ end
 
 -- Yeah this is aweful but no way around it
 local function CreateNS2PlusOptionMenuEntryPostInit(parent)
+	if not parent then return end
+
 	if parent.valueType == "bool" then
 		return function(self)
 			self:HookEvent(GetOptionsMenu():GetOptionWidget(parent.name), "OnValueChanged",
-					function(self, value)
-						self:SetExpanded(value ~= parent.hideValues[1])
+					function(this, value)
+						this:SetExpanded(value ~= parent.hideValues[1])
 					end)
 
 			local currentValue = GetOptionsMenu():GetOptionWidget(parent.name):GetValue()
@@ -96,8 +98,8 @@ local function CreateNS2PlusOptionMenuEntryPostInit(parent)
 
 		return function(self)
 			self:HookEvent(GetOptionsMenu():GetOptionWidget(parent.name), "OnValueChanged",
-					function(self, value)
-						self:SetExpanded(hideMap[value] == nil)
+					function(this, value)
+						this:SetExpanded(hideMap[value] == nil)
 					end)
 
 			local currentValue = GetOptionsMenu():GetOptionWidget(parent.name):GetValue()
@@ -147,16 +149,14 @@ local function CreateNS2PlusOptionChildrenMenuEntries(option, entry)
 
 	return entry
 end
+OP_TT_ColorPicker = GetMultiWrappedClass(GUIMenuColorPickerWidget, {"Option", "Tooltip"})
 
-OP_TT_Expandable_ColorPicker  = GetMultiWrappedClass(GUIMenuColorPickerWidget, {"Option", "Tooltip", "Expandable"})
-OP_TT_ColorPicker  = GetMultiWrappedClass(GUIMenuColorPickerWidget, {"Option", "Tooltip"})
-
-local function CreateNS2PlusColorOptionMenuEntry(option, parent)
+local function CreateNS2PlusColorOptionMenuEntry(option)
 	option.sort = option.sort or string.format("Z%s", option.name)
 	local entry = {
 		name = option.name,
 		sort = option.sort,
-		class = parent and OP_TT_Expandable_ColorPicker or OP_TT_ColorPicker,
+		class = OP_TT_ColorPicker,
 		params =
 		{
 			optionPath = option.name,
@@ -177,20 +177,15 @@ local function CreateNS2PlusColorOptionMenuEntry(option, parent)
 		{"Label", string.upper(option.label)},
 	}
 
-	if parent then
-		entry.postInit = CreateNS2PlusOptionMenuEntryPostInit(parent)
-		entry.params.expansionMargin = 4.0
-	end
-
 	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
 end
 
-local function CreateNS2PlusSelectOptionMenuEntry(option, parent)
+local function CreateNS2PlusSelectOptionMenuEntry(option)
 	option.sort = option.sort or string.format("Z%s", option.name)
 	local entry = {
 		name = option.name,
 		sort = option.sort,
-		class = parent and OP_TT_Expandable_Choice or OP_TT_Choice,
+		class = OP_TT_Choice,
 		params =
 		{
 			optionPath = option.name,
@@ -206,24 +201,6 @@ local function CreateNS2PlusSelectOptionMenuEntry(option, parent)
 		entry.params.immediateUpdate = option.applyFunction
 	end
 
-	---[=[
-	if option.valueType == "bool" then
-		local name = option.name
-		local defaultValue = option.defaultValue
-
-		entry.params.alternateSetter = function(value)
-			value = value == 1
-			Client.GetOptionBoolean(name, value)
-		end
-
-		entry.params.alternateGetter = function()
-			local value = Client.GetOptionBoolean(name, defaultValue)
-			return value and 1 or 0
-		end
-	end
-	--]=]
-
-	-- Todo: Label default value as default
 	local choices = {}
 	for i, v in ipairs(option.values) do
 		table.insert(choices, {value = i - 1, displayString = string.upper(v)})
@@ -237,20 +214,15 @@ local function CreateNS2PlusSelectOptionMenuEntry(option, parent)
 		}
 	}
 
-	if parent then
-		entry.postInit = CreateNS2PlusOptionMenuEntryPostInit(parent)
-		entry.params.expansionMargin = 4.0
-	end
-
 	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
 end
 
-local function CreateNS2PlusSelectBoolOptionMenuEntry(option, parent)
+local function CreateNS2PlusSelectBoolOptionMenuEntry(option)
 	local entry =
 	{
 		name = option.name,
 		sort = option.sort or string.format("Z%s", option.name),
-		class = parent and OP_TT_Expandable_Checkbox or OP_TT_Checkbox,
+		class = OP_TT_Checkbox,
 		params =
 		{
 			optionPath = option.name,
@@ -265,26 +237,21 @@ local function CreateNS2PlusSelectBoolOptionMenuEntry(option, parent)
 	if not CHUDMainMenu and option.applyFunction then
 		entry.params.immediateUpdate = option.applyFunction
 	end
-	
+
 	entry.properties =
 	{
 		{"Label", string.upper(option.label)},
 	}
-
-	if parent then
-		entry.postInit = CreateNS2PlusOptionMenuEntryPostInit(parent)
-		entry.params.expansionMargin = 4.0
-	end
 	
 	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
 	
 end
 
-local function CreateNS2PlusSliderOptionMenuEntry(option, parent)
+local function CreateNS2PlusSliderOptionMenuEntry(option)
 	local entry = {
 		name = option.name,
 		sort = option.sort or string.format("Z%s", option.name),
-		class = parent and OP_TT_Expandable_Number or OP_TT_Number,
+		class = OP_TT_Number,
 		params =
 		{
 			optionPath = option.name,
@@ -306,11 +273,6 @@ local function CreateNS2PlusSliderOptionMenuEntry(option, parent)
 
 	if not CHUDMainMenu and option.applyFunction then
 		entry.params.immediateUpdate = option.applyFunction
-	end
-
-	if parent then
-		entry.postInit = CreateNS2PlusOptionMenuEntryPostInit(parent)
-		entry.params.expansionMargin = 4.0
 	end
 
 	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
@@ -429,41 +391,39 @@ local function UpdateResetButtonOpacity(option)
 	local opacityGoal = visible and 1.0 or 0.0
 
 	-- DEBUG
-	-- Log("UpdateResetButtonOpacity()")
-	-- Log("    option = %s", option)
-	-- Log("    value = %s", value)
-	-- Log("    visible = %s", visible)
-	-- Log("    defaultValue = %s", option.default)
+	--Log("UpdateResetButtonOpacity()")
+	--Log("    option = %s", option)
+	--Log("    value = %s", value)
+	--Log("    visible = %s", visible)
+	--Log("    defaultValue = %s", option.default)
 
 	resetButton:AnimateProperty("Opacity", opacityGoal, MenuAnimations.Fade)
 end
 
-local function AddResetButtonToOption(config)
-	
+local ResetButtonClass = GetMultiWrappedClass(GUIButton, {"MenuFX", "Tooltip"})
+local GUIListLayout_Expandable = GetMultiWrappedClass(GUIListLayout, {"Expandable"})
+
+local function AddResetButtonToOption(config, parent)
 	-- DEBUG
 	-- DebugPrintValue("config", config)
 	
-	local resetButtonClass = GUIButton
-	resetButtonClass = GetMenuFXWrappedClass(resetButtonClass)
-	resetButtonClass = GetTooltipWrappedClass(resetButtonClass)
-	
 	if config.class == GUIListLayout then
-		for i = 1, #config.children do
-			config.children[i] = AddResetButtonToOption(config.children[i])
-			return config
-		end
+		config = config.children[1]
 	end
+
+	local resetButtonClass = ResetButtonClass
 	
 	local wrappedOption =
 	{
 		sort = config.sort,
-		name = config.name.."_wrapped",
-		class = GUIListLayout,
+		name = string.format("%s_wrapped", config.name),
+		class = parent and GUIListLayout_Expandable or GUIListLayout,
 		params =
 		{
 			orientation = "horizontal",
 			spacing = 16,
 		},
+		postInit = CreateNS2PlusOptionMenuEntryPostInit(parent),
 		children =
 		{
 			-- Reset Button
@@ -500,28 +460,33 @@ local function AddResetButtonToOption(config)
 
 					-- Setup function for reset button
 					SetupResetButton(self)
-				end,
+				end
 			}),
 		},
 	}
+
+	if parent then
+		wrappedOption.params.expansionMargin = 4.0
+	end
 	
 	return wrappedOption
-	
 end
 
 function CreateNS2PlusOptionMenuEntry(option, parent)
 	local optionType = option.type or option.valueType -- color option have no type declared
+
 	-- use checkbox type wherever possible
-	if optionType == "select" and option.values and #option.values == 2 and option.values[1] == "Off" and option.values[2] == "On" then
+	if optionType == "select" and option.valueType == "bool" then
 		optionType = "selectBool"
 	end
+
 	local factory = factories[optionType]
 	if not factory then
 		Print("NS2Plus option entry %s (%s) is not yet supported!", option.name, optionType)
 		return
 	end
 	
-	local result = factory(option, parent)
+	local result = factory(option)
 
 	AddPostInits(result, function(self)
 		local function ApplyOptions(this)
@@ -534,7 +499,7 @@ function CreateNS2PlusOptionMenuEntry(option, parent)
 	
 	-- Add a "reset to default" button to the left of the option that will appear if the option is a
 	-- non-default value.
-	local wrappedOption = AddResetButtonToOption(result)
+	local wrappedOption = AddResetButtonToOption(result, parent)
 	
 	-- DEBUG
 	--DebugPrintValue("wrappedOption", wrappedOption)
