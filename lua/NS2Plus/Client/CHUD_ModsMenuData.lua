@@ -1,11 +1,23 @@
 CHUDMainMenu = decoda_name == "Main"
 
 Script.Load("lua/NS2Plus/Client/CHUD_Options.lua")
---Script.Load("lua/NS2Plus/CHUD_Shared.lua")
 Script.Load("lua/NS2Plus/Shared/CHUD_Utility.lua")
 Script.Load("lua/NS2Plus/Client/CHUD_Settings.lua")
 Script.Load("lua/NS2Plus/Client/CHUD_Options.lua")
 Script.Load("lua/NS2Plus/Client/CHUD_Hitsounds.lua")
+
+-- Main Menu VM
+if CHUDMainMenu then
+	Script.Load("lua/NS2Plus/CHUD_Shared.lua")
+
+	local oldInitialize = GUIMenuModScreen.Initialize
+	function GUIMenuModScreen:Initialize(a, b, c, d, e)
+		oldInitialize(self, a, b, c, d, e)
+
+		GetCHUDSettings()
+		Log("NS2+ Main Menu mods loaded. Build %s.", kCHUDVersion)
+	end
+end
 
 Script.Load("lua/menu2/widgets/GUIMenuColorPickerWidget.lua") -- doesn't get loaded by vanilla menu
 
@@ -310,10 +322,6 @@ local function ResetAllOptions()
 	end
 end
 
-local function UpdateResetButtonOpacity(self)
-
-end
-
 -- Config is a GUIObject config.  postInit is either a function, or a list of functions.
 -- config.postInit can be either nil, function, or list of functions.
 -- Returns a copy of the config with the new postInit function(s) added.
@@ -423,7 +431,6 @@ local function AddResetButtonToOption(config, parent)
 			orientation = "horizontal",
 			spacing = 16,
 		},
-		postInit = CreateNS2PlusOptionMenuEntryPostInit(parent),
 		children =
 		{
 			-- Reset Button
@@ -447,8 +454,8 @@ local function AddResetButtonToOption(config, parent)
 			AddPostInits(config,
 			{
 				function(self)
-					local parent = self:GetParent()
-					local resetButton = parent:GetChild("resetButton")
+					local list = self:GetParent()
+					local resetButton = list:GetChild("resetButton")
 					assert(resetButton ~= nil)
 
 					self.resetButton = resetButton
@@ -466,6 +473,7 @@ local function AddResetButtonToOption(config, parent)
 	}
 
 	if parent then
+		wrappedOption.postInit = CreateNS2PlusOptionMenuEntryPostInit(parent)
 		wrappedOption.params.expansionMargin = 4.0
 	end
 	
@@ -564,10 +572,6 @@ function CreateNS2PlusOptionsMenu()
 	table.insert(menu, resetButton)
 
 	return menu
-end
-
-local function HookupWidthSync(self)
-	self:HookEvent(self:GetParent(), "OnSizeChanged", self.SetWidth)
 end
 
 local function CreateDefaultOptionsLayout(paramsTable)
