@@ -408,6 +408,36 @@ local function DebugPrintValue(name, val, indent)
 
 end
 
+local function ResetOptionValue(option)
+	local default = option.default
+	option:SetValue(default)
+end
+
+local function SetupResetButton(option)
+	local resetButton = option.resetButton
+	assert(resetButton ~= nil)
+
+	option:HookEvent(resetButton, "OnPressed", ResetOptionValue)
+end
+
+local function UpdateResetButtonOpacity(option)
+	local resetButton = option.resetButton
+	assert(resetButton ~= nil)
+
+	local value = option:GetValue()
+	local visible = not GetAreValuesTheSame(value, option.default)
+	local opacityGoal = visible and 1.0 or 0.0
+
+	-- DEBUG
+	-- Log("UpdateResetButtonOpacity()")
+	-- Log("    option = %s", option)
+	-- Log("    value = %s", value)
+	-- Log("    visible = %s", visible)
+	-- Log("    defaultValue = %s", option.default)
+
+	resetButton:AnimateProperty("Opacity", opacityGoal, MenuAnimations.Fade)
+end
+
 local function AddResetButtonToOption(config)
 	
 	-- DEBUG
@@ -457,27 +487,19 @@ local function AddResetButtonToOption(config)
 			AddPostInits(config,
 			{
 				function(self)
-					-- Post init to adjust the resetButton's opacity based on whether or not the
-					-- value selected is the default value.
 					local parent = self:GetParent()
 					local resetButton = parent:GetChild("resetButton")
 					assert(resetButton ~= nil)
-					local function UpdateResetButtonOpacity(self2)
-						local value = self2:GetValue()
-						local visible = not GetAreValuesTheSame(value, self2.default)
-						local opacityGoal = visible and 1.0 or 0.0
-						
-						-- DEBUG
-						-- Log("UpdateResetButtonOpacity()")
-						-- Log("    self = %s", self2)
-						-- Log("    value = %s", value)
-						-- Log("    visible = %s", visible)
-						-- Log("    defaultValue = %s", self2.default)
-						
-						resetButton:AnimateProperty("Opacity", opacityGoal, MenuAnimations.Fade)
-					end
+
+					self.resetButton = resetButton
+
+					-- Post init to adjust the resetButton's opacity based on whether or not the
+					-- value selected is the default value.
 					self:HookEvent(self, "OnValueChanged", UpdateResetButtonOpacity)
 					UpdateResetButtonOpacity(self)
+
+					-- Setup function for reset button
+					SetupResetButton(self)
 				end,
 			}),
 		},
