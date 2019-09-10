@@ -292,12 +292,7 @@ local function ResetAllOptions()
 		local widget = optionMenu:GetOptionWidget(name)
 		assert(widget)
 
-		-- Need to convert boolean values into the corrunsponsing choice value
 		local defaultValue = optionParams[2]
-		if type(defaultValue) == "boolean" then
-			defaultValue = defaultValue and 1 or 0
-		end
-
 		if widget:isa("GUIMenuColorPickerWidget") then
 			defaultValue = ColorIntToColor(defaultValue)
 		end
