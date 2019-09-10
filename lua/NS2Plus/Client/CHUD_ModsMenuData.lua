@@ -270,7 +270,7 @@ local function CreateNS2PlusSelectBoolOptionMenuEntry(option, parent)
 	{
 		{"Label", string.upper(option.label)},
 	}
-	
+
 	if parent then
 		entry.postInit = CreateNS2PlusOptionMenuEntryPostInit(parent)
 		entry.params.expansionMargin = 4.0
@@ -500,6 +500,15 @@ function CreateNS2PlusOptionMenuEntry(option, parent)
 	end
 	
 	local result = factory(option, parent)
+
+	AddPostInits(result, function(self)
+		local function ApplyOptions(this)
+			local value = this:GetValue()
+			local key = option.key
+			CHUDSetOption(key, value)
+		end
+		self:HookEvent(self, "OnValueChanged", ApplyOptions)
+	end)
 	
 	-- Add a "reset to default" button to the left of the option that will appear if the option is a
 	-- non-default value.
@@ -518,7 +527,9 @@ function CreateNS2PlusOptionsMenu()
 
 	optionDefaults = {}
 
-	for _, v in pairs(CHUDOptions) do
+	for k, v in pairs(CHUDOptions) do
+		v.key = k
+
 		if v.defaultValue then
 			table.insert(optionDefaults, {v.name, v.defaultValue})
 		end
