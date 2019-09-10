@@ -94,6 +94,7 @@ local function CreateNS2PlusOptionMenuEntryPostInit(parent)
 
 	if parent.valueType == "bool" then
 		return function(self)
+			Print("yay")
 			self:HookEvent(GetOptionsMenu():GetOptionWidget(parent.name), "OnValueChanged",
 					function(this, value)
 						this:SetExpanded(value ~= parent.hideValues[1])
@@ -109,6 +110,7 @@ local function CreateNS2PlusOptionMenuEntryPostInit(parent)
 		end
 
 		return function(self)
+			Print("yay")
 			self:HookEvent(GetOptionsMenu():GetOptionWidget(parent.name), "OnValueChanged",
 					function(this, value)
 						this:SetExpanded(hideMap[value] == nil)
@@ -180,10 +182,6 @@ local function CreateNS2PlusColorOptionMenuEntry(option)
 		}
 	}
 
-	if not CHUDMainMenu and option.applyFunction then
-		entry.params.immediateUpdate = option.applyFunction
-	end
-
 	entry.properties =
 	{
 		{"Label", string.upper(option.label)},
@@ -208,10 +206,6 @@ local function CreateNS2PlusSelectOptionMenuEntry(option)
 			tooltipIcon = option.helpImage
 		}
 	}
-
-	if not CHUDMainMenu and option.applyFunction then
-		entry.params.immediateUpdate = option.applyFunction
-	end
 
 	local choices = {}
 	for i, v in ipairs(option.values) do
@@ -245,10 +239,6 @@ local function CreateNS2PlusSelectBoolOptionMenuEntry(option)
 			tooltipIcon = option.tooltipIcon,
 		}
 	}
-	
-	if not CHUDMainMenu and option.applyFunction then
-		entry.params.immediateUpdate = option.applyFunction
-	end
 
 	entry.properties =
 	{
@@ -282,10 +272,6 @@ local function CreateNS2PlusSliderOptionMenuEntry(option)
 			{"Label", string.upper(option.label)},
 		}
 	}
-
-	if not CHUDMainMenu and option.applyFunction then
-		entry.params.immediateUpdate = option.applyFunction
-	end
 
 	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
 end
@@ -333,22 +319,26 @@ local function AddPostInits(config, postInit)
 		config.postInit = postInit
 		return config
 	end
-	
+
+	local newPostInit = {}
 	-- Ensure result.postInit is a table, so we can hold multiple postInit functions.
 	if type(config.postInit) == "function" then
-		config.postInit = { config.postInit }
+		table.insert(newPostInit, config.postInit)
+	else
+		newPostInit = config.postInit
 	end
-	
-	-- Ensure postInit is a table, for simpler code.
+
 	if type(postInit) == "function" then
-		postInit = { postInit }
+		table.insert(newPostInit, postInit)
+	else
+		-- Append the postInit list to the result.postInit list.
+		for i = 1, #postInit do
+			table.insert(newPostInit, postInit[i])
+		end
 	end
-	
-	-- Append the postInit list to the result.postInit list.
-	for i = 1, #postInit do
-		table.insert(config.postInit, postInit[i])
-	end
-	
+
+	config.postInit = newPostInit
+
 	return config
 end
 
@@ -466,7 +456,7 @@ local function AddResetButtonToOption(config, parent)
 	}
 
 	if parent then
-		wrappedOption.postInit = CreateNS2PlusOptionMenuEntryPostInit(parent)
+		AddPostInits(wrappedOption, CreateNS2PlusOptionMenuEntryPostInit(parent))
 		wrappedOption.params.expansionMargin = 4.0
 	end
 	
@@ -497,11 +487,11 @@ function CreateNS2PlusOptionMenuEntry(option, parent)
 		end
 		self:HookEvent(self, "OnValueChanged", ApplyOptions)
 	end)
-	
+
 	-- Add a "reset to default" button to the left of the option that will appear if the option is a
 	-- non-default value.
 	local wrappedOption = AddResetButtonToOption(result, parent)
-	
+
 	-- DEBUG
 	--DebugPrintValue("wrappedOption", wrappedOption)
 	
