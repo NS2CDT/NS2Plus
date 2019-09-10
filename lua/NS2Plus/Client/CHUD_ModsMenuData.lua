@@ -326,24 +326,17 @@ end
 -- config.postInit can be either nil, function, or list of functions.
 -- Returns a copy of the config with the new postInit function(s) added.
 local function AddPostInits(config, postInit)
-	
 	RequireType({"function", "table"}, postInit, "postInit", 2)
-	
-	-- Full copy of the input table.
-	local result = {}
-	for key, value in pairs(config) do
-		result[key] = value
-	end
-	
+
 	-- Input table doesn't have postInit field, simple assignment.
-	if result.postInit == nil then
-		result.postInit = postInit
-		return result
+	if config.postInit == nil then
+		config.postInit = postInit
+		return config
 	end
 	
 	-- Ensure result.postInit is a table, so we can hold multiple postInit functions.
-	if type(result.postInit) == "function" then
-		result.postInit = { result.postInit }
+	if type(config.postInit) == "function" then
+		config.postInit = { config.postInit }
 	end
 	
 	-- Ensure postInit is a table, for simpler code.
@@ -352,19 +345,19 @@ local function AddPostInits(config, postInit)
 	end
 	
 	-- Append the postInit list to the result.postInit list.
-	for i=1, #postInit do
-		table.insert(result.postInit, postInit[i])
+	for i = 1, #postInit do
+		table.insert(config.postInit, postInit[i])
 	end
 	
-	return result
+	return config
 end
 
 -- DEBUG
 local function DebugPrintValue(name, val, indent)
-	
+
 	indent = indent or 0
 	local indentStr = string.rep("    ", indent)
-	
+
 	if type(val) == "table" and not val.classname then
 		Log("%s%s =", indentStr, name)
 		Log("%s{", indentStr)
