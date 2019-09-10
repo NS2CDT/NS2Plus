@@ -94,7 +94,6 @@ local function CreateNS2PlusOptionMenuEntryPostInit(parent)
 
 	if parent.valueType == "bool" then
 		return function(self)
-			Print("yay")
 			self:HookEvent(GetOptionsMenu():GetOptionWidget(parent.name), "OnValueChanged",
 					function(this, value)
 						this:SetExpanded(value ~= parent.hideValues[1])
@@ -110,7 +109,6 @@ local function CreateNS2PlusOptionMenuEntryPostInit(parent)
 		end
 
 		return function(self)
-			Print("yay")
 			self:HookEvent(GetOptionsMenu():GetOptionWidget(parent.name), "OnValueChanged",
 					function(this, value)
 						this:SetExpanded(hideMap[value] == nil)
