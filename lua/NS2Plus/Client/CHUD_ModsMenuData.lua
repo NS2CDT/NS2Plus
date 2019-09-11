@@ -305,6 +305,10 @@ end
 
 local function ResetOptionValue(option)
 	local default = option.default
+	if option:isa("GUIMenuColorPickerWidget") then
+		default = ColorIntToColor(default)
+	end
+
 	option:SetValue(default)
 end
 
@@ -320,7 +324,12 @@ local function UpdateResetButtonOpacity(option)
 	assert(resetButton ~= nil)
 
 	local value = option:GetValue()
-	local visible = not GetAreValuesTheSame(value, option.default)
+	local default = option.default
+	if option:isa("GUIMenuColorPickerWidget") then
+		default = ColorIntToColor(default)
+	end
+
+	local visible = not GetAreValuesTheSame(value, default)
 	local opacityGoal = visible and 1.0 or 0.0
 
 	resetButton:AnimateProperty("Opacity", opacityGoal, MenuAnimations.Fade)
