@@ -88,79 +88,30 @@ local function sortOptionEntries(a, b)
 	return a.sort < b.sort
 end
 
--- Yeah this is aweful but no way around it
-local function CreateNS2PlusOptionMenuEntryPostInit(parent)
-	if not parent then return end
-
-	if parent.valueType == "bool" then
-		return function(self)
-			self:HookEvent(GetOptionsMenu():GetOptionWidget(parent.name), "OnValueChanged",
-					function(this, value)
-						this:SetExpanded(value ~= parent.hideValues[1])
-					end)
-
-			local currentValue = GetOptionsMenu():GetOptionWidget(parent.name):GetValue()
-			self:SetExpanded(currentValue ~= parent.hideValues[1])
-		end
-	else
-		local hideMap = {}
-		for _, v in ipairs(parent.hideValues) do
-			hideMap[v] = true
-		end
-
-		return function(self)
-			self:HookEvent(GetOptionsMenu():GetOptionWidget(parent.name), "OnValueChanged",
-					function(this, value)
-						this:SetExpanded(hideMap[value] == nil)
-					end)
-
-			local currentValue = GetOptionsMenu():GetOptionWidget(parent.name):GetValue()
-			self:SetExpanded(hideMap[currentValue] == nil)
-		end
+local function CreateNS2PlusOptionMenuEntryPostInit(parentOptionTbl)
+	
+	assert(parentOptionTbl)
+	assert(parentOptionTbl.valueType ~= nil)
+	assert(parentOptionTbl.name ~= nil)
+	assert(parentOptionTbl.hideValues ~= nil)
+	
+	local hideMap = {}
+	for _, v in ipairs(parentOptionTbl.hideValues) do
+		hideMap[v] = true
 	end
+	
+	return function(self)
+		self:HookEvent(GetOptionsMenu():GetOptionWidget(parentOptionTbl.name), "OnValueChanged",
+				function(this, value)
+					this:SetExpanded(hideMap[value] == nil)
+				end)
+
+		local currentValue = GetOptionsMenu():GetOptionWidget(parentOptionTbl.name):GetValue()
+		self:SetExpanded(hideMap[currentValue] == nil)
+	end
+	
 end
 
-local function CreateNS2PlusOptionChildrenMenuEntries(option, entry)
-	if not option.children then
-		return entry
-	end
-
-	local children = {}
-	for _, v in ipairs(option.children) do
-		local childEntry = CHUDOptions[v]
-
-		if childEntry then
-			local childOptionEntry = CreateNS2PlusOptionMenuEntry(childEntry, option)
-			table.insert(children, childOptionEntry)
-		end
-	end
-	table.sort(children, sortOptionEntries)
-
-	table.insert(children, 1, entry)
-	entry = {
-		name = string.format("%sGroup", option.name),
-		class = GUIListLayout,
-
-		params =
-		{
-			orientation = "vertical",
-		},
-
-		properties =
-		{
-			{"FrontPadding", 0},
-			{"BackPadding", 0},
-			{"Spacing", 15},
-		},
-
-		children = children,
-
-		sort = option.sort
-
-	}
-
-	return entry
-end
 OP_TT_ColorPicker = GetMultiWrappedClass(GUIMenuColorPickerWidget, {"Option", "Tooltip"})
 
 local function CreateNS2PlusColorOptionMenuEntry(option)
@@ -185,7 +136,8 @@ local function CreateNS2PlusColorOptionMenuEntry(option)
 		{"Label", string.upper(option.label)},
 	}
 
-	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
+	return entry
+	
 end
 
 local function CreateNS2PlusSelectOptionMenuEntry(option)
@@ -206,8 +158,17 @@ local function CreateNS2PlusSelectOptionMenuEntry(option)
 	}
 
 	local choices = {}
-	for i, v in ipairs(option.values) do
-		table.insert(choices, {value = i - 1, displayString = string.upper(v)})
+	if option.valueType == "bool" then
+		choices =
+		{
+			{ value = false, displayString = option.values[1] },
+			{ value = true,  displayString = option.values[2] },
+		}
+	else
+		choices = {}
+		for i, v in ipairs(option.values) do
+			table.insert(choices, {value = i - 1, displayString = string.upper(v)})
+		end
 	end
 
 	entry.properties =
@@ -218,7 +179,8 @@ local function CreateNS2PlusSelectOptionMenuEntry(option)
 		}
 	}
 
-	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
+	return entry
+	
 end
 
 local function CreateNS2PlusSelectBoolOptionMenuEntry(option)
@@ -243,7 +205,7 @@ local function CreateNS2PlusSelectBoolOptionMenuEntry(option)
 		{"Label", string.upper(option.label)},
 	}
 	
-	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
+	return entry
 	
 end
 
@@ -271,7 +233,8 @@ local function CreateNS2PlusSliderOptionMenuEntry(option)
 		}
 	}
 
-	return CreateNS2PlusOptionChildrenMenuEntries(option, entry)
+	return entry
+	
 end
 
 local factories = {
@@ -305,7 +268,11 @@ end
 -- config.postInit can be either nil, function, or list of functions.
 -- Returns a copy of the config with the new postInit function(s) added.
 local function AddPostInits(config, postInit)
+	
 	RequireType({"function", "table"}, postInit, "postInit", 2)
+	if type(postInit) == "table" then
+		assert(#postInit > 0)
+	end
 
 	-- Input table doesn't have postInit field, simple assignment.
 	if config.postInit == nil then
@@ -331,27 +298,9 @@ local function AddPostInits(config, postInit)
 	end
 
 	config.postInit = newPostInit
-
+	
 	return config
-end
-
--- DEBUG
-local function DebugPrintValue(name, val, indent)
-
-	indent = indent or 0
-	local indentStr = string.rep("    ", indent)
-
-	if type(val) == "table" and not val.classname then
-		Log("%s%s =", indentStr, name)
-		Log("%s{", indentStr)
-		for key, value in pairs(val) do
-			DebugPrintValue(key, value, indent+1)
-		end
-		Log("%s}", indentStr)
-	else
-		Log("%s%s = %s", indentStr, name, val)
-	end
-
+	
 end
 
 local function ResetOptionValue(option)
@@ -374,22 +323,13 @@ local function UpdateResetButtonOpacity(option)
 	local visible = not GetAreValuesTheSame(value, option.default)
 	local opacityGoal = visible and 1.0 or 0.0
 
-	-- DEBUG
-	--Log("UpdateResetButtonOpacity()")
-	--Log("    option = %s", option)
-	--Log("    value = %s", value)
-	--Log("    visible = %s", visible)
-	--Log("    defaultValue = %s", option.default)
-
 	resetButton:AnimateProperty("Opacity", opacityGoal, MenuAnimations.Fade)
 end
 
 local ResetButtonClass = GetMultiWrappedClass(GUIButton, {"MenuFX", "Tooltip"})
 local GUIListLayout_Expandable = GetMultiWrappedClass(GUIListLayout, {"Expandable"})
 
-local function AddResetButtonToOption(config, parent)
-	-- DEBUG
-	-- DebugPrintValue("config", config)
+local function AddResetButtonToOption(config, parentOptionTbl)
 	
 	if config.class == GUIListLayout then
 		config = config.children[1]
@@ -401,7 +341,7 @@ local function AddResetButtonToOption(config, parent)
 	{
 		sort = config.sort,
 		name = string.format("%s_wrapped", config.name),
-		class = parent and GUIListLayout_Expandable or GUIListLayout,
+		class = parentOptionTbl and GUIListLayout_Expandable or GUIListLayout,
 		params =
 		{
 			orientation = "horizontal",
@@ -448,19 +388,19 @@ local function AddResetButtonToOption(config, parent)
 		},
 	}
 
-	if parent then
-		AddPostInits(wrappedOption, CreateNS2PlusOptionMenuEntryPostInit(parent))
+	if parentOptionTbl then
+		AddPostInits(wrappedOption, CreateNS2PlusOptionMenuEntryPostInit(parentOptionTbl))
 		wrappedOption.params.expansionMargin = 4.0
 	end
 	
 	return wrappedOption
 end
 
-function CreateNS2PlusOptionMenuEntry(option, parent)
+function CreateNS2PlusOptionMenuEntry(option)
 	local optionType = option.type or option.valueType -- color option have no type declared
 
 	-- use checkbox type wherever possible
-	if optionType == "select" and option.valueType == "bool" then
+	if optionType == "select" and option.valueType == "bool" and option.values and option.values[1] == "Off" and option.values[2] == "On" then
 		optionType = "selectBool"
 	end
 
@@ -488,11 +428,13 @@ function CreateNS2PlusOptionMenuEntry(option, parent)
 
 	-- Add a "reset to default" button to the left of the option that will appear if the option is a
 	-- non-default value.
-	local wrappedOption = AddResetButtonToOption(result, parent)
+	local parentOptionTbl
+	if option.parent then
+		parentOptionTbl = CHUDOptions[option.parent]
+		assert(parentOptionTbl) -- option.parent must be the name of a CHUD option.
+	end
+	local wrappedOption = AddResetButtonToOption(result, parentOptionTbl)
 
-	-- DEBUG
-	--DebugPrintValue("wrappedOption", wrappedOption)
-	
 	return wrappedOption
 	
 end
@@ -509,17 +451,15 @@ function CreateNS2PlusOptionsMenu()
 		if v.defaultValue then
 			table.insert(optionDefaults, {v.name, v.defaultValue})
 		end
-
-		if not v.parent then
-			local category = v.category
-			local entry = CreateNS2PlusOptionMenuEntry(v)
-			
-			if entry then
-				if not options[category] then options[category] = {} end
-				table.insert(options[category], entry)
-			end
-
+		
+		local category = v.category
+		local entry = CreateNS2PlusOptionMenuEntry(v)
+		
+		if entry then
+			if not options[category] then options[category] = {} end
+			table.insert(options[category], entry)
 		end
+		
 	end
 	
 	for category, v in pairs(options) do

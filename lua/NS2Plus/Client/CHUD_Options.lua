@@ -1502,7 +1502,7 @@ CHUDOptions =
 					CHUDApplyNewUIScale()
 				end,
 				sort = "A03",
-				parent = "uiscale"
+				parent = "brokenscaling"
 			},
 			sensitivity_perteam = { 
 				name = "CHUD_SensitivityPerTeam",
