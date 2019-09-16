@@ -125,7 +125,13 @@ function CHUDSetOption(key, value)
 			end
 			
 		elseif option.valueType == "color" then
-			local number = tonumber(value)
+			local number
+			if type(value) == "cdata" and value:isa("Color") then
+				number = ColorToColorInt(value)
+			else
+				number = tonumber(value)
+			end
+
 			if IsNumber(number) then
 				Client.SetOptionInteger(option.name, number)
 				option.currentValue = number

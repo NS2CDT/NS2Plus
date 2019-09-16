@@ -374,10 +374,6 @@ if Client then
 		end
 		return (ScreenSmallAspect() / kScreenScaleAspect)*size*scale
 	end
-	
-	function ColorToColorInt(color)
-		return math.floor(bit.lshift(color.r*255, 16) + bit.lshift(color.g*255, 8) + color.b*255)
-	end
 end
 
 -- Todo: Remove after build 326
