@@ -244,26 +244,6 @@ local factories = {
 	color = CreateNS2PlusColorOptionMenuEntry
 }
 
-local optionDefaults = {}
-local function ResetAllOptions()
-	local optionMenu = GetOptionsMenu()
-	assert(optionMenu)
-
-	for i = 1, #optionDefaults do
-		local optionParams = optionDefaults[i]
-		local name = optionParams[1]
-		local widget = optionMenu:GetOptionWidget(name)
-		assert(widget)
-
-		local defaultValue = optionParams[2]
-		if widget:isa("GUIMenuColorPickerWidget") then
-			defaultValue = ColorIntToColor(defaultValue)
-		end
-
-		widget:SetValue(defaultValue)
-	end
-end
-
 -- Config is a GUIObject config.  postInit is either a function, or a list of functions.
 -- config.postInit can be either nil, function, or list of functions.
 -- Returns a copy of the config with the new postInit function(s) added.
@@ -405,6 +385,20 @@ local function AddResetButtonToOption(config, parentOptionTbl)
 	return wrappedOption
 end
 
+local optionNames = {}
+local function ResetAllOptions()
+	local optionMenu = GetOptionsMenu()
+	assert(optionMenu)
+
+	for i = 1, #optionNames do
+		local name = optionNames[i]
+		local widget = optionMenu:GetOptionWidget(name)
+		assert(widget)
+
+		ResetOptionValue(widget)
+	end
+end
+
 function CreateNS2PlusOptionMenuEntry(option)
 	local optionType = option.type or option.valueType -- color option have no type declared
 
@@ -472,14 +466,11 @@ function CreateNS2PlusOptionsMenu()
 
 	local menu = {}
 
-	optionDefaults = {}
+	optionNames = {}
 
 	for k, v in pairs(CHUDOptions) do
 		v.key = k
-
-		if v.defaultValue then
-			table.insert(optionDefaults, {v.name, v.defaultValue})
-		end
+		table.insert(optionNames, v.name)
 
 		local category = v.category
 		local entry = CreateNS2PlusOptionMenuEntry(v)
