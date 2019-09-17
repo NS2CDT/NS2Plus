@@ -1453,7 +1453,7 @@ CHUDOptions =
 			
 			castermode = { 
 				name = "CHUD_CasterMode",
-				label = "Caster mode",
+				label = "Streamer mode",
 				tooltip = "Makes NS2+ use all the default values without overwriting your current config.",
 				type = "select",
 				values  = { "Off", "On" },
