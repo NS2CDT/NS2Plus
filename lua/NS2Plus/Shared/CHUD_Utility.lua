@@ -332,7 +332,11 @@ if Client then
 		end
 		
 		if CHUDGetOption("fov_perteam") then
-			Client.SetOptionFloat("graphics/display/fov-adjustment", fov)
+			if Client.SetFOVAdjustment then
+				Client.SetFOVAdjustment(fov)
+			else
+				Client.SetOptionFloat("graphics/display/fov-adjustment", fov / 20)
+			end
 		end
 	end
 

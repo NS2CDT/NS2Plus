@@ -222,7 +222,7 @@ local function CreateNS2PlusSliderOptionMenuEntry(option)
 
 			minValue = option.minValue,
 			maxValue = option.maxValue,
-			decimalPlaces = option.valueType == "int" and 0 or 2,
+			decimalPlaces = option.decimalPlaces or 2,
 
 			tooltip = option.tooltip,
 			tooltipIcon = option.helpImage
