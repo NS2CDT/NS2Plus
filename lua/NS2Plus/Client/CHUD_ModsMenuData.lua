@@ -449,7 +449,27 @@ function CreateNS2PlusOptionMenuEntry(option)
 end
 
 function CreateNS2PlusOptionsMenu()
-	local options = {}
+	local categories = {
+		"ui",
+		"hud",
+		"damage",
+		"minimap",
+		"stats",
+		"graphics",
+		"sound",
+		"misc"
+	}
+	local options = {
+		ui = {},
+		hud = {},
+		damage = {},
+		minimap = {},
+		stats = {},
+		graphics = {},
+		sound = {},
+		misc = {}
+	}
+
 	local menu = {}
 
 	optionDefaults = {}
@@ -460,26 +480,33 @@ function CreateNS2PlusOptionsMenu()
 		if v.defaultValue then
 			table.insert(optionDefaults, {v.name, v.defaultValue})
 		end
-		
+
 		local category = v.category
 		local entry = CreateNS2PlusOptionMenuEntry(v)
 		
 		if entry then
-			if not options[category] then options[category] = {} end
+			if not options[category] then
+				table.insert(categories, category)
+				options[category] = {}
+			end
+
 			table.insert(options[category], entry)
 		end
 		
 	end
-	
-	for category, v in pairs(options) do
-		if #v > 0 then
-			table.sort(v, sortOptionEntries)
+
+	for i = 1, #categories do
+		local category = categories[i]
+		local categoryOptions = options[category]
+
+		if categoryOptions and #categoryOptions > 0 then
+			table.sort(categoryOptions, sortOptionEntries)
 
 			category = string.upper(category)
 			local entry = CreateExpandablGroup {
 				name = string.format("NS2Plus%sOptions", category),
 				label = category,
-				children = v
+				children = categoryOptions
 			}
 
 			table.insert(menu, entry)
