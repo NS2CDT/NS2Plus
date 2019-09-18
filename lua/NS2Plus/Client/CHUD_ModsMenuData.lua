@@ -24,17 +24,8 @@ Script.Load("lua/menu2/widgets/GUIMenuColorPickerWidget.lua") -- doesn't get loa
 local kResetButtonTexture = PrecacheAsset("ui/newMenu/resetToDefaultIcon.dds")
 
 local function SyncContentsSize(self, size)
-
 	self:SetContentsSize(size)
-
 end
-
-local function SyncToParentSize(self)
-	local parentObject = self:GetParent()
-	assert(parentObject)
-	self:HookEvent(parentObject, "OnSizeChanged", self.SetSize)
-end
-
 
 local function SyncParentContentsSizeToLayout(self)
 	local parent = self:GetParent():GetParent():GetParent()
@@ -45,7 +36,7 @@ end
 
 local function CreateExpandablGroup(paramsTable)
 
-	RequireType({"table", "nil"}, paramsTable.params, "paramsTable.params", errorDepth)
+	RequireType({"table", "nil"}, paramsTable.params, "paramsTable.params", 2)
 
 	return
 	{
@@ -522,47 +513,21 @@ function CreateNS2PlusOptionsMenu()
 	return menu
 end
 
-local function CreateDefaultOptionsLayout(paramsTable)
-	return
-	{
-		name = "scrollPane",
-		class = GUIMenuScrollPane,
-		params =
-		{
-			horizontalScrollBarEnabled = false,
-		},
-		postInit =
-		{
-			SyncToParentSize,
-			function(self) self:HookEvent(self, "OnSizeChanged", self.SetPaneWidth) end,
-		},
-		children =
-		{
-			MenuData.CreateVerticalListLayout
-			{
-				children = paramsTable.children,
-				fixedSize = false,
-				position = Vector(100, 0, 0),
-				
-			}
-		}
-	}
-end
-
 table.insert(gModsCategories,
 {
 	categoryName = "ns2Plus",
 	entryConfig =
 	{
-		name = "ns2PlusOptions",
+		name = "ns2PlusModEntry",
 		class = GUIMenuCategoryDisplayBoxEntry,
 		params =
 		{
 			label = Locale.ResolveString("NS2PLUS_OPTIONS"),
 		},
 	},
-	contentsConfig = CreateDefaultOptionsLayout
+	contentsConfig = ModsMenuUtils.CreateBasicModsMenuContents
 	{
-		children = CreateNS2PlusOptionsMenu(),
+		layoutName = "ns2PlusOptions",
+		contents = CreateNS2PlusOptionsMenu(),
 	}
 })
