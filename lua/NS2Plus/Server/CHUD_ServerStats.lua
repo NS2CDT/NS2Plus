@@ -115,7 +115,7 @@ end
 
 local notLoggedBuildings = set {
 	"PowerPoint",
-	"Cyst",
+	--"Cyst",
 	"TunnelEntrance",
 	"TunnelExit",
 	"Hydra",
