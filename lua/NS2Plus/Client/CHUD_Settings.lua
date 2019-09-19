@@ -90,7 +90,7 @@ function CHUDSetOption(key, value)
 			
 		elseif option.valueType == "float" then
 			local number = tonumber(value)
-			local multiplier = option.multiplier or 1
+			local multiplier = 1 -- option.multiplier or 1
 			if IsNumber(number) and number >= option.minValue * multiplier and number <= option.maxValue * multiplier then
 				number = number / multiplier
 				Client.SetOptionFloat(option.name, number)
@@ -125,7 +125,13 @@ function CHUDSetOption(key, value)
 			end
 			
 		elseif option.valueType == "color" then
-			local number = tonumber(value)
+			local number
+			if type(value) == "cdata" and value:isa("Color") then
+				number = ColorToColorInt(value)
+			else
+				number = tonumber(value)
+			end
+
 			if IsNumber(number) then
 				Client.SetOptionInteger(option.name, number)
 				option.currentValue = number

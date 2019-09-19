@@ -110,7 +110,6 @@ CHUDOptions =
 				defaultValue = 1,
 				minValue = 0.01,
 				maxValue = 2,
-				multiplier = 100,
 				category = "ui",
 				valueType = "float",
 				applyFunction = function()
@@ -148,6 +147,7 @@ CHUDOptions =
 				applyFunction = function()
 					CHUDRestartScripts({"GUICrosshair"})
 				end,
+				parent = "reloadindicator"
 			},
 			banners = {
 				name = "CHUD_Banners",
@@ -418,6 +418,7 @@ CHUDOptions =
 				children = { "av_fogcolor", "av_fogintensity" },
 				hideValues = { 0 },
 				sort = "C06",
+				parent = "av"
 			},
 			av_offstyle = { 
 				name = "CHUD_AVOffStyle",
@@ -432,6 +433,7 @@ CHUDOptions =
 				helpImage = "ui/helpImages/av_offstyle.dds",
 				helpImageSize = Vector(400, 256, 0),
 				sort = "C07",
+				parent = "av"
 			},
 			av_closecolor = {
 				name = "CHUD_AVCloseColor",
@@ -443,6 +445,7 @@ CHUDOptions =
 				applyFunction = function() updateAlienVision() end,
 				sort = "C08",
 				resetSettingInBuild = 237,
+				parent = "av"
 			},
 			av_closeintensity = { 
 				name = "CHUD_AVCloseIntensity",
@@ -456,6 +459,7 @@ CHUDOptions =
 				valueType = "float",
 				applyFunction = function() updateAlienVision() end,
 				sort = "C09",
+				parent = "av"
 			},
 			av_distantcolor = {
 				name = "CHUD_AVDistantColor",
@@ -466,6 +470,7 @@ CHUDOptions =
 				valueType = "color",
 				applyFunction = function() updateAlienVision() end,
 				sort = "C10",
+				parent = "av"
 			},
 			av_distantintensity = { 
 				name = "CHUD_AVDistantIntensity",
@@ -479,6 +484,7 @@ CHUDOptions =
 				valueType = "float",
 				applyFunction = function() updateAlienVision() end,
 				sort = "C11",
+				parent = "av"
 			},
 			av_fogcolor = {
 				name = "CHUD_AVFogColor",
@@ -489,6 +495,7 @@ CHUDOptions =
 				valueType = "color",
 				applyFunction = function() updateAlienVision() end,
 				sort = "C12",
+				parent = "av_style"
 			},
 			av_fogintensity = { 
 				name = "CHUD_AVFogIntensity",
@@ -502,6 +509,7 @@ CHUDOptions =
 				valueType = "float",
 				applyFunction = function() updateAlienVision() end,
 				sort = "C13",
+				parent = "av_style"
 			},
 			av_marinecolor = { 
 				name = "CHUD_AVMarineColor",
@@ -516,6 +524,7 @@ CHUDOptions =
                 helpImage = "ui/helpImages/av_marinecol.dds",
 				helpImageSize = Vector(384, 192, 0),
 				sort = "C14",
+				parent = "av"
 			},
             av_advancedmode = { 
 				name = "CHUD_AVAdvancedMode",
@@ -529,6 +538,7 @@ CHUDOptions =
 				children = { "av_blenddistance", "av_worldintensity", "av_edges", "av_edgesize", "av_desaturation", "av_viewmodelstyle", "av_activationeffect", "av_skybox" },
 				hideValues = { 0 },
 				sort = "C15",
+				parent = "av"
 			},
 			av_blenddistance = { 
 				name = "CHUD_AVBlendDistance",
@@ -542,6 +552,7 @@ CHUDOptions =
 				valueType = "float",
 				applyFunction = function() updateAlienVision() end,
 				sort = "C16",
+				parent = "av_advancedmode"
 			},
 			av_worldintensity = { 
 				name = "CHUD_AVWorldIntensity",
@@ -555,6 +566,7 @@ CHUDOptions =
 				valueType = "float",
 				applyFunction = function() updateAlienVision() end,
 				sort = "C17",
+				parent = "av_advancedmode"
 			},
 			av_edges = { 
 				name = "CHUD_AVEdges",
@@ -568,6 +580,7 @@ CHUDOptions =
 				applyFunction = function() updateAlienVision() end,
 				sort = "C18",
 				resetSettingInBuild = 237,
+				parent = "av_advancedmode"
 			},
 			av_edgesize = { 
 				name = "CHUD_AVEdgeSize",
@@ -581,6 +594,7 @@ CHUDOptions =
 				valueType = "float",
 				applyFunction = function() updateAlienVision() end,
 				sort = "C19",
+				parent = "av_advancedmode"
 			},	
 			av_desaturation = { 
 				name = "CHUD_AVDesaturation",
@@ -596,6 +610,7 @@ CHUDOptions =
                 hideValues = { 0 },
 				sort = "C20",
 				resetSettingInBuild = 237,
+				parent = "av_advancedmode"
 			},
 			av_desaturationintensity = { 
 				name = "CHUD_AVDesaturationIntensity",
@@ -609,6 +624,7 @@ CHUDOptions =
 				valueType = "float",
 				applyFunction = function() updateAlienVision() end,
 				sort = "C21",
+				parent = "av_advancedmode"
 			},
 			av_desaturationblend = { 
 				name = "CHUD_AVDesaturationBlend",
@@ -622,6 +638,7 @@ CHUDOptions =
 				valueType = "float",
 				applyFunction = function() updateAlienVision() end,
 				sort = "C22",
+				parent = "av_advancedmode"
 			},
 			av_viewmodelstyle = { 
 				name = "CHUD_AVViewModelStyle",
@@ -636,6 +653,7 @@ CHUDOptions =
 				children = { "av_viewmodelintensity" },
 				hideValues = { 1 },
 				sort = "C23",
+				parent = "av_advancedmode"
 			},
 			av_viewmodelintensity = { 
 				name = "CHUD_AVViewModelIntensity",
@@ -649,6 +667,7 @@ CHUDOptions =
 				valueType = "float",
 				applyFunction = function() updateAlienVision() end,
 				sort = "C24",
+				parent = "av_advancedmode"
 			},
 			av_skybox = {
 				name = "CHUD_AVSkybox",
@@ -661,6 +680,7 @@ CHUDOptions =
 				valueType = "int",
 				applyFunction = function() updateAlienVision() end,
 				sort = "C25",
+				parent = "av_advancedmode"
 			},
 			av_activationeffect = {
 				name = "CHUD_AVActivationEffect",
@@ -673,6 +693,7 @@ CHUDOptions =
 				valueType = "int",
 				applyFunction = function() updateAlienVision() end,
 				sort = "C26",
+				parent = "av_advancedmode"
 			},
 			
 			
@@ -719,6 +740,7 @@ CHUDOptions =
 				end,
 				sort = "A03",
 				resetSettingInBuild = 265,
+				parent = "killfeedcolorcustom"
 			},
 			killfeedscale = {
 				name = "CHUD_KillFeedScale",
@@ -728,7 +750,6 @@ CHUDOptions =
 				defaultValue = 1,
 				minValue = 1,
 				maxValue = 2,
-				multiplier = 100,
 				category = "hud",
 				valueType = "float",
 				applyFunction = function()
@@ -786,6 +807,7 @@ CHUDOptions =
 				end,
 				sort = "A10",
 				resetSettingInBuild = 264,
+				parent = "score"
 			},
 			assists = {
 				name = "CHUD_Assists",
@@ -812,6 +834,7 @@ CHUDOptions =
 				end,
 				sort = "A12",
 				resetSettingInBuild = 264,
+				parent = "assists"
 			},
 			wps = {
 				name = "CHUD_Waypoints",
@@ -931,7 +954,6 @@ CHUDOptions =
 				defaultValue = 0.25,
 				minValue = 0,
 				maxValue = 1,
-				multiplier = 100,
 				category = "damage",
 				valueType = "float",
 				applyFunction = function() Player.kShowGiveDamageTime = CHUDGetOption("hitindicator") end,
@@ -993,7 +1015,6 @@ CHUDOptions =
 				defaultValue = 1,
 				minValue = 0.5,
 				maxValue = 2,
-				multiplier = 100,
 				category = "damage",
 				valueType = "float",
 				sort = "A06",
@@ -1040,7 +1061,6 @@ CHUDOptions =
 				defaultValue = 0.85,
 				minValue = 0,
 				maxValue = 1,
-				multiplier = 100,
 				category = "minimap",
 				valueType = "float",
 				applyFunction = function()
@@ -1059,7 +1079,6 @@ CHUDOptions =
 				defaultValue = 0.65,
 				minValue = 0,
 				maxValue = 1,
-				multiplier = 100,
 				category = "minimap",
 				valueType = "float",
 				applyFunction = function()
@@ -1158,6 +1177,7 @@ CHUDOptions =
 				valueType = "color",
 				sort = "A08",
 				resetSettingInBuild = 265,
+				parent = "minimaparrowcolorcustom"
 			},
 			mapelementscolor = {
 				name = "CHUD_MapElementsColor",
@@ -1212,6 +1232,7 @@ CHUDOptions =
 				defaultValue = 0xFFFF00,
 				category = "minimap",
 				sort = "A13",
+				parent = "commhighlight"
 			},
 			
 			
@@ -1233,6 +1254,10 @@ CHUDOptions =
 				children = { "hitsounds_pitch" },
 				hideValues = { 0 },
 				sort = "A01",
+				immediateUpdate = function()
+					HitSounds_SyncOptions()
+					HitSounds_PlayHitsound(1)
+				end
 			},
 			hitsounds_pitch = { 
 				name = "CHUD_HitsoundsPitch",
@@ -1244,6 +1269,13 @@ CHUDOptions =
 				category = "sound",
 				valueType = "int",
 				sort = "A02",
+				parent = "hitsounds",
+				immediateUpdate = function(self)
+					HitSounds_SyncOptions()
+
+					local pitch = self:GetValue() == 0 and 1 or 3
+					HitSounds_PlayHitsound(pitch)
+				end
 			},
 			ambient = {
 				name = "CHUD_Ambient",
@@ -1254,7 +1286,7 @@ CHUDOptions =
 				defaultValue = true,
 				category = "sound",
 				valueType = "bool",
-				applyFunction = SetCHUDAmbients,
+				applyFunction = function() SetCHUDAmbients() end,
 				applyOnLoadComplete = true,
 				sort = "A03",
 			},
@@ -1270,7 +1302,7 @@ CHUDOptions =
 				defaultValue = true,
 				category = "graphics",
 				valueType = "bool",
-				applyFunction = SetCHUDCinematics,
+				applyFunction = function() SetCHUDCinematics() end,
 				applyOnLoadComplete = true,
 				sort = "A01",
 			},
@@ -1283,7 +1315,7 @@ CHUDOptions =
 				defaultValue = false,
 				category = "graphics",
 				valueType = "bool",
-				applyFunction = SetCHUDCinematics,
+				applyFunction = function() SetCHUDCinematics() end,
 				applyOnLoadComplete = true,
 				sort = "A02"
 			},
@@ -1310,7 +1342,6 @@ CHUDOptions =
 				defaultValue = 1,
 				minValue = 0,
 				maxValue = 1,
-				multiplier = 100,
 				category = "graphics",
 				valueType = "float",
 				sort = "A05",
@@ -1334,7 +1365,6 @@ CHUDOptions =
 				defaultValue = 1,
 				minValue = 0,
 				maxValue = 100,
-				multiplier = 1,
 				category = "graphics",
 				valueType = "float",
 				sort = "A07",
@@ -1415,7 +1445,7 @@ CHUDOptions =
 			
 			castermode = { 
 				name = "CHUD_CasterMode",
-				label = "Caster mode",
+				label = "Streamer mode",
 				tooltip = "Makes NS2+ use all the default values without overwriting your current config.",
 				type = "select",
 				values  = { "Off", "On" },
@@ -1457,13 +1487,13 @@ CHUDOptions =
 				defaultValue = 1,
 				minValue = 0.05,
 				maxValue = 2,
-				multiplier = 100,
 				category = "misc",
 				valueType = "float",
 				applyFunction = function()
 					CHUDApplyNewUIScale()
 				end,
 				sort = "A03",
+				parent = "brokenscaling",
 			},
 			sensitivity_perteam = { 
 				name = "CHUD_SensitivityPerTeam",
@@ -1490,7 +1520,6 @@ CHUDOptions =
 				defaultValue = 2,
 				minValue = 0.01,
 				maxValue = 20,
-				multiplier = 1,
 				category = "misc",
 				valueType = "float",
 				applyFunction = function()
@@ -1498,6 +1527,7 @@ CHUDOptions =
 				end,
 				sort = "A05",
 				ignoreCasterMode = true,
+				parent = "sensitivity_perteam"
 			},
 			sensitivity_a = { 
 				name = "CHUD_Sensitivity_A",
@@ -1507,7 +1537,6 @@ CHUDOptions =
 				defaultValue = 2,
 				minValue = 0.01,
 				maxValue = 20,
-				multiplier = 1,
 				category = "misc",
 				valueType = "float",
 				applyFunction = function()
@@ -1516,6 +1545,7 @@ CHUDOptions =
 				end,
 				sort = "A06",
 				ignoreCasterMode = true,
+				parent = "sensitivity_perteam"
 			},
 			sensitivity_perlifeform = {
 				name = "CHUD_SensitivityPerLifeform",
@@ -1537,6 +1567,7 @@ CHUDOptions =
 				hideValues = { false },
 				sort = "A06.1",
 				ignoreCasterMode = true,
+				parent = "sensitivity_perteam"
 			},
 			sensitivity_skulk = {
 				name = "CHUD_Sensitivity_Skulk",
@@ -1546,7 +1577,6 @@ CHUDOptions =
 				defaultValue = 2,
 				minValue = 0.01,
 				maxValue = 20,
-				multiplier = 1,
 				category = "misc",
 				valueType = "float",
 				applyFunction = function()
@@ -1554,6 +1584,7 @@ CHUDOptions =
 				end,
 				sort = "A06.2",
 				ignoreCasterMode = true,
+				parent = "sensitivity_perlifeform"
 			},
 			sensitivity_gorge = {
 				name = "CHUD_Sensitivity_Gorge",
@@ -1563,7 +1594,6 @@ CHUDOptions =
 				defaultValue = 2,
 				minValue = 0.01,
 				maxValue = 20,
-				multiplier = 1,
 				category = "misc",
 				valueType = "float",
 				applyFunction = function()
@@ -1571,6 +1601,7 @@ CHUDOptions =
 				end,
 				sort = "A06.3",
 				ignoreCasterMode = true,
+				parent = "sensitivity_perlifeform"
 			},
 			sensitivity_lerk = {
 				name = "CHUD_Sensitivity_Lerk",
@@ -1580,7 +1611,6 @@ CHUDOptions =
 				defaultValue = 2,
 				minValue = 0.01,
 				maxValue = 20,
-				multiplier = 1,
 				category = "misc",
 				valueType = "float",
 				applyFunction = function()
@@ -1588,6 +1618,7 @@ CHUDOptions =
 				end,
 				sort = "A06.4",
 				ignoreCasterMode = true,
+				parent = "sensitivity_perlifeform"
 			},
 			sensitivity_fade = {
 				name = "CHUD_Sensitivity_Fade",
@@ -1597,7 +1628,6 @@ CHUDOptions =
 				defaultValue = 2,
 				minValue = 0.01,
 				maxValue = 20,
-				multiplier = 1,
 				category = "misc",
 				valueType = "float",
 				applyFunction = function()
@@ -1605,6 +1635,7 @@ CHUDOptions =
 				end,
 				sort = "A06.5",
 				ignoreCasterMode = true,
+				parent = "sensitivity_perlifeform"
 			},
 			sensitivity_onos = {
 				name = "CHUD_Sensitivity_Onos",
@@ -1614,7 +1645,6 @@ CHUDOptions =
 				defaultValue = 2,
 				minValue = 0.01,
 				maxValue = 20,
-				multiplier = 1,
 				category = "misc",
 				valueType = "float",
 				applyFunction = function()
@@ -1622,6 +1652,7 @@ CHUDOptions =
 				end,
 				sort = "A06.6",
 				ignoreCasterMode = true,
+				parent = "sensitivity_perlifeform"
 			},
 			alien_weaponslots = {
 				name = "CHUD_AlienAbililitySelect",
@@ -1664,8 +1695,7 @@ CHUDOptions =
 				type = "slider",
 				defaultValue = 0,
 				minValue = 0,
-				maxValue = 1,
-				multiplier = 20,
+				maxValue = 20,
 				category = "misc",
 				valueType = "float",
 				applyFunction = function()
@@ -1673,6 +1703,8 @@ CHUDOptions =
 				end,
 				sort = "A09",
 				ignoreCasterMode = true,
+				parent = "fov_perteam",
+				resetSettingInBuild = 389
 			},
 			fov_a = { 
 				name = "CHUD_FOV_A",
@@ -1681,8 +1713,7 @@ CHUDOptions =
 				type = "slider",
 				defaultValue = 0,
 				minValue = 0,
-				maxValue = 1,
-				multiplier = 20,
+				maxValue = 20,
 				category = "misc",
 				valueType = "float",
 				applyFunction = function()
@@ -1690,6 +1721,8 @@ CHUDOptions =
 				end,
 				sort = "A10",
 				ignoreCasterMode = true,
+				parent = "fov_perteam",
+				resetSettingInBuild = 389
 			},
 			autopickup = { 
 				name = "CHUD_AutoPickup",
@@ -1757,6 +1790,7 @@ CHUDOptions =
 					CHUDEvaluateGUIVis()
 					CHUDRestartScripts({"Hud/Marine/GUIMarineHUD"})
 				end,
+				parent = "drawviewmodel"
 			},
 			drawviewmodel_exo = {
 				name = "CHUD_DrawViewModel_Exo",
@@ -1772,6 +1806,7 @@ CHUDOptions =
 					CHUDEvaluateGUIVis()
 					CHUDRestartScripts({"Hud/Marine/GUIMarineHUD"})
 				end,
+				parent = "drawviewmodel"
 			},
 			drawviewmodel_a = {
 				name = "CHUD_DrawViewModel_A",
@@ -1792,6 +1827,7 @@ CHUDOptions =
 					"drawviewmodel_onos"
 				},
 				hideValues = { 0, 1 },
+				parent = "drawviewmodel"
 			},
 			drawviewmodel_skulk = {
 				name = "CHUD_DrawViewModel_Skulk",
@@ -1806,6 +1842,7 @@ CHUDOptions =
 				applyFunction = function()
 					CHUDEvaluateGUIVis()
 				end,
+				parent = "drawviewmodel_a"
 			},
 			drawviewmodel_gorge = {
 				name = "CHUD_DrawViewModel_Gorge",
@@ -1820,6 +1857,7 @@ CHUDOptions =
 				applyFunction = function()
 					CHUDEvaluateGUIVis()
 				end,
+				parent = "drawviewmodel_a"
 			},
 			drawviewmodel_lerk = {
 				name = "CHUD_DrawViewModel_Lerk",
@@ -1834,6 +1872,7 @@ CHUDOptions =
 				applyFunction = function()
 					CHUDEvaluateGUIVis()
 				end,
+				parent = "drawviewmodel_a"
 			},
 			drawviewmodel_fade = {
 				name = "CHUD_DrawViewModel_Fade",
@@ -1848,6 +1887,7 @@ CHUDOptions =
 				applyFunction = function()
 					CHUDEvaluateGUIVis()
 				end,
+				parent = "drawviewmodel_a"
 			},
 			drawviewmodel_onos = {
 				name = "CHUD_DrawViewModel_Onos",
@@ -1862,6 +1902,7 @@ CHUDOptions =
 				applyFunction = function()
 					CHUDEvaluateGUIVis()
 				end,
+				parent = "drawviewmodel_a"
 			},
 			
 			marinecommselect = { 

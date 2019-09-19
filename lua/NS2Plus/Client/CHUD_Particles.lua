@@ -309,7 +309,7 @@ end
 
 local originalSetCinematic
 originalSetCinematic = Class_ReplaceMethod( "Cinematic", "SetCinematic", 
-	function(self, cinematicName)
+	function(self, cinematicName, renderMask)
 		--Print(cinematicName)
 		if Client.fullyLoaded then
 
@@ -329,7 +329,7 @@ originalSetCinematic = Class_ReplaceMethod( "Cinematic", "SetCinematic",
 			end
 
 		end
-		originalSetCinematic(self, cinematicName)
+		originalSetCinematic(self, cinematicName, renderMask)
 	end
 )
 
