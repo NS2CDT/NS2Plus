@@ -1,5 +1,9 @@
 Changelog
 ============
+- 19/09/2017
+    - Added options menu to the mods options menu of the new main menu
+    - Enabled stats tracking for cysts and alien tunnels. So they are listed in the end-game report. (Thanks to turtsmcgurts)
+
 - 14/07/2019
     - Fixed invalid export format for weapons stats
     - Fixed that not all player team changes were tracked

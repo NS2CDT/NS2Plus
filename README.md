@@ -6,6 +6,10 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
+- 19/09/2017
+    - Added options menu to the mods options menu of the new main menu
+    - Enabled stats tracking for cysts and alien tunnels. So they are listed in the end-game report. (Thanks to turtsmcgurts)
+    
 - 14/07/2019
     - Fixed invalid export format for weapons stats
     - Fixed that not all player team changes were tracked
@@ -16,13 +20,6 @@ Latest changes
    - Fixed incorrect calculation of average team skill for the end game hive skill graph (Thanks to Glitch)
    - Removed link to player's observatory profile at scoreboard
    
-- 20/06/2019
-    - Removed server options to display numeric skill values directly at the scoreboard GUI
-    - Fixed that the team hive skill graph at the end game stats GUI wasn't tracking changes correctly
-    - Fixed that the commander visibility value of map cinematics and props wasn't applied properly.
-    - Fixed that player and structure damage values for each weapon weren't displayed at the end game stats GUI
-    - Added a console command to export available ns2plus options and their descriptions to a csv table
-    
 Server settings
 ===============
 Server operators can adjust some features for NS2+ through the console (typing "sv_plus" in console), or change them in the NS2PlusServerSettings.json file located in the server config folder.
