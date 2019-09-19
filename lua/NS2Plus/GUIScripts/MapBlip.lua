@@ -10,6 +10,10 @@ local mapElements = set {
 	kMinimapBlipType.TechPoint, kMinimapBlipType.ResourcePoint
 }
 
+local friendTeams = set {
+	kMinimapBlipTeam.FriendMarine, kMinimapBlipTeam.FriendMarine
+}
+
 local originalMapBlipGetMapBlipColor = MapBlip.GetMapBlipColor
 function MapBlip:GetMapBlipColor(minimap, item)
 
@@ -33,6 +37,13 @@ function MapBlip:GetMapBlipColor(minimap, item)
 		isHighlighted = true
 	end
 
+	-- Decrease color saturation by 50% for the friends highlighting
+	if CHUDGetOption("friends") and friendTeams[blipTeam] then
+		local hue, sat, val = RGBToHSV(returnColor)
+		sat = sat * .5
+		returnColor = HSVToRGB(hue, sat, val)
+	end
+
 	if not self.isHallucination then
 		if teamVisible then
 			if self.isInCombat then
@@ -53,21 +64,3 @@ function MapBlip:GetMapBlipColor(minimap, item)
 	return returnColor
 end
 PlayerMapBlip.GetMapBlipColor = MapBlip.GetMapBlipColor
-
-local friendTeams =
-{
-	[kMinimapBlipTeam.FriendMarine] = kMinimapBlipTeam.Marine,
-	[kMinimapBlipTeam.FriendAlien] = kMinimapBlipTeam.Alien
-}
-
-local oldGetMapBlipTeam = MapBlip.GetMapBlipTeam
-function MapBlip:GetMapBlipTeam(minimap)
-	local blipTeam = oldGetMapBlipTeam(self, minimap)
-
-	if not CHUDGetOption("friends") and friendTeams[blipTeam] then
-		blipTeam = friendTeams[blipTeam]
-	end
-
-	return blipTeam
-end
-PlayerMapBlip.GetMapBlipTeam = MapBlip.GetMapBlipTeam

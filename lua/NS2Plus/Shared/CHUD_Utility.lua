@@ -332,7 +332,11 @@ if Client then
 		end
 		
 		if CHUDGetOption("fov_perteam") then
-			Client.SetOptionFloat("graphics/display/fov-adjustment", fov)
+			if Client.SetFOVAdjustment then
+				Client.SetFOVAdjustment(fov)
+			else
+				Client.SetOptionFloat("graphics/display/fov-adjustment", fov / 20)
+			end
 		end
 	end
 
@@ -373,10 +377,6 @@ if Client then
 			scale = 1.5
 		end
 		return (ScreenSmallAspect() / kScreenScaleAspect)*size*scale
-	end
-	
-	function ColorToColorInt(color)
-		return math.floor(bit.lshift(color.r*255, 16) + bit.lshift(color.g*255, 8) + color.b*255)
 	end
 end
 
