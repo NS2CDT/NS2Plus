@@ -1371,7 +1371,6 @@ CHUDOptions =
 			},
 			maxfps = {
 				name = "CHUD_MaxFPS",
-				optionPath = "graphics/maxfps",
 				label = "Max FPS Limit",
 				tooltip = "Set a target maximum ingame frame rate",
 				type = "slider",
@@ -1382,10 +1381,11 @@ CHUDOptions =
 				applyFunction = function()
 					local value = CHUDGetOption("maxfps")
 					if value then
-						Print(ToString(value))
+						Client.SetOptionInteger("graphics/maxfps", value)
 						Shared.ConsoleCommand(string.format("maxfps %s", value))
 					end
 				end,
+				applyOnLoadComplete = true,
 				category = "graphics",
 				valueType = "float",
 				sort = "A07",
