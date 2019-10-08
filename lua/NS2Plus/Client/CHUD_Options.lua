@@ -44,6 +44,7 @@ CHUDOptions =
 					}) end,
 				sort = "A01",
 			},
+			--[=[
 			rtcount = {
 				name = "CHUD_RTcount",
 				label = "RT count dots",
@@ -57,6 +58,7 @@ CHUDOptions =
 				helpImageSize = Vector(256, 128, 0),
 				sort = "A02",
 			},
+			--]=]
 			showcomm = {
 				name = "CHUD_CommName",
 				label = "Comm name/Team res",
