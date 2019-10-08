@@ -318,6 +318,8 @@ if Client then
 	
 	function CHUDApplyTeamSpecificStuff()
 		local player = Client.GetLocalPlayer()
+		if not player then return end
+
 		local teamNumber = player:GetTeamNumber()
 		local isMarine = teamNumber == kTeam1Index
 		

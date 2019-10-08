@@ -113,7 +113,7 @@ local function CreateNS2PlusColorOptionMenuEntry(option)
 		class = OP_TT_ColorPicker,
 		params =
 		{
-			optionPath = option.name,
+			optionPath = option.optionPath or option.name,
 			optionType = "color",
 			default = option.defaultValue,
 

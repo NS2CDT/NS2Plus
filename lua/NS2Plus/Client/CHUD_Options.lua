@@ -1369,6 +1369,27 @@ CHUDOptions =
 				valueType = "float",
 				sort = "A07",
 			},
+			maxfps = {
+				name = "CHUD_MaxFPS",
+				label = "Max FPS Limit",
+				tooltip = "Set a target maximum ingame frame rate",
+				type = "slider",
+				defaultValue = 200,
+				minValue = 30,
+				maxValue = 300,
+				decimalPlaces = 0,
+				applyFunction = function()
+					local value = CHUDGetOption("maxfps")
+					if value then
+						Client.SetOptionInteger("graphics/maxfps", value)
+						Shared.ConsoleCommand(string.format("maxfps %s", value))
+					end
+				end,
+				applyOnLoadComplete = true,
+				category = "graphics",
+				valueType = "float",
+				sort = "A07",
+			},
 			tracers = {
 				name = "CHUD_Tracers",
 				label = "Weapon tracers",
@@ -1378,7 +1399,7 @@ CHUDOptions =
 				defaultValue = true,
 				category = "graphics",
 				valueType = "bool",
-				sort = "A08",
+				sort = "A09",
 			},
 			gorgespit = { 
 				name = "CHUD_GorgeSpit",
@@ -1389,7 +1410,7 @@ CHUDOptions =
 				defaultValue = false,
 				category = "graphics",
 				valueType = "bool",
-				sort = "A09",
+				sort = "A10",
 			},
 			
 			
