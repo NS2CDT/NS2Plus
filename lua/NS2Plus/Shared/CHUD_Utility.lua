@@ -382,7 +382,7 @@ if Client then
 	end
 end
 
--- Todo: Remove after build 326
+-- Todo: Merge into vanilla
 function Class_AddMethod( className, methodName, method )
 	assert( _G[className][methodName] == nil or _G[className][methodName] == method, "Attempting to add new method when class already has one -- use Class_ReplaceMethod instead" )
 
