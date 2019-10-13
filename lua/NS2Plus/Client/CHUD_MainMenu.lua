@@ -351,12 +351,13 @@ function GUIMainMenu:CreateCHUDOptionWindow()
 	local categoryOrder = {
 		ui = 1,
 		hud = 2,
-		damage = 3,
-		minimap = 4,
-		sound = 5,
-		graphics = 6,
-		stats = 7,
-		misc = 8
+        alienvision = 3,
+		damage = 4,
+		minimap = 5,
+		sound = 6,
+		graphics = 7,
+		stats = 8,
+		misc = 9
 	}
 	
 	for idx, option in pairs(CHUDOptions) do
