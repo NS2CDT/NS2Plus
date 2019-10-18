@@ -74,12 +74,8 @@ local function OnLocalPlayerChanged()
 	CHUDApplyLifeformSpecificStuff()
 end
 
--- Todo: Find a better way to make this work
 local lastTeam
-local oldUpdateTracers = UpdateTracers
-function UpdateTracers(deltaTime)
-	oldUpdateTracers(deltaTime)
-
+local function CheckPlayerTeamChange()
 	local player = Client.GetLocalPlayer()
 	local teamNumber = player and player:GetTeamNumber()
 	if teamNumber ~= lastTeam then
@@ -88,6 +84,7 @@ function UpdateTracers(deltaTime)
 	end
 end
 
+Event.Hook("UpdateClient", CheckPlayerTeamChange)
 Event.Hook("LoadComplete", OnLoadComplete)
 Event.Hook("LocalPlayerChanged", OnLocalPlayerChanged)
 

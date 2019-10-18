@@ -1908,7 +1908,7 @@ function CHUDGUI_EndStats:UpdateVisibleUI()
 	self:UpdateCloseButton()
 end
 
--- Todo: Split this moster into submethods
+-- Todo: Split this monster into submethods
 function CHUDGUI_EndStats:ProcessStats()
 	table.sort(finalStatsTable, function(a, b)
 		a.teamNumber = a.isMarine and 1 or 2

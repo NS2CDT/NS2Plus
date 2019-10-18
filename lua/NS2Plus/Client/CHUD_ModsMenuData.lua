@@ -1,8 +1,11 @@
 CHUDMainMenu = decoda_name == "Main"
 
-Script.Load("lua/NS2Plus/Client/CHUD_Options.lua")
 Script.Load("lua/NS2Plus/Shared/CHUD_Utility.lua")
 Script.Load("lua/NS2Plus/Client/CHUD_Settings.lua")
+
+-- safety guard against corrupted filesystem where previous files may not exist or fail to load
+if not GetCHUDSettings then return end
+
 Script.Load("lua/NS2Plus/Client/CHUD_Options.lua")
 Script.Load("lua/NS2Plus/Client/CHUD_Hitsounds.lua")
 
@@ -14,8 +17,10 @@ if CHUDMainMenu then
 	function GUIMenuModScreen:Initialize(a, b, c, d, e)
 		oldInitialize(self, a, b, c, d, e)
 
-		GetCHUDSettings()
-		Log("NS2+ Main Menu mods loaded. Build %s.", kCHUDVersion)
+		if GetCHUDSettings and kCHUDVersion then
+			GetCHUDSettings()
+			Log("NS2+ Main Menu mods loaded. Build %s.", kCHUDVersion)
+		end
 	end
 end
 
