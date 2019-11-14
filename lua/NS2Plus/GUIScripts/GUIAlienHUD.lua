@@ -7,7 +7,8 @@ function GUIAlienHUD:CHUDRepositionGUI()
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
 	local biomass = ClientUI.GetScript("GUIBioMassDisplay")
-	local y = self.resourceDisplay.teamText:GetPosition().y
+	--local y = self.resourceDisplay.teamText:GetPosition().y
+	local y = 0
 
 	if gametime and self.gameTime then
 		y = y + 30
@@ -222,7 +223,7 @@ local originalAlienUpdate = GUIAlienHUD.Update
 function GUIAlienHUD:Update(deltaTime)
 	originalAlienUpdate(self, deltaTime)
 
-	local rtcount = CHUDGetOption("rtcount")
+	--local rtcount = CHUDGetOption("rtcount")
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
 	local showcomm = CHUDGetOption("showcomm")
@@ -232,16 +233,16 @@ function GUIAlienHUD:Update(deltaTime)
 		self:CHUDUpdateHealthBall(deltaTime)
 	end
 
-	if not rtcount then
-		self.resourceDisplay.rtCount:SetIsVisible(false)
-		self.resourceDisplay.pResDescription:SetText(string.format("%s (%d %s)",
-			Locale.ResolveString("RESOURCES"),
-			CommanderUI_GetTeamHarvesterCount(),
-			ConditionalValue(CommanderUI_GetTeamHarvesterCount() == 1, "RT", "RTs")))
-	else
-		self.resourceDisplay.rtCount:SetIsVisible(CommanderUI_GetTeamHarvesterCount() > 0)
-		self.resourceDisplay.pResDescription:SetText(Locale.ResolveString("RESOURCES"))
-	end
+	--if not rtcount then
+	--	self.resourceDisplay.rtCount:SetIsVisible(false)
+	--	self.resourceDisplay.pResDescription:SetText(string.format("%s (%d %s)",
+	--		Locale.ResolveString("RESOURCES"),
+	--		CommanderUI_GetTeamHarvesterCount(),
+	--		ConditionalValue(CommanderUI_GetTeamHarvesterCount() == 1, "RT", "RTs")))
+	--else
+	--	self.resourceDisplay.rtCount:SetIsVisible(CommanderUI_GetTeamHarvesterCount() > 0)
+		--self.resourceDisplay.pResDescription:SetText(Locale.ResolveString("RESOURCES"))
+	--end
 
 	if self.gameTime then
 		self.gameTime:SetText(CHUDGetGameTimeString())
@@ -253,7 +254,7 @@ function GUIAlienHUD:Update(deltaTime)
 		self.realTime:SetIsVisible(realtime and self.visible)
 	end
 
-	self.resourceDisplay.teamText:SetIsVisible(showcomm)
+	--self.resourceDisplay.teamText:SetIsVisible(showcomm)
 
 	local aliencircles = CHUDGetOption("aliencircles")
 	local energyColor = Color(1, 1, 1, 1)
