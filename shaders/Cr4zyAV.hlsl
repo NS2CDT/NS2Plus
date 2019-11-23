@@ -86,63 +86,25 @@ float4 colorBitshift( float inputColor )
     
     return clamp(float4(extractR / 255.0, extractG / 255.0, extractB / 255.0, 1),0,1);
 }
-
-float4 enhanceColour( float4 inputRGBA, float4 inputColorIntensity, float inputIntensity)
+// For all settings: 1.0 = 100% 0.5=50% 1.5 = 150%
+float4 ContrastSaturationBrightness(float4 incolor, float brt, float sat, float con)
 {
-    float4 colourModel = 0;
-    float strongestColour = max(max(inputRGBA.r,inputRGBA.g),inputRGBA.b);
-    float fogShade = 0;
-    float colourMulti = lerp(0,.5,inputIntensity*.5);
-    
-    if (inputRGBA.r == inputRGBA.g){
-        fogShade = fogShade + 1;
-    }
-    if (inputRGBA.r == inputRGBA.b){
-        fogShade = fogShade + 2;
-    }
-    if (inputRGBA.g == inputRGBA.b){
-        fogShade = fogShade + 4;
-    }
-    
-    if (fogShade == 0) {
-        if (inputRGBA.r == strongestColour){
-            colourModel = inputColorIntensity * float4(1,colourMulti,colourMulti,1);
-        }
-        if (inputRGBA.g == strongestColour){
-            colourModel = inputColorIntensity * float4(colourMulti,1,colourMulti,1);
-        }
-        if (inputRGBA.b == strongestColour){
-            colourModel = inputColorIntensity * float4(colourMulti,colourMulti,1,1);
-        }
-    }
-    else if (fogShade == 1) {
-        if (inputRGBA.b == strongestColour){
-            colourModel = inputColorIntensity * float4(colourMulti,colourMulti,1,1);
-        }
-        else{
-        colourModel = inputColorIntensity * float4(1,1,colourMulti,1);
-        }
-    }
-    else if (fogShade == 2) {
-        if (inputRGBA.g == strongestColour){
-            colourModel = inputColorIntensity * float4(colourMulti,1,colourMulti,1);
-        }
-        else{
-        colourModel = inputColorIntensity * float4(1,colourMulti,1,1);
-        }
-    }
-    else if (fogShade == 4) {
-        if (inputRGBA.r == strongestColour){
-            colourModel = inputColorIntensity * float4(1,colourMulti,colourMulti,1);
-        }
-        else{
-        colourModel = inputColorIntensity * float4(colourMulti,1,1,1);
-        }
-    }
-    else{
-        colourModel = inputColorIntensity;
-    }
-    return colourModel;
+    float3 color = float3(incolor.r, incolor.g, incolor.b);
+	// Increase or decrease theese values to adjust r, g and b color channels seperately
+	const float AvgLumR = 0.5;
+	const float AvgLumG = 0.5;
+	const float AvgLumB = 0.5;
+	
+	const float3 LumCoeff = float3(0.2125, 0.7154, 0.0721);
+	
+	float3 AvgLumin = float3(AvgLumR, AvgLumG, AvgLumB);
+	float3 brtColor = color * brt;
+	float intensityf = dot(brtColor, LumCoeff);
+	float3 intensity = float3(intensityf, intensityf, intensityf);
+	float3 satColor = lerp(intensity, brtColor, sat);
+	float3 conColor = lerp(AvgLumin, satColor, con);
+    float4 finColor = float4(conColor,1);
+	return finColor;
 }
 
 float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
@@ -338,7 +300,6 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     
     if (avStructures >= 3) {
         //no structures, 3
-        currentStructureMask = 0;
         alienStructureMask = 0;
         marineStructureMask = 0;
     }
@@ -363,48 +324,40 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     
     if (avPlayers >= 3) {
         //no players, 3
-        //currentPlayerMask = 0;
         alienMask = 0;
         gorgeMask = 0;
         marineMask = 0;
     }
     else if (avPlayers >= 2 && avPlayers < 2.1) {
         //alien only, 2
-        //currentPlayerMask = alienMask * alienRGB;
         marineMask = 0;
     }
     else if (avPlayers >= 1 && avPlayers < 1.1) {
         //marine only, 1
-        //currentPlayerMask = marineMask * marineRGB;
         alienMask = 0;
         gorgeMask = 0;
     }
     else if (avPlayers <= 0){
         //all players, 0
-        //currentPlayerMask = (alienMask * alienRGB) + (marineMask * marineRGB);
     }
     
     float4 currentAlienMask = 0;
-    float4 currentMarineMask = 0;
+    float4 currentMarineMask = (marineMask * marineRGB) + (marineStructureMask * mStructRGB);
     float alienIntensityMask = 0;
-    float marineIntensityMask = 0;
+    float marineIntensityMask = (marineMask * marineIntensity) + (marineStructureMask * mStructIntensity);
     float combinedIntensityMask = 0;
     
     //Gorge is a unique color selection choice so create masks appropriately
     if (avGorgeUnique < 1){
         currentPlayerMask = ((alienMask + gorgeMask + myAlien) * alienRGB) + (marineMask * marineRGB);
         currentAlienMask = ((alienMask + gorgeMask + myAlien) * alienRGB) + (alienStructureMask * aStructRGB); 
-        currentMarineMask = (marineMask * marineRGB) + (marineStructureMask * mStructRGB);
         alienIntensityMask = ((alienMask  + gorgeMask) * alienIntensity) + (alienStructureMask * aStructIntensity) + (myAlien * myAlienIntensity);
-        marineIntensityMask = (marineMask * marineIntensity) + (marineStructureMask * mStructIntensity);
         combinedIntensityMask = (marineMask * marineIntensity) + ((alienMask  + gorgeMask) * alienIntensity) + (alienStructureMask * aStructIntensity) + (marineStructureMask * mStructIntensity) + (myAlien * myAlienIntensity);
     }
     else if (avGorgeUnique >= 1){
         currentPlayerMask = ((alienMask + myAlien) * alienRGB) + (gorgeMask * gorgeRGB) + (marineMask * marineRGB);
         currentAlienMask = ((alienMask + myAlien) * alienRGB) + (gorgeMask * gorgeRGB) + (alienStructureMask * aStructRGB); 
-        currentMarineMask = (marineMask * marineRGB) + (marineStructureMask * mStructRGB);
         alienIntensityMask = (alienMask * alienIntensity) + (gorgeMask * gorgeIntensity) + (alienStructureMask * aStructIntensity) + (myAlien * myAlienIntensity);
-        marineIntensityMask = (marineMask * marineIntensity) + (marineStructureMask * mStructIntensity);
         combinedIntensityMask = (marineMask * marineIntensity) + (alienMask * alienIntensity) + (gorgeMask * gorgeIntensity) + (alienStructureMask * aStructIntensity) + (marineStructureMask * mStructIntensity) + (myAlien * myAlienIntensity);
     }
 
@@ -532,9 +485,8 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     float modelEdge = model;
     if (avEdge >= 2){
         //2&3 -  no fill
-        modelEdge = edge;
+        modelEdge = edge + edge;
     }
-
     
     float fadeDistBlend = pow(avBlendChange*.8+.2, -depth1.r * 0.23 + 0.23);
     float fadeDistDesat = pow(avDesatBlend*10+0.2, -depth1.r * 0.23 + 0.23);
@@ -549,34 +501,28 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     
     //fog colour/colour three, wont rename in code as to not reset anyones existing options
     float4 colourFog = clamp((((worldCloseRGB * closeIntensity) * (fadeDistBlend * 10)) + ((worldFarRGB * distantIntensity) * (.75-fadeDistBlend))),0,1);
-    
-    //enchances strongest colour
     float4 colourModel = 0;
-    colourModel = enhanceColour(combinedColorMask, (combinedColorMask * combinedIntensityMask), combinedIntensityMask);
-    
+
     //player and structure colouring
     //this used to use colours one/two/three to set aliens/marines/world values differently but now we have actual choices for that
     if (modeAV >= 1){
         if (modeAV > 1){
             if (modeAV > 2){
                 //seperate world, edge and model colours
-                //colourModel used to be set here as enhanceColour(colourFog), which is now done before this step
                 colourFog = combinedColorMask;
+                colourModel = ContrastSaturationBrightness(combinedColorMask,1,1.5,1);
                 }
             else{
-                //depth fog this sets colour for aliens/marines
+                //depth fog, this sets colour for aliens/marines
                 colourAngle = (alienIntensityMask * lerp(currentAlienMask,currentMarineMask,.25)) + (marineIntensityMask * lerp(currentAlienMask,currentMarineMask,.75));
                 colourOne = combinedColorMask;
                 colourTwo = (alienIntensityMask * clamp(lerp(currentAlienMask,currentMarineMask,.15) / 1.25,0,1)) + (marineIntensityMask * clamp(lerp(currentAlienMask,currentMarineMask,.85) / 1.25,0,1));
             }
         } 
         else {
-            //original - colourModel should be colourFog passed through enhanceColour()
-            //colourModel = lerp(combinedColorMask,colourModel, .15);
+            //original
             colourFog = combinedColorMask;
-            colourOne = worldCloseRGB * closeIntensity;
-            colourTwo = worldFarRGB * distantIntensity;
-            colourAngle = lerp(colourOne, colourTwo, .75);
+            colourModel = ContrastSaturationBrightness(combinedColorMask,1,1.5,1);
         }
     }
     else {
@@ -613,9 +559,9 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     
     //set up original mode model colouring
     float4 modelColour =
-    (modelEdge * (0.5 + 0.1 * pow(0.1 + sin(time * 5 + intensity * 4), 2)) * clamp(fadedist*.5,.5,1)) * colourModel +
-    ((modelEdge * pow(edge,2)) * (colourModel * (clamp(fadedist *60,.25,1)))) +
-    (modelEdge * pow(edge,2) * 10 + modelEdge * pow(edge,2.5) * 200) * (colourFog * clamp(fadedist * 20,2,10));
+    (modelEdge * (0.5 + 0.1 * pow(0.1 + sin(time * 5 + intensity * 4), 2)) * clamp(fadedist*5,.5,1)) * colourFog +
+    ((modelEdge * pow(edge,2)) * (colourFog * (clamp(fadedist *60,.25,1)))) +
+    (modelEdge * pow(edge,2) * 10 + modelEdge * pow(edge,2.5) * 2) * (colourModel * clamp(fadedist * 20,2,10));
 
     //WORLD edges
     // redRoom detection means outlines in dark rooms are much more pronounced
@@ -720,7 +666,7 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
                 }
             else{
                 //depth fog
-                alienVision = ((pow(inputPixel * .9 * darkened, 1.3) + desaturate * desatIntensity + (fog*(clamp((1-combinedIntensityMask)+0.1,0,1))) * (2 + edge * .2) + (outline  * (model * 1.5)) * 2 + model * intensity * colourAngle * (0.5 + 0.2 * pow(0.1 + sin(time * 5 + intensity * 3), 2)) ) * clamp(pow(1-realvm,12),0,1) + (realvm * inputPixelold)) * maskSkybox + noSkybox + nanoHighlight;
+                alienVision = ((pow(inputPixel * .9 * darkened, 1.3) + desaturate * desatIntensity + (fog*(clamp((1-combinedIntensityMask)+0.1,.75,1))) * (2 + edge * .2) + (outline  * (model * 1.5)) * 2 + model * intensity * (colourAngle*0.2) * (0.5 + 0.2 * pow(0.1 + sin(time * 5 + intensity * 3), 2)) ) * clamp(pow(1-realvm,12),0,1) + (realvm * inputPixelold)) * maskSkybox + noSkybox + nanoHighlight;
             }
         } 
         else {
