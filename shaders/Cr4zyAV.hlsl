@@ -485,7 +485,7 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     float modelEdge = model;
     if (avEdge >= 2){
         //2&3 -  no fill
-        modelEdge = edge + edge;
+        modelEdge = edge;
     }
     
     float fadeDistBlend = pow(avBlendChange*.8+.2, -depth1.r * 0.23 + 0.23);
@@ -561,7 +561,7 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     float4 modelColour =
     (modelEdge * (0.5 + 0.1 * pow(0.1 + sin(time * 5 + intensity * 4), 2)) * clamp(fadedist*5,.5,1)) * colourFog +
     ((modelEdge * pow(edge,2)) * (colourFog * (clamp(fadedist *60,.25,1)))) +
-    (modelEdge * pow(edge,2) * 10 + modelEdge * pow(edge,2.5) * 2) * (colourModel * clamp(fadedist * 20,2,10));
+    (modelEdge * pow(edge,2) * modelEdge * pow(edge,2.5)) * (colourModel * clamp(fadedist * 20,2,10));
 
     //WORLD edges
     // redRoom detection means outlines in dark rooms are much more pronounced
@@ -658,11 +658,11 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
                 //seperate world, edge and model colours
                 alienVision = 
                 ((pow((clamp(combinedIntensityMask + 1-pow(edge,1.8),0,1) - pow(combinedIntensityMask,0.01)),2) * (inputPixel + desaturate * desatIntensity) * clamp((clamp(combinedIntensityMask + 1-edge,0,1) - combinedIntensityMask) * colourOne *  fadeDistBlend,0,1) +
-                clamp((pow(edge,2) - combinedIntensityMask) * colourTwo * fadeoff*10,0,1) + (inputPixel * combinedIntensityMask) +
+                clamp((pow(edge,2) - combinedIntensityMask) * colourTwo * fadeoff*10,0,1) + ((inputPixel + desaturate * desatIntensity) * colourOne *  fadeDistBlend) * combinedIntensityMask +
                 (modelEdge * colourFog) * 0.1 +
-                ((normal.y * .3) * ((0.5 + 0.2 * pow(0.1 + sin(time * 5 + intensity * 3), 2)) * modelEdge * (colourModel * inputPixelold)  * clamp(fadedist*20,1,3)) *.25) +
-                (pow(clamp(pow(modelEdge * edge,2.2),0,1) * (colourFog * 0.5)* (fadeoff*100),1.2)) * pow((edge + model),10)) * clamp(pow(1-realvm,12),0,1) +
-                (realvm * inputPixelold)) * maskSkybox + noSkybox + nanoHighlight;
+                ((normal.y * .3) * ((0.5 + 0.2 * pow(0.1 + sin(time * 5 + intensity * 3), 2)) * modelEdge * (colourModel * inputPixel)  * clamp(fadedist*20,1,3)) *.25) +
+                (pow(clamp(pow(modelEdge * edge,2.2),0,1) * (colourFog * 0.5),1.2)) * pow((edge + model),4)) * clamp(pow(1-realvm,12),0,1) +
+                (realvm * inputPixel)) * maskSkybox + noSkybox + nanoHighlight;
                 }
             else{
                 //depth fog
@@ -671,12 +671,12 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
         } 
         else {
             //original 
-            alienVision = (((max(inputPixel,edge) + desaturate * desatIntensity) * clamp(((colourOne * (fadeDistBlend * 10)) + (colourTwo * (.75-fadeDistBlend))),0,1) + (modelColour*.35)) * clamp(pow(1-realvm,12),0,1) + (realvm * inputPixelold)) * maskSkybox + noSkybox + nanoHighlight;
+            alienVision = (((max(inputPixel,edge) + desaturate * desatIntensity) * clamp(((colourOne * (fadeDistBlend * 10)) + (colourTwo * (.75-fadeDistBlend))),0,1) + (modelColour*.5)) * clamp(pow(1-realvm,12),0,1) + (realvm * inputPixelold)) * maskSkybox + noSkybox + nanoHighlight;
         }
     }
     else {
         //minimal
-        alienVision = (((pow(inputPixel * .9 * darkened, 1.4) + desaturate * desatIntensity) + (outline * (model * 1.5)) * 4 + (model * intensity * colourAngle * (0.5 + 0.2 * pow(0.1 + sin(time * 5 + intensity * 3), 2)) * fadeoff) + ((inputPixel + desaturate * desatIntensity) + world * .75)) * clamp(pow(1-realvm,12),0,1) + (realvm * inputPixelold)) * maskSkybox + noSkybox + nanoHighlight;
+        alienVision = (((pow(inputPixel * .9 * darkened, 1.4) + desaturate * desatIntensity) + (outline * (model * 1.5)) * 2 + (model * intensity * colourAngle * (0.5 + 0.2 * pow(0.1 + sin(time * 5 + intensity * 3), 2))) + ((inputPixel + desaturate * desatIntensity) + world * .75)) * clamp(pow(1-realvm,12),0,1) + (realvm * inputPixelold)) * maskSkybox + noSkybox + nanoHighlight;
     }
         
     //activation effects
