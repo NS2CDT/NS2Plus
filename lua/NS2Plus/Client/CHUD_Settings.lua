@@ -60,14 +60,14 @@ function CHUDGetOptionVals(key)
 	return nil
 end
 
-function CHUDSetOption(key, value)
+function CHUDSetOption(key, value, updateOptionsMenu)
 	local setValue
 
 	if CHUDOptions[key] ~= nil then
 	
-		option = CHUDOptions[key]
-		oldValue = option.currentValue
-		defaultValue = option.defaultValue
+		local option = CHUDOptions[key]
+		local oldValue = option.currentValue
+		local defaultValue = option.defaultValue
 				
 		if option.valueType == "bool" then
 			if value == "true" or value == "1" or value == true then
@@ -146,6 +146,14 @@ function CHUDSetOption(key, value)
 		-- Don't waste time reapplying settings we already have active
 		if oldValue ~= option.currentValue and option.applyFunction and option.disabled == nil and not CHUDMainMenu then
 			option.applyFunction()
+		end
+
+		if updateOptionsMenu then
+			local optionsMenu = GetOptionsMenu and GetOptionsMenu()
+			local optionWidget = optionsMenu and optionsMenu:GetOptionWidget(option.name)
+			if optionWidget then
+				optionWidget:SetValue(setValue)
+			end
 		end
 		
 	end
@@ -240,7 +248,7 @@ local function CHUDPrintCommandsPage(page)
 	PrintConsoleText("-------------------------------------")
 	PrintConsoleText("NS2+ Commands")
 	PrintConsoleText("-------------------------------------")
-	for i=1+(linesPerPage*curPage),linesPerPage*curPage+linesPerPage do
+	for i = 1 + (linesPerPage * curPage), linesPerPage * curPage + linesPerPage do
 		local option = CHUDOptions[SortedOptions[i]]
 		if option then
 			local helpStr = "plus " .. SortedOptions[i]
@@ -266,7 +274,7 @@ end
 local function CHUDHelp(optionName)
 	
 	if CHUDOptions[optionName] ~= nil then
-		option = CHUDOptions[optionName]
+		local option = CHUDOptions[optionName]
 		local multiplier = option.multiplier or 1
 		PrintConsoleText("-------------------------------------")
 		PrintConsoleText(option.label)
@@ -319,7 +327,7 @@ end
 local function OnCommandCHUD(...)
 	local args = {...}
 	
-	for idx, arg in pairs(args) do
+	for idx, arg in ipairs(args) do
 		args[idx] = string.lower(arg)
 	end
 	
@@ -331,8 +339,9 @@ local function OnCommandCHUD(...)
 
 	elseif #args > 1 and args[1] ~= "page" then
 		if CHUDOptions[args[1]] ~= nil then
-			option = CHUDOptions[args[1]]
+			local option = CHUDOptions[args[1]]
 			local multiplier = option.multiplier or 1
+
 			if option.valueType == "color" and args[2] ~= "reset" and args[2] ~= "default" then
 				local r = tonumber(args[2])
 				local g = tonumber(args[3]) or 0
@@ -346,7 +355,10 @@ local function OnCommandCHUD(...)
 					args[2] = nil
 				end
 			end
-			local setValue = CHUDSetOption(args[1], args[2])
+
+			local setValue = CHUDSetOption(args[1], args[2], true)
+			local helpStr = ""
+
 			if option.type == "select" then
 				if option.valueType == "bool" then
 					if option.currentValue then
@@ -360,36 +372,12 @@ local function OnCommandCHUD(...)
 				end
 			elseif option.valueType == "color" then
 				local tmpColor = ColorIntToColor(option.currentValue)
-				helpStr = tostring(math.floor(tmpColor.r*255)) .. " " .. tostring(math.floor(tmpColor.g*255)) .. " " .. tostring(math.floor(tmpColor.b*255))
+				helpStr = tostring(math.floor(tmpColor.r * 255)) .. " " .. tostring(math.floor(tmpColor.g * 255)) .. " " .. tostring(math.floor(tmpColor.b*255))
 			else
 				helpStr = tostring(option.currentValue * multiplier)
 			end
+
 			if setValue ~= nil then
-				local mainMenu = GetCHUDMainMenu()
-				if mainMenu and mainMenu.CHUDOptionElements then
-					if option.valueType == "bool" then
-						mainMenu.CHUDOptionElements[option.name]:SetOptionActive(setValue == true and 2 or 1)
-					elseif option.valueType == "int" then
-						mainMenu.CHUDOptionElements[option.name]:SetOptionActive(setValue+1)
-					elseif option.valueType == "float" then
-						local minValue = option.minValue or 0
-						local maxValue = option.maxValue or 1
-						local value = (setValue - minValue) / (maxValue - minValue)
-						mainMenu.CHUDOptionElements[option.name]:SetValue(value)
-					elseif option.valueType == "color" then
-						mainMenu.CHUDOptionElements[option.name]:GetBackground():SetColor(ColorIntToColor(setValue))
-						mainMenu.colorPickerWindow:SetIsVisible(false)
-						if option.defaultValue == setValue then
-							mainMenu.CHUDOptionElements[option.name].text:SetIsVisible(true)
-							-- Invert color
-							mainMenu.CHUDOptionElements[option.name].text:SetColor(ColorIntToColor(0xFFFFFF - setValue))
-							mainMenu.CHUDOptionElements[option.name].resetOption:SetIsVisible(false)
-						else
-							mainMenu.CHUDOptionElements[option.name].text:SetIsVisible(false)
-							mainMenu.CHUDOptionElements[option.name].resetOption:SetIsVisible(true)
-						end
-					end
-				end
 				PrintConsoleText(option.label .. " set to: " .. helpStr)
 				if option.disabled then
 					PrintConsoleText("The server admin has disabled this option (" .. option.label .. "). The option will get saved, but the blocked value will be used." )
