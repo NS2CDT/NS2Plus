@@ -68,7 +68,7 @@ local function CreateExpandablGroup(paramsTable)
 				{
 					{"FrontPadding", 32},
 					{"BackPadding", 32},
-					{"Spacing", 5},
+					{"Spacing", 15},
 				},
 				postInit =
 				{
@@ -395,6 +395,32 @@ local function ResetAllOptions()
 	end
 end
 
+local function ResetPopup()
+    -- Make reset options a confirmation popup!
+    local popup = CreateGUIObject("popup", GUIMenuPopupSimpleMessage, nil,
+    {
+        title = "RESET NS2+ OPTIONS",
+        message = "Reset ALL NS2+ options to default?",
+        buttonConfig =
+        {
+            -- Confirm.
+            {
+                name = "CHUD_confirmReset",
+                params =
+                {
+                    label = "Yes, Reset",
+                },
+                callback = function(popup)
+                    popup:Close()
+                    ResetAllOptions()
+                end,
+            },
+            -- Cancel Button.
+            GUIPopupDialog.CancelButton,
+        },
+    })
+end
+
 function CreateNS2PlusOptionMenuEntry(option)
 	local optionType = option.type or option.valueType -- color option have no type declared
 
@@ -508,7 +534,7 @@ function CreateNS2PlusOptionsMenu()
 		},
 		postInit = {
 			function(self)
-				self:HookEvent(self, "OnPressed", ResetAllOptions)
+				self:HookEvent(self, "OnPressed", ResetPopup)
 			end
 		}
 	}
