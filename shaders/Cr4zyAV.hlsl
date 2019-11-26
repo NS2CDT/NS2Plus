@@ -658,10 +658,10 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
                 //seperate world, edge and model colours
                 alienVision = 
                 ((pow((clamp(combinedIntensityMask + 1-pow(edge,1.8),0,1) - pow(combinedIntensityMask,0.01)),2) * (inputPixel + desaturate * desatIntensity) * clamp((clamp(combinedIntensityMask + 1-edge,0,1) - combinedIntensityMask) * colourOne *  fadeDistBlend,0,1) +
-                clamp((pow(edge,2) - combinedIntensityMask) * colourTwo * fadeoff*10,0,1) + ((inputPixel + desaturate * desatIntensity) * colourOne) * combinedIntensityMask +
+                clamp((pow(edge,2) - combinedIntensityMask) * colourTwo * fadeoff*10,0,1) + ((inputPixel + desaturate * desatIntensity) * (colourOne)) * clamp(max((model * closeIntensity), combinedIntensityMask),0,1) +
                 (modelEdge * colourFog) * 0.1 +
                 ((normal.y * .3) * ((0.5 + 0.2 * pow(0.1 + sin(time * 5 + intensity * 3), 2)) * modelEdge * (colourModel * inputPixel)  * clamp(fadedist*20,1,3)) *.25) +
-                (pow(clamp(pow(modelEdge * edge,2.2),0,1) * (colourFog * 0.5),1.2)) * pow((edge + model),4)) * clamp(pow(1-realvm,12),0,1) +
+                (pow(clamp(pow(modelEdge * edge,.5),0,1) * (colourFog * 0.5),1.2)) * pow((edge + model),4)) * clamp(pow(1-realvm,12),0,1) +
                 (realvm * inputPixel)) * maskSkybox + noSkybox + nanoHighlight;
                 }
             else{
