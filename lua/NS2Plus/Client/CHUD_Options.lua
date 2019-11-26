@@ -380,7 +380,7 @@ CHUDOptions =
 				category = "alienvision",
 				valueType = "bool",
 				sort = "C01",
-                resetSettingInBuild = 359
+				resetSettingInBuild = 359
 			},
 			av = {
 				name = "CHUD_AV",
@@ -415,7 +415,7 @@ CHUDOptions =
 				category = "alienvision",
 				valueType = "int",
 				applyFunction = function() updateAlienVision() end,
-                helpImage = "ui/helpImages/av_style.dds",
+				helpImage = "ui/helpImages/av_style.dds",
 				helpImageSize = Vector(512, 256, 0),
 				children = { "av_closecolor", "av_closeintensity", "av_distantcolor", "av_distantintensity" },
 				hideValues = { 0 },
@@ -488,7 +488,7 @@ CHUDOptions =
 				sort = "C08",
 				parent = "av_style"
 			},
-            av_playercolor = { 
+			av_playercolor = {
 				name = "CHUD_AVPlayerColor",
 				label = "Players to Colour",
 				tooltip = "Allows Players to be coloured separately.",
@@ -501,7 +501,7 @@ CHUDOptions =
 				sort = "C09",
 				parent = "av"
 			},
-            av_colormarine = {
+			av_colormarine = {
 				name = "CHUD_AVColorMarine",
 				label = "Marine Player Colour",
 				tooltip = "Selects the colour for Marine players.",
@@ -512,7 +512,7 @@ CHUDOptions =
 				sort = "C10",
 				parent = "av"
 			},
-            av_marineintensity = { 
+			av_marineintensity = {
 				name = "CHUD_AVMarineIntensity",
 				label = "Marine Colour Intensity",
 				tooltip = "Sets the 'brightness' value of the Marine colour.",
@@ -526,7 +526,7 @@ CHUDOptions =
 				sort = "C11",
 				parent = "av"
 			},
-            av_coloralien = {
+			av_coloralien = {
 				name = "CHUD_AVColorAlien",
 				label = "Alien Player Colour",
 				tooltip = "Selects the colour for Alien players.",
@@ -537,7 +537,7 @@ CHUDOptions =
 				sort = "C12",
 				parent = "av"
 			},
-            av_alienintensity = { 
+			av_alienintensity = {
 				name = "CHUD_AVAlienIntensity",
 				label = "Alien Colour Intensity",
 				tooltip = "Sets the 'brightness' value of the Alien colour.",
@@ -551,7 +551,7 @@ CHUDOptions =
 				sort = "C13",
 				parent = "av"
 			},
-            av_gorgeunique = {
+			av_gorgeunique = {
 				name = "CHUD_AVGorgeUnique",
 				label = "Colour Gorges Seperately",
 				tooltip = "Allows you to seperately colour Gorges.\n Applies to babblers too.",
@@ -564,9 +564,9 @@ CHUDOptions =
 				children = { "av_colorgorge", "av_gorgeintensity" },
 				applyFunction = function() updateAlienVision() end,
 				sort = "C14",
-                parent = "av",
+				parent = "av",
 			},
-            av_colorgorge = {
+			av_colorgorge = {
 				name = "CHUD_AVGorgeColor",
 				label = "Gorge Colour",
 				tooltip = "Selects the colour for Gorge and Babblers.",
@@ -577,7 +577,7 @@ CHUDOptions =
 				sort = "C15",
 				parent = "av_gorgeunique"
 			},
-            av_gorgeintensity = { 
+			av_gorgeintensity = {
 				name = "CHUD_AVGorgeIntensity",
 				label = "Gorge Colour Intensity",
 				tooltip = "Sets the 'brightness' value of the Gorge colour.",
@@ -591,7 +591,7 @@ CHUDOptions =
 				sort = "C16",
 				parent = "av_gorgeunique"
 			},
-            av_structurecolor = { 
+			av_structurecolor = {
 				name = "CHUD_AVStructureColor",
 				label = "Structures to Colour",
 				tooltip = "Allows Structures to be coloured separately.",
@@ -604,7 +604,7 @@ CHUDOptions =
 				sort = "C17",
 				parent = "av"
 			},
-            av_colormarinestruct = {
+			av_colormarinestruct = {
 				name = "CHUD_AVMstructColor",
 				label = "Marine Structure Colour",
 				tooltip = "Selects the colour for Marine structures.",
@@ -615,7 +615,7 @@ CHUDOptions =
 				sort = "C18",
 				parent = "av"
 			},
-            av_mstructintensity = { 
+			av_mstructintensity = {
 				name = "CHUD_AVMStructIntensity",
 				label = "Marine Structure Intensity",
 				tooltip = "Sets the 'brightness' value of the Marine structure colour.",
@@ -629,7 +629,7 @@ CHUDOptions =
 				sort = "C19",
 				parent = "av"
 			},
-            av_coloralienstruct = {
+			av_coloralienstruct = {
 				name = "CHUD_AVAstructColor",
 				label = "Alien Structure Colour",
 				tooltip = "Selects the colour for Alien structures.",
@@ -640,7 +640,7 @@ CHUDOptions =
 				sort = "C20",
 				parent = "av"
 			},
-            av_astructintensity = { 
+			av_astructintensity = {
 				name = "CHUD_AVAStructIntensity",
 				label = "Alien Structure Intensity",
 				tooltip = "Sets the 'brightness' value of the Alien structure colour.",
@@ -679,7 +679,7 @@ CHUDOptions =
 				valueType = "int",
 				applyFunction = function() updateAlienVision() end,
 				sort = "C23",
-                helpImage = "ui/helpImages/av_nofill.dds",
+				helpImage = "ui/helpImages/av_nofill.dds",
 				helpImageSize = Vector(512, 256, 0),
 				resetSettingInBuild = 237,
 				parent = "av"
@@ -698,8 +698,8 @@ CHUDOptions =
 				sort = "C24",
 				parent = "av"
 			},
-            av_edgeclean = {
-                name = "CHUD_AVEdgeClean",
+			av_edgeclean = {
+				name = "CHUD_AVEdgeClean",
 				label = "Edge Redesign",
 				tooltip = "Enables new math to improve edges in the distance. Will make edges smaller",
 				type = "select",
@@ -708,11 +708,11 @@ CHUDOptions =
 				category = "alienvision",
 				valueType = "int",
 				applyFunction = function() updateAlienVision() end,
-                hideValues = { 0 },
+				hideValues = { 0 },
 				sort = "C25",
 				parent = "av"
-            },
-            av_worldintensity = { 
+			},
+			av_worldintensity = {
 				name = "CHUD_AVWorldIntensity",
 				label = "World Intensity",
 				tooltip = "Sets the brightness value of the world.",
@@ -736,8 +736,8 @@ CHUDOptions =
 				category = "alienvision",
 				valueType = "int",
 				applyFunction = function() updateAlienVision() end,
-                children = { "av_desaturationintensity", "av_desaturationblend" },
-                hideValues = { 0 },
+				children = { "av_desaturationintensity", "av_desaturationblend" },
+				hideValues = { 0 },
 				sort = "C27",
 				resetSettingInBuild = 237,
 				parent = "av"
@@ -825,7 +825,7 @@ CHUDOptions =
 				sort = "C33",
 				parent = "av"
 			},
-            av_nanoshield = {
+			av_nanoshield = {
 				name = "CHUD_AVNanoshield",
 				label = "Nanoshield AV highlight",
 				tooltip = "Improves nanoshield visibility by showing an inverted colour Nano effect on marine players and structures. May have side effects in some blue and brightly lit areas",
@@ -835,10 +835,10 @@ CHUDOptions =
 				category = "alienvision",
 				valueType = "int",
 				applyFunction = function() updateAlienVision() end,
-                helpImage = "ui/helpImages/av_nano.dds",
+				helpImage = "ui/helpImages/av_nano.dds",
 				helpImageSize = Vector(384, 192, 0),
 				sort = "C34",
-                parent = "av",
+				parent = "av",
 			},
 			
 			
@@ -1030,7 +1030,7 @@ CHUDOptions =
 				category = "hud",
 				valueType = "int",
 				sort = "A16",
-                resetSettingInBuild = 359
+				resetSettingInBuild = 359
 			},
 			pickupexpirecolor = { 
 				name = "CHUD_PickupExpireBarColor",
@@ -1045,7 +1045,7 @@ CHUDOptions =
 				category = "hud",
 				valueType = "int",
 				sort = "A17",
-                resetSettingInBuild = 359
+				resetSettingInBuild = 359
 			},		
 			motiontracking = {
 				name = "CHUD_MotionTracking",
@@ -1073,7 +1073,7 @@ CHUDOptions =
 				category = "hud",
 				valueType = "int",
 				sort = "B02",
-                resetSettingInBuild = 359
+				resetSettingInBuild = 359
 			},
 			serverblood = {
 				name = "CHUD_ServerBlood",
@@ -1121,7 +1121,7 @@ CHUDOptions =
 						kWorldDamageNumberAnimationSpeed = speeds[CHUDGetOption("fasterdamagenumbers")]
 					end,
 				sort = "A03",
-                resetSettingInBuild = 359
+				resetSettingInBuild = 359
 			},
 			overkilldamagenumbers = {
 				name = "CHUD_OverkillDamageNumbers",

@@ -396,29 +396,29 @@ local function ResetAllOptions()
 end
 
 local function ResetPopup()
-    -- Make reset options a confirmation popup!
-    local popup = CreateGUIObject("popup", GUIMenuPopupSimpleMessage, nil,
-    {
-        title = "RESET NS2+ OPTIONS",
-        message = "Reset ALL NS2+ options to default?",
-        buttonConfig =
-        {
-            -- Confirm.
-            {
-                name = "CHUD_confirmReset",
-                params =
-                {
-                    label = "Yes, Reset",
-                },
-                callback = function(popup)
-                    popup:Close()
-                    ResetAllOptions()
-                end,
-            },
-            -- Cancel Button.
-            GUIPopupDialog.CancelButton,
-        },
-    })
+	-- Make reset options a confirmation popup!
+	local popup = CreateGUIObject("popup", GUIMenuPopupSimpleMessage, nil,
+	{
+		title = "RESET NS2+ OPTIONS",
+		message = "Reset ALL NS2+ options to default?",
+		buttonConfig =
+		{
+			-- Confirm.
+			{
+				name = "CHUD_confirmReset",
+				params =
+				{
+					label = "Yes, Reset",
+				},
+				callback = function(popup)
+					popup:Close()
+					ResetAllOptions()
+				end,
+			},
+			-- Cancel Button.
+			GUIPopupDialog.CancelButton,
+		},
+	})
 end
 
 function CreateNS2PlusOptionMenuEntry(option)
@@ -468,7 +468,7 @@ function CreateNS2PlusOptionsMenu()
 	local categories = {
 		"ui",
 		"hud",
-        "alienvision",
+		"alienvision",
 		"damage",
 		"minimap",
 		"stats",
@@ -479,7 +479,7 @@ function CreateNS2PlusOptionsMenu()
 	local options = {
 		ui = {},
 		hud = {},
-        alienvision = {},
+		alienvision = {},
 		damage = {},
 		minimap = {},
 		stats = {},

@@ -163,12 +163,12 @@ local function PropagateIndent(CHUDOption)
 end
 
 local function CHUDIndentChildren(name)
-    if mainMenu ~= nil and mainMenu.CHUDOptionElements ~= nil then
-        local CHUDMenuOption = mainMenu.CHUDOptionElements[name]
-        local index = CHUDMenuOption.index
-        local CHUDOption = CHUDOptions[index]
-        PropagateIndent(CHUDOption)
-    end
+	if mainMenu ~= nil and mainMenu.CHUDOptionElements ~= nil then
+		local CHUDMenuOption = mainMenu.CHUDOptionElements[name]
+		local index = CHUDMenuOption.index
+		local CHUDOption = CHUDOptions[index]
+		PropagateIndent(CHUDOption)
+	end
 end
 
 local function ResetMenuOption(option)
@@ -271,9 +271,9 @@ function GUIMainMenu:CreateCHUDOptionWindow()
 	local function InitOptionWindow()
 		for idx, option in pairs(CHUDOptions) do
 			self.CHUDOptionElements[option.name].index = idx
-            if option.children then
-                CHUDIndentChildren(option.name)
-            end
+			if option.children then
+				CHUDIndentChildren(option.name)
+			end
 			if option.valueType == "bool" then
 				self.CHUDOptionElements[option.name]:SetOptionActive( BoolToIndex(CHUDOptions[idx].currentValue) )
 			elseif option.valueType == "int" and option.type == "select" then
@@ -351,7 +351,7 @@ function GUIMainMenu:CreateCHUDOptionWindow()
 	local categoryOrder = {
 		ui = 1,
 		hud = 2,
-        alienvision = 3,
+		alienvision = 3,
 		damage = 4,
 		minimap = 5,
 		sound = 6,

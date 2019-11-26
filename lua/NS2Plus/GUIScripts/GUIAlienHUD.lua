@@ -140,8 +140,8 @@ function GUIAlienHUD:Initialize()
 
 	-- Cr4zyAV config options
 	if CHUDGetOption("av") == 5 then
-        updateAlienVision()
-    end
+		updateAlienVision()
+	end
 
 	if CHUDGetOption("hudbars_a") > 0 then
 		if CHUDGetOption("hudbars_a") == 2 then
@@ -320,60 +320,60 @@ function GUIAlienHUD:Uninitialize()
 end
 
 function updateAlienVision()
-    local useShader = Player.screenEffects.darkVision
-    local av_edgesize = CHUDGetOption("av_edgesize") / 1000
+	local useShader = Player.screenEffects.darkVision
+	local av_edgesize = CHUDGetOption("av_edgesize") / 1000
 
-    --to save on shader parameters (because theres a limit) bitshift values into a single var
-    local av_bitshift_combine = math.abs(bit.lshift(CHUDGetOption("av_playercolor"), 22) +
-                                       bit.lshift(CHUDGetOption("av_edgeclean"), 20) +
-                                       bit.lshift(CHUDGetOption("av_nanoshield"), 18) +
-                                       bit.lshift(CHUDGetOption("av_style"), 16) +
-                                       bit.lshift(CHUDGetOption("av_gorgeunique"), 14) +
-                                       bit.lshift(CHUDGetOption("av_offstyle"), 12) +
-                                       bit.lshift(CHUDGetOption("av_edges"), 10) +
-                                       bit.lshift(CHUDGetOption("av_structurecolor"), 8) +
-                                       bit.lshift(CHUDGetOption("av_desaturation"), 6) +
-                                       bit.lshift(CHUDGetOption("av_viewmodelstyle"), 4) +
-                                       bit.lshift(CHUDGetOption("av_skybox"), 2) +
-                                       bit.lshift(CHUDGetOption("av_activationeffect"), 0)
-                                )
-    --bitshifted var
-    useShader:SetParameter("avCombined", av_bitshift_combine)
+	--to save on shader parameters (because theres a limit) bitshift values into a single var
+	local av_bitshift_combine = math.abs(bit.lshift(CHUDGetOption("av_playercolor"), 22) +
+									   bit.lshift(CHUDGetOption("av_edgeclean"), 20) +
+									   bit.lshift(CHUDGetOption("av_nanoshield"), 18) +
+									   bit.lshift(CHUDGetOption("av_style"), 16) +
+									   bit.lshift(CHUDGetOption("av_gorgeunique"), 14) +
+									   bit.lshift(CHUDGetOption("av_offstyle"), 12) +
+									   bit.lshift(CHUDGetOption("av_edges"), 10) +
+									   bit.lshift(CHUDGetOption("av_structurecolor"), 8) +
+									   bit.lshift(CHUDGetOption("av_desaturation"), 6) +
+									   bit.lshift(CHUDGetOption("av_viewmodelstyle"), 4) +
+									   bit.lshift(CHUDGetOption("av_skybox"), 2) +
+									   bit.lshift(CHUDGetOption("av_activationeffect"), 0)
+								)
+	--bitshifted var
+	useShader:SetParameter("avCombined", av_bitshift_combine)
 
-    --world colors
-    --close colours
-    useShader:SetParameter("worldCloseRGBInt", CHUDGetOption("av_closecolor"))
-    useShader:SetParameter("closeIntensity", CHUDGetOption("av_closeintensity"))
+	--world colors
+	--close colours
+	useShader:SetParameter("worldCloseRGBInt", CHUDGetOption("av_closecolor"))
+	useShader:SetParameter("closeIntensity", CHUDGetOption("av_closeintensity"))
 
-    --distant colours
-    useShader:SetParameter("worldFarRGBInt", CHUDGetOption("av_distantcolor"))
-    useShader:SetParameter("distantIntensity", CHUDGetOption("av_distantintensity"))
+	--distant colours
+	useShader:SetParameter("worldFarRGBInt", CHUDGetOption("av_distantcolor"))
+	useShader:SetParameter("distantIntensity", CHUDGetOption("av_distantintensity"))
 
-    -- new 329+ marine/alien/gorge/structure colors
-    useShader:SetParameter("marineRGBInt", CHUDGetOption("av_colormarine")) 
-    useShader:SetParameter("marineIntensity", CHUDGetOption("av_marineintensity"))
+	-- new 329+ marine/alien/gorge/structure colors
+	useShader:SetParameter("marineRGBInt", CHUDGetOption("av_colormarine"))
+	useShader:SetParameter("marineIntensity", CHUDGetOption("av_marineintensity"))
 
-    useShader:SetParameter("alienRGBInt", CHUDGetOption("av_coloralien"))
-    useShader:SetParameter("alienIntensity", CHUDGetOption("av_alienintensity"))
+	useShader:SetParameter("alienRGBInt", CHUDGetOption("av_coloralien"))
+	useShader:SetParameter("alienIntensity", CHUDGetOption("av_alienintensity"))
 
-    useShader:SetParameter("gorgeRGBInt", CHUDGetOption("av_colorgorge"))
-    useShader:SetParameter("gorgeIntensity", CHUDGetOption("av_gorgeintensity"))
+	useShader:SetParameter("gorgeRGBInt", CHUDGetOption("av_colorgorge"))
+	useShader:SetParameter("gorgeIntensity", CHUDGetOption("av_gorgeintensity"))
 
-    useShader:SetParameter("mStructRGBInt", CHUDGetOption("av_colormarinestruct"))
-    useShader:SetParameter("mStructIntensity", CHUDGetOption("av_mstructintensity"))
+	useShader:SetParameter("mStructRGBInt", CHUDGetOption("av_colormarinestruct"))
+	useShader:SetParameter("mStructIntensity", CHUDGetOption("av_mstructintensity"))
 
-    useShader:SetParameter("aStructRGBInt", CHUDGetOption("av_coloralienstruct"))
-    useShader:SetParameter("aStructIntensity", CHUDGetOption("av_astructintensity"))
+	useShader:SetParameter("aStructRGBInt", CHUDGetOption("av_coloralienstruct"))
+	useShader:SetParameter("aStructIntensity", CHUDGetOption("av_astructintensity"))
 
-    --edge values
-    useShader:SetParameter("edgeSize", av_edgesize)
+	--edge values
+	useShader:SetParameter("edgeSize", av_edgesize)
 
-    --world values
-    useShader:SetParameter("desatIntensity", CHUDGetOption("av_desaturationintensity"))
-    useShader:SetParameter("avDesatBlend", CHUDGetOption("av_desaturationblend"))
-    useShader:SetParameter("avWorldIntensity", CHUDGetOption("av_worldintensity"))
-    useShader:SetParameter("avBlend", CHUDGetOption("av_blenddistance"))
+	--world values
+	useShader:SetParameter("desatIntensity", CHUDGetOption("av_desaturationintensity"))
+	useShader:SetParameter("avDesatBlend", CHUDGetOption("av_desaturationblend"))
+	useShader:SetParameter("avWorldIntensity", CHUDGetOption("av_worldintensity"))
+	useShader:SetParameter("avBlend", CHUDGetOption("av_blenddistance"))
 
-    --viewmodel
-    useShader:SetParameter("avViewModel", CHUDGetOption("av_viewmodelintensity"))
+	--viewmodel
+	useShader:SetParameter("avViewModel", CHUDGetOption("av_viewmodelintensity"))
 end

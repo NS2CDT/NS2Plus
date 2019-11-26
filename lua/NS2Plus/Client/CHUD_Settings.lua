@@ -209,7 +209,7 @@ function GetCHUDSettings()
 				CHUDSetOption(name, option.defaultValue )
 			end
 		end
-        
+
 		if option.applyOnLoadComplete and option.applyFunction and not CHUDMainMenu then
 			option.applyFunction()
 		end
@@ -425,15 +425,15 @@ local function OnCommandPlusExport()
 		local skipOptions = { }
 		local OptionsMenuTable = {}
 		local categoryOrder = {
-            ui = 1,
-            hud = 2,
-            alienvision = 3,
-            damage = 4,
-            minimap = 5,
-            sound = 6,
-            graphics = 7,
-            stats = 8,
-            misc = 9
+			ui = 1,
+			hud = 2,
+			alienvision = 3,
+			damage = 4,
+			minimap = 5,
+			sound = 6,
+			graphics = 7,
+			stats = 8,
+			misc = 9
 		}
 
 		-- If an option has hidden children, add them (and their children...) to the skip table
@@ -543,15 +543,15 @@ local function OnCommandPlusExportOptionTable()
 	if settingsFile then
 		local OptionsMenuTable = {}
 		local categoryOrder = {
-            ui = 1,
-            hud = 2,
-            alienvision = 3,
-            damage = 4,
-            minimap = 5,
-            sound = 6,
-            graphics = 7,
-            stats = 8,
-            misc = 9
+			ui = 1,
+			hud = 2,
+			alienvision = 3,
+			damage = 4,
+			minimap = 5,
+			sound = 6,
+			graphics = 7,
+			stats = 8,
+			misc = 9
 		}
 
 		local function AddParent(option)
