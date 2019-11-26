@@ -468,6 +468,7 @@ function CreateNS2PlusOptionsMenu()
 	local categories = {
 		"ui",
 		"hud",
+        "alienvision",
 		"damage",
 		"minimap",
 		"stats",
@@ -478,6 +479,7 @@ function CreateNS2PlusOptionsMenu()
 	local options = {
 		ui = {},
 		hud = {},
+        alienvision = {},
 		damage = {},
 		minimap = {},
 		stats = {},

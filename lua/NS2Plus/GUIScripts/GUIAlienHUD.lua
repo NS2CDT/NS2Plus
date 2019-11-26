@@ -321,73 +321,59 @@ end
 
 function updateAlienVision()
     local useShader = Player.screenEffects.darkVision
-    local av_close = ColorIntToColor(CHUDGetOption("av_closecolor"))
-    local av_distant = ColorIntToColor(CHUDGetOption("av_distantcolor"))
-    local av_fog = ColorIntToColor(CHUDGetOption("av_fogcolor"))
-    local av_style = CHUDGetOption("av_style")
-    local av_offstyle = CHUDGetOption("av_offstyle")
-    local av_edges = CHUDGetOption("av_edges")
     local av_edgesize = CHUDGetOption("av_edgesize") / 1000
-    local av_closeIntensity = CHUDGetOption("av_closeintensity")
-    local av_distantIntensity = CHUDGetOption("av_distantintensity")
-    local av_fogIntensity = CHUDGetOption("av_fogintensity")
-    local av_desat = CHUDGetOption("av_desaturation")
-    local av_desatIntensity = CHUDGetOption("av_desaturationintensity")
-    local av_viewModelStyle = CHUDGetOption("av_viewmodelstyle")
-    local av_viewModelIntensity = CHUDGetOption("av_viewmodelintensity")
-    local av_worldIntensity = CHUDGetOption("av_worldintensity")
-    local av_activateEffect = CHUDGetOption("av_activationeffect")
-    local av_skyBox = CHUDGetOption("av_skybox")
-    local av_blendDistance = CHUDGetOption("av_blenddistance")
-    local av_desatBlend = CHUDGetOption("av_desaturationblend")
-    local actualAspect   = Client.GetScreenWidth() / Client.GetScreenHeight()
-    local av_marineColor = CHUDGetOption("av_marinecolor")
-    
-    --player aspect ratio, so drawing circles is better
-    useShader:SetParameter("avAspect", actualAspect)
 
+    --to save on shader parameters (because theres a limit) bitshift values into a single var
+    local av_bitshift_combine = math.abs(bit.lshift(CHUDGetOption("av_playercolor"), 22) +
+                                       bit.lshift(CHUDGetOption("av_edgeclean"), 20) +
+                                       bit.lshift(CHUDGetOption("av_nanoshield"), 18) +
+                                       bit.lshift(CHUDGetOption("av_style"), 16) +
+                                       bit.lshift(CHUDGetOption("av_gorgeunique"), 14) +
+                                       bit.lshift(CHUDGetOption("av_offstyle"), 12) +
+                                       bit.lshift(CHUDGetOption("av_edges"), 10) +
+                                       bit.lshift(CHUDGetOption("av_structurecolor"), 8) +
+                                       bit.lshift(CHUDGetOption("av_desaturation"), 6) +
+                                       bit.lshift(CHUDGetOption("av_viewmodelstyle"), 4) +
+                                       bit.lshift(CHUDGetOption("av_skybox"), 2) +
+                                       bit.lshift(CHUDGetOption("av_activationeffect"), 0)
+                                )
+    --bitshifted var
+    useShader:SetParameter("avCombined", av_bitshift_combine)
+
+    --world colors
     --close colours
-    useShader:SetParameter("closeR", av_close.r)
-    useShader:SetParameter("closeG", av_close.g)
-    useShader:SetParameter("closeB", av_close.b)
-    useShader:SetParameter("closeIntensity", av_closeIntensity)
-    
+    useShader:SetParameter("worldCloseRGBInt", CHUDGetOption("av_closecolor"))
+    useShader:SetParameter("closeIntensity", CHUDGetOption("av_closeintensity"))
+
     --distant colours
-    useShader:SetParameter("distantR", av_distant.r)
-    useShader:SetParameter("distantG", av_distant.g)
-    useShader:SetParameter("distantB", av_distant.b)
-    useShader:SetParameter("distantIntensity", av_distantIntensity)
+    useShader:SetParameter("worldFarRGBInt", CHUDGetOption("av_distantcolor"))
+    useShader:SetParameter("distantIntensity", CHUDGetOption("av_distantintensity"))
 
-    --fog colours
-    useShader:SetParameter("fogR", av_fog.r)
-    useShader:SetParameter("fogG", av_fog.g)
-    useShader:SetParameter("fogB", av_fog.b)
-    useShader:SetParameter("fogIntensity", av_fogIntensity)
-    
-    --marine colour changer
-    useShader:SetParameter("marineColor", av_marineColor)
-    
+    -- new 329+ marine/alien/gorge/structure colors
+    useShader:SetParameter("marineRGBInt", CHUDGetOption("av_colormarine")) 
+    useShader:SetParameter("marineIntensity", CHUDGetOption("av_marineintensity"))
 
-    --style selectors
-    useShader:SetParameter("modeAV", av_style)
-    useShader:SetParameter("modeAVoff", av_offstyle)
+    useShader:SetParameter("alienRGBInt", CHUDGetOption("av_coloralien"))
+    useShader:SetParameter("alienIntensity", CHUDGetOption("av_alienintensity"))
+
+    useShader:SetParameter("gorgeRGBInt", CHUDGetOption("av_colorgorge"))
+    useShader:SetParameter("gorgeIntensity", CHUDGetOption("av_gorgeintensity"))
+
+    useShader:SetParameter("mStructRGBInt", CHUDGetOption("av_colormarinestruct"))
+    useShader:SetParameter("mStructIntensity", CHUDGetOption("av_mstructintensity"))
+
+    useShader:SetParameter("aStructRGBInt", CHUDGetOption("av_coloralienstruct"))
+    useShader:SetParameter("aStructIntensity", CHUDGetOption("av_astructintensity"))
 
     --edge values
-    useShader:SetParameter("avEdge", av_edges)
     useShader:SetParameter("edgeSize", av_edgesize)
 
     --world values
-    useShader:SetParameter("avDesat", av_desat)
-    useShader:SetParameter("desatIntensity", av_desatIntensity)
-    useShader:SetParameter("avDesatBlend", av_desatBlend)
-    useShader:SetParameter("avWorldIntensity", av_worldIntensity)
-    useShader:SetParameter("avSky", av_skyBox)
-    useShader:SetParameter("avBlend", av_blendDistance)
-    
-    --activation effect
-    useShader:SetParameter("avToggle", av_activateEffect)
-    
+    useShader:SetParameter("desatIntensity", CHUDGetOption("av_desaturationintensity"))
+    useShader:SetParameter("avDesatBlend", CHUDGetOption("av_desaturationblend"))
+    useShader:SetParameter("avWorldIntensity", CHUDGetOption("av_worldintensity"))
+    useShader:SetParameter("avBlend", CHUDGetOption("av_blenddistance"))
+
     --viewmodel
-    useShader:SetParameter("avViewModelStyle", av_viewModelStyle)
-    useShader:SetParameter("avViewModel", av_viewModelIntensity)
+    useShader:SetParameter("avViewModel", CHUDGetOption("av_viewmodelintensity"))
 end
