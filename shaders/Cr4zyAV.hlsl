@@ -229,8 +229,7 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     
     float x = (input.texCoord.x - 0.5) * 20;
     float y = (input.texCoord.y - 0.5) * 20;
-    float distanceSq    = (x * x + y * y)/100;    
-    float invertDistSq    = (x / x - y / y)*100;    
+    float distanceSq    = (x * x + y * y)/100;      
     float sineX  = sin(-x * .1) * sin(-x * .1);
     float sineY = sin(-y * .1) * sin(-y * .1);
     float avAreaX  = clamp(sineX * 1.7*1.5,0,1);
@@ -491,7 +490,6 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     float fadeDistBlend = pow(avBlendChange*.8+.2, -depth1.r * 0.23 + 0.23);
     float fadeDistDesat = pow(avDesatBlend*10+0.2, -depth1.r * 0.23 + 0.23);
     float fadedist = pow(2.6, -depth1.r * 0.23 + 0.23);
-    float fadeout = max(0.0, pow(avBlendChange*.8+1, max(depth - 0.5, 0) * -0.3));
     float fadeoff = max(0.12, pow(avBlendChange*.8+1, max(depth - 0.5, 0) * -0.2));
     
     //AV Colour vars
@@ -534,7 +532,7 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     
     //offset colour when models are at an angle to camera
     float4 angleBlend = clamp(1-fadedist*5,0,1)*distantIntensity*.8 + clamp(fadedist*.5,0,1)*closeIntensity*.5;
-    colourAngle = colourAngle * .6 * angleBlend;
+    colourAngle = modelEdge * (colourAngle * .6 * angleBlend) * 0.5;
 
     //set up screen center colouring
     float4 mainColour = 
@@ -666,7 +664,7 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
                 }
             else{
                 //depth fog
-                alienVision = ((pow(inputPixel * .9 * darkened, 1.3) + desaturate * desatIntensity + (fog*(clamp((1-combinedIntensityMask)+0.1,.75,1))) * (2 + edge * .2) + (outline  * (model * 1.5)) * 2 + model * intensity * (colourAngle*0.2) * (0.5 + 0.2 * pow(0.1 + sin(time * 5 + intensity * 3), 2)) ) * clamp(pow(1-realvm,12),0,1) + (realvm * inputPixelold)) * maskSkybox + noSkybox + nanoHighlight;
+                alienVision = ((pow(inputPixel * .9 * darkened, 1.3) + desaturate * desatIntensity + (fog*(clamp((1-combinedIntensityMask)+0.1,.75,1))) * (2 + edge * .2) + (outline  * (model * 1.5)) * 2 + model * intensity * colourAngle * (0.5 + 0.2 * pow(0.1 + sin(time * 5 + intensity * 3), 2)) ) * clamp(pow(1-realvm,12),0,1) + (realvm * inputPixelold)) * maskSkybox + noSkybox + nanoHighlight;
             }
         } 
         else {
