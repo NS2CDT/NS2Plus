@@ -623,9 +623,7 @@ end
 Event.Hook("Console_plus_export_option_table", OnCommandPlusExportOptionTable)
 
 Event.Hook("Console_plus", OnCommandCHUD)
-if not CHUDMainMenu then
-	Client.HookNetworkMessage("CHUDOption", OnCHUDOption)
-end
+Client.HookNetworkMessage("CHUDOption", OnCHUDOption)
 
 local function OnCommandSetPlusVersion(version)
 	if Shared.GetCheatsEnabled() then
