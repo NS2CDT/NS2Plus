@@ -8,20 +8,20 @@ function GUIAlienHUD:CHUDRepositionGUI()
 	local realtime = CHUDGetOption("realtime")
 	local biomass = ClientUI.GetScript("GUIBioMassDisplay")
 	--local y = self.resourceDisplay.teamText:GetPosition().y
-	local y = 0
+	local y = 20
 
 	if gametime and self.gameTime then
-		y = y + 30
+		y = y + 25
 		self.gameTime:SetFontName(GUIMarineHUD.kTextFontName)
-		self.gameTime:SetScale(GetScaledVector()*1.15)
+		self.gameTime:SetScale(GetScaledVector())
 		self.gameTime:SetPosition(Vector(20, y , 0))
 		GUIMakeFontScale(self.gameTime)
 	end
 
 	if realtime and self.realTime then
-		y = y + 30
+		y = y + 25
 		self.realTime:SetFontName(GUIMarineHUD.kTextFontName)
-		self.realTime:SetScale(GetScaledVector()*1.15)
+		self.realTime:SetScale(GetScaledVector())
 		self.realTime:SetPosition(Vector(20, y, 0))
 		GUIMakeFontScale(self.realTime)
 	end

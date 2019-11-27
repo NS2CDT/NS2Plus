@@ -2,12 +2,25 @@ local originalInit = GUIHiveStatus.Initialize
 function GUIHiveStatus:Initialize()
 	originalInit(self)
 
-	local hivestatus = CHUDGetOption("hivestatus")
+	local gametime = CHUDGetOption("gametime")
+	local realtime = CHUDGetOption("realtime")
+	if gametime and realtime then
+		self.kStatusBackgroundPosition = GUIScale( Vector( 0, 97, 0 ) )
+		self.background:SetPosition( self.kStatusBackgroundPosition )
+	end
 
-	self:SetIsVisible(hivestatus)
+	self.hivestatus = CHUDGetOption("hivestatus")
+	self:SetIsVisible(self.hivestatus)
 end
 
-local transparent = PrecacheAsset("ui/transparent.dds")
+local oldUpdate = GUIHiveStatus.Update
+function GUIHiveStatus:Update(deltaTime)
+	if not self.hivestatus then return end
+
+	oldUpdate(self, deltaTime)
+end
+
+	local transparent = PrecacheAsset("ui/transparent.dds")
 local originalCreateStatusContainer = GUIHiveStatus.CreateStatusContainer
 function GUIHiveStatus:CreateStatusContainer(slotIdx, locationId)
 	originalCreateStatusContainer(self, slotIdx, locationId)

@@ -119,7 +119,7 @@ if Client then
 		local minutes = math.floor(gameTime / 60)
 		local seconds = math.floor(gameTime % 60)
 
-		return(string.format("%d:%.2d", minutes, seconds))
+		return (string.format("%d:%.2d", minutes, seconds))
 
 	end
 

@@ -87,6 +87,7 @@ CHUDOptions =
 				applyFunction = function() CHUDRestartScripts({
 					"Hud/Marine/GUIMarineHUD",
 					"GUIAlienHUD",
+					"GUIHiveStatus"
 					}) end,
 			},
 			realtime = {
@@ -102,6 +103,7 @@ CHUDOptions =
 				applyFunction = function() CHUDRestartScripts({
 					"Hud/Marine/GUIMarineHUD",
 					"GUIAlienHUD",
+					"GUIHiveStatus"
 					}) end,
 			},
 			crosshairscale = {
