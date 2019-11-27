@@ -353,7 +353,7 @@ function GUIMarineHUD:Update(deltaTime)
 	end
 
 	if self.statusDisplayVisible then
-		self.statusDisplays:SetIsVisible(not minMode and not mingui or gCHUDHiddenViewModel)
+		self.statusDisplays:SetIsVisible(not minMode or gCHUDHiddenViewModel)
 	end
 end
 	

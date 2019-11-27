@@ -295,8 +295,6 @@ function GUIAlienHUD:Update(deltaTime)
 
 	if Client.GetOptionInteger("hudmode", kHUDMode.Full) ~= kHUDMode.Full then
 		self.statusDisplays:SetIsVisible(gCHUDHiddenViewModel)
-	elseif not gCHUDHiddenViewModel then
-		self.statusDisplays:SetIsVisible(not CHUDGetOption("mingui"))
 	end
 
 end
