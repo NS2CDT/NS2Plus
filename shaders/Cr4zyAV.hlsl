@@ -498,7 +498,7 @@ float4 SFXDarkVisionPS(PS_INPUT input) : COLOR0
     float4 colourAngle = lerp(colourOne, colourTwo, .75);
     
     //fog colour/colour three, wont rename in code as to not reset anyones existing options
-    float4 colourFog = clamp((((worldCloseRGB * closeIntensity) * (fadeDistBlend * 10)) + ((worldFarRGB * distantIntensity) * (.75-fadeDistBlend))),0,1);
+    float4 colourFog = clamp(((worldCloseRGB * closeIntensity) * clamp(fadeDistBlend * 10,0,1)) + ((worldFarRGB * distantIntensity) * clamp(.75-fadeDistBlend,0,1)),0,1);
     float4 colourModel = 0;
 
     //player and structure colouring
