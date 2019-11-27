@@ -6,7 +6,22 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
-- 19/09/2017
+- 27/11/2019
+    - Added a confirmation message for reseting all ns2plus options (contributed by Cr4zy)
+    - Greatly improved the customizable AV options (contributed by Cr4zy):        
+        - Added the ability to individually colour; Marines, Aliens, Gorges, Marine Structures and Alien Structures.
+        - Added a Nanoshield AV highlight option, for those people who like darker AV's that cant see the Nanoshield vfx this will enable an recolour within the AV itself.
+        - Code updated, some improvements with inline functions and removal of old depreciated code.
+        - Close and Distant colours now apply to depth fog too allowing for more interesting setups.
+        - Ability to toggle off any of the individually colourable elements.
+        - A new edge option which doesnt add colour fill to entities allowing for more of an outline only style.
+        - Toggle a new edge math that greatly improves the rendering of edge detection in the distance, removing the "highlighted" floors and walls effect of the previous detection.
+        - Cleaned up parameters being sent to shader, many values no in single integers for bitshifting, also allows for the increased colour option count.
+        - *Watch https://www.youtube.com/watch?v=sWnyY7-nLdI for an walkthrough though the available new options.*
+    - Fixed that the time displays overlapped with each other and the hive status HUD for aliens.
+    - The "Minimal GUI" option does no longer hide the status effect icons. Please use the vanilla "Minimal HUD Mode" option if you want to hide those.
+
+- 19/09/2019
     - Added options menu to the mods options menu of the new main menu
     - Enabled stats tracking for cysts and alien tunnels. So they are listed in the end-game report. (Thanks to turtsmcgurts)
     
@@ -15,10 +30,6 @@ Latest changes
     - Fixed that not all player team changes were tracked
     - Added a ns2plus dev mode. You can enable it via the plus_dev console command
     - Only show the average hive skill graph with ns2plus dev mode enabled. Need to confirm it's accurate before displaying it to everybody again.
-    
-- 12/07/2019
-   - Fixed incorrect calculation of average team skill for the end game hive skill graph (Thanks to Glitch)
-   - Removed link to player's observatory profile at scoreboard
    
 Server settings
 ===============
