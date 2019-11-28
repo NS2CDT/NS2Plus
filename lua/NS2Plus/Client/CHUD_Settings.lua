@@ -152,7 +152,13 @@ function CHUDSetOption(key, value, updateOptionsMenu)
 			local optionsMenu = GetOptionsMenu and GetOptionsMenu()
 			local optionWidget = optionsMenu and optionsMenu:GetOptionWidget(option.name)
 			if optionWidget then
-				optionWidget:SetValue(setValue)
+				-- ColorPickerWidget requires color type value
+				local optionValue = setValue
+				if option.valueType == "color" then
+					optionValue = ColorIntToColor(optionValue)
+				end
+
+				optionWidget:SetValue(optionValue)
 			end
 		end
 		
