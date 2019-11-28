@@ -1,17 +1,19 @@
 local kCHUDUnrecognizedOptionMsg = "Unrecognized option. Type \"plus\" to see a list of available options or change them in the NS2+ Options menu."
 
 -- Wrap the text so it fits on screen
-local function PrintConsoleText(text)
-	local item = GetGUIManager():CreateTextItem()
-	item:SetFontName(Fonts.kArial_15)
+local kConsoleFont = PrecacheAsset("fonts/Hack_13.fnt")
+local kConsoleTextItem
+function CHUDPrintConsoleText(text)
+	if not kConsoleTextItem then
+		kConsoleTextItem = GetGUIManager():CreateTextItem()
+		kConsoleTextItem:SetFontName(kConsoleFont)
+	end
 	
-	Shared.Message(WordWrap(item, text, 0, Client.GetScreenWidth()-10))
-	
-	GUI.DestroyItem(item)
+	Shared.Message(WordWrap(kConsoleTextItem, text, 0, Client.GetScreenWidth()-10))
 end
 
 local function isInteger(x)
-	return math.floor(x)==x
+	return math.floor(x) == x
 end
 
 function CHUDGetOption(key)
@@ -151,6 +153,12 @@ function CHUDSetOption(key, value, updateOptionsMenu)
 		if updateOptionsMenu then
 			local optionsMenu = GetOptionsMenu and GetOptionsMenu()
 			local optionWidget = optionsMenu and optionsMenu:GetOptionWidget(option.name)
+
+			--ns2+ saves colors as integers, while the widget needs them as the color object
+			if option.valueType == "color" and IsNumber(setValue) then
+				setValue = ColorIntToColor(setValue)
+			end
+			
 			if optionWidget then
 				-- ColorPickerWidget requires color type value
 				local optionValue = setValue
@@ -215,7 +223,7 @@ function GetCHUDSettings()
 		end
 		
 		if lastCHUD < kCHUDVersion and option.resetSettingInBuild and kCHUDVersion >= option.resetSettingInBuild and lastCHUD < option.resetSettingInBuild then
-			PrintConsoleText(string.format("[NS2+] The default setting for \"%s\" was changed in NS2+ build %d, resetting to default.", option.label, option.resetSettingInBuild))
+			CHUDPrintConsoleText(string.format("[NS2+] The default setting for \"%s\" was changed in NS2+ build %d, resetting to default.", option.label, option.resetSettingInBuild))
 			if option.type == "slider" then
 				local multiplier = option.multiplier or 1
 				CHUDSetOption(name, option.defaultValue * multiplier )
@@ -231,29 +239,27 @@ function GetCHUDSettings()
 end
 
 
--- Through scientific methods like taking a screenshot of the console and guessing sizes
--- I have determined that each line takes 18 pixels
-local SortedOptions = { }
 
+local SortedOptions = { }
 local function CHUDPrintCommandsPage(page)
 
 	-- Internally pages start at 0, but we display from 1 to n
-	page = page-1
+	page = page - 1
 	-- Sort the options if they aren't sorted yet
 	if #SortedOptions == 0 then
 		for idx, _ in pairs(CHUDOptions) do
 			table.insert(SortedOptions, idx)
-			table.sort(SortedOptions)
 		end
+		table.sort(SortedOptions)
 	end
 
 	local linesPerPage = math.floor((Client.GetScreenHeight() / 18)/2) - 5
 	local numPages = math.ceil(#SortedOptions/linesPerPage)
 	local curPage = page >= 0 and page < numPages and page or 0
 
-	PrintConsoleText("-------------------------------------")
-	PrintConsoleText("NS2+ Commands")
-	PrintConsoleText("-------------------------------------")
+	CHUDPrintConsoleText("-------------------------------------")
+	CHUDPrintConsoleText("NS2+ Commands")
+	CHUDPrintConsoleText("-------------------------------------")
 	for i = 1 + (linesPerPage * curPage), linesPerPage * curPage + linesPerPage do
 		local option = CHUDOptions[SortedOptions[i]]
 		if option then
@@ -269,12 +275,12 @@ local function CHUDPrintCommandsPage(page)
 				helpStr = helpStr .. " <Red (0-255)> <Green (0-255)> <Blue (0-255> or reset/default"
 			end
 			helpStr = helpStr .. " - " .. option.tooltip
-			PrintConsoleText(helpStr)
+			CHUDPrintConsoleText(helpStr)
 		end
 	end
-	PrintConsoleText("-------------------------------------")
-	PrintConsoleText(string.format("Page %d of %d. Type \"plus page <number>\" to see other pages.", curPage+1, numPages))
-	PrintConsoleText("-------------------------------------")
+	CHUDPrintConsoleText("-------------------------------------")
+	CHUDPrintConsoleText(string.format("Page %d of %d. Type \"plus page <number>\" to see other pages.", curPage+1, numPages))
+	CHUDPrintConsoleText("-------------------------------------")
 end
 
 local function CHUDHelp(optionName)
@@ -282,10 +288,10 @@ local function CHUDHelp(optionName)
 	if CHUDOptions[optionName] ~= nil then
 		local option = CHUDOptions[optionName]
 		local multiplier = option.multiplier or 1
-		PrintConsoleText("-------------------------------------")
-		PrintConsoleText(option.label)
-		PrintConsoleText("-------------------------------------")
-		PrintConsoleText(option.tooltip)
+		CHUDPrintConsoleText("-------------------------------------")
+		CHUDPrintConsoleText(option.label)
+		CHUDPrintConsoleText("-------------------------------------")
+		CHUDPrintConsoleText(option.tooltip)
 		local default = option.defaultValue
 		local helpStr = "Usage: plus " .. optionName
 		if option.valueType == "float" then
@@ -300,13 +306,13 @@ local function CHUDHelp(optionName)
 			local tmpColor = ColorIntToColor(default)
 			default = tostring(math.floor(tmpColor.r*255)) .. " " .. tostring(math.floor(tmpColor.g*255)) .. " " .. tostring(math.floor(tmpColor.b*255))
 		end
-		PrintConsoleText(helpStr .. " - Example (default value): plus " .. optionName .. " " .. tostring(default))
+		CHUDPrintConsoleText(helpStr .. " - Example (default value): plus " .. optionName .. " " .. tostring(default))
 		if option.type == "select" then
 			if option.valueType == "int" then
 				for index, value in pairs(option.values) do
-					PrintConsoleText("plus " .. optionName .. " " .. index-1 .. " - " .. value)
+					CHUDPrintConsoleText("plus " .. optionName .. " " .. index-1 .. " - " .. value)
 				end
-				PrintConsoleText("-------------------------------------")
+				CHUDPrintConsoleText("-------------------------------------")
 				helpStr = option.values[option.currentValue+1]
 			elseif option.valueType == "bool" then
 				if option.currentValue then
@@ -322,11 +328,11 @@ local function CHUDHelp(optionName)
 		else
 			helpStr = tostring(Round(option.currentValue * multiplier), 4)
 		end
-		PrintConsoleText("Current value: " .. helpStr)
-		PrintConsoleText("-------------------------------------")
+		CHUDPrintConsoleText("Current value: " .. helpStr)
+		CHUDPrintConsoleText("-------------------------------------")
 			
 	else
-		PrintConsoleText(kCHUDUnrecognizedOptionMsg)
+		CHUDPrintConsoleText(kCHUDUnrecognizedOptionMsg)
 	end
 end
 
@@ -384,20 +390,20 @@ local function OnCommandCHUD(...)
 			end
 
 			if setValue ~= nil then
-				PrintConsoleText(option.label .. " set to: " .. helpStr)
+				CHUDPrintConsoleText(option.label .. " set to: " .. helpStr)
 				if option.disabled then
-					PrintConsoleText("The server admin has disabled this option (" .. option.label .. "). The option will get saved, but the blocked value will be used." )
+					CHUDPrintConsoleText("The server admin has disabled this option (" .. option.label .. "). The option will get saved, but the blocked value will be used." )
 				end
 			else
 				CHUDHelp(args[1])
 			end
 		else
-			PrintConsoleText(kCHUDUnrecognizedOptionMsg)
+			CHUDPrintConsoleText(kCHUDUnrecognizedOptionMsg)
 		end
 	elseif #args == 2 and args[1] == "page" and IsNumber(tonumber(args[2])) then
 		CHUDPrintCommandsPage(args[2])
 	else
-		PrintConsoleText(kCHUDUnrecognizedOptionMsg)
+		CHUDPrintConsoleText(kCHUDUnrecognizedOptionMsg)
 	end
 end
 
@@ -525,7 +531,7 @@ local function OnCommandPlusExport()
 		
 		settingsFile:write("\r\nDate exported: " .. CHUDFormatDateTimeString(Shared.GetSystemTime()))
 		
-		PrintConsoleText("Exported NS2+ config. You can find it in \"%APPDATA%\\Natural Selection 2\\NS2Plus\\ExportedSettings.txt\"")
+		CHUDPrintConsoleText("Exported NS2+ config. You can find it in \"%APPDATA%\\Natural Selection 2\\NS2Plus\\ExportedSettings.txt\"")
 		io.close(settingsFile)
 	end
 end

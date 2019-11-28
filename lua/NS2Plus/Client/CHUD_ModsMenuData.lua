@@ -2,6 +2,7 @@ CHUDMainMenu = decoda_name == "Main"
 
 Script.Load("lua/NS2Plus/Shared/CHUD_Utility.lua")
 Script.Load("lua/NS2Plus/Client/CHUD_Settings.lua")
+Script.Load("lua/NS2Plus/Client/CHUD_AVManagement.lua") --loading it here and not in CHUD_Client so it can be used in the main menu, outside of servers
 
 -- safety guard against corrupted filesystem where previous files may not exist or fail to load
 if not GetCHUDSettings then return end
