@@ -1,5 +1,10 @@
 Changelog
 ============
+- 28/11/2019
+    - Added new console commands to import/export and share Alien Vison (AV) configurations. Enter `plus_avhelp` into the console for more details (contributed by turtsmcgurts)
+    - Fixed Cr4zy's AV "no fill" edges issue (contributed by Cr4zy)
+    - Fixed Cr4zy's AV depth blending issue  (contributed by Cr4zy)
+
 - 27/11/2019
     - Added a confirmation message for reseting all ns2plus options (contributed by Cr4zy)
     - Greatly improved the customizable AV options (contributed by Cr4zy):        

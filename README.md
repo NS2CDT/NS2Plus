@@ -6,6 +6,11 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
+- 28/11/2019
+    - Added new console commands to import/export and share Alien Vison (AV) configurations. Enter `plus_avhelp` into the console for more details (contributed by turtsmcgurts)
+    - Fixed Cr4zy's AV "no fill" edges issue (contributed by Cr4zy)
+    - Fixed Cr4zy's AV depth blending issue  (contributed by Cr4zy)
+
 - 27/11/2019
     - Added a confirmation message for reseting all ns2plus options (contributed by Cr4zy)
     - Greatly improved the customizable AV options (contributed by Cr4zy):        
@@ -24,13 +29,7 @@ Latest changes
 - 19/09/2019
     - Added options menu to the mods options menu of the new main menu
     - Enabled stats tracking for cysts and alien tunnels. So they are listed in the end-game report. (Thanks to turtsmcgurts)
-    
-- 14/07/2019
-    - Fixed invalid export format for weapons stats
-    - Fixed that not all player team changes were tracked
-    - Added a ns2plus dev mode. You can enable it via the plus_dev console command
-    - Only show the average hive skill graph with ns2plus dev mode enabled. Need to confirm it's accurate before displaying it to everybody again.
-   
+     
 Server settings
 ===============
 Server operators can adjust some features for NS2+ through the console (typing "sv_plus" in console), or change them in the NS2PlusServerSettings.json file located in the server config folder.
