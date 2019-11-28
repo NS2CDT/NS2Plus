@@ -154,11 +154,6 @@ function CHUDSetOption(key, value, updateOptionsMenu)
 			local optionsMenu = GetOptionsMenu and GetOptionsMenu()
 			local optionWidget = optionsMenu and optionsMenu:GetOptionWidget(option.name)
 
-			--ns2+ saves colors as integers, while the widget needs them as the color object
-			if option.valueType == "color" and IsNumber(setValue) then
-				setValue = ColorIntToColor(setValue)
-			end
-			
 			if optionWidget then
 				-- ColorPickerWidget requires color type value
 				local optionValue = setValue
