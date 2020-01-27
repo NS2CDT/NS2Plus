@@ -54,7 +54,7 @@ function GUIPlayerResource:Update(_, parameters)
 	if showcomm and topbar > 0 then
 		local tRes = parameters[1]
 		self.teamText:SetText(string.format(Locale.ResolveString("TEAM_RES"), math.floor(tRes)))
-		self.teamText:SetIsVisible(Client.GetHudDetail() == kHUDMode.Full)
+		self.teamText:SetIsVisible(topbar > 0 or Client.GetHudDetail() == kHUDMode.Full)
 	else
 		self.teamText:SetIsVisible(false)
 	end
