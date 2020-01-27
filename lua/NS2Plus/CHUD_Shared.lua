@@ -1,4 +1,4 @@
-kCHUDVersion = 391
+kCHUDVersion = 392
 
 Script.Load("lua/NS2Plus/Shared/CHUD_Utility.lua")
 
