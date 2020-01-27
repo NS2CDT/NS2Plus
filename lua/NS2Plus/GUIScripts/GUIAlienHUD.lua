@@ -7,8 +7,7 @@ function GUIAlienHUD:CHUDRepositionGUI()
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
 	local biomass = ClientUI.GetScript("GUIBioMassDisplay")
-	--local y = self.resourceDisplay.teamText:GetPosition().y
-	local y = 20
+	local y = self.resourceDisplay.teamText:GetPosition().y
 
 	if gametime and self.gameTime then
 		y = y + 25
@@ -226,23 +225,11 @@ function GUIAlienHUD:Update(deltaTime)
 	--local rtcount = CHUDGetOption("rtcount")
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
-	local showcomm = CHUDGetOption("showcomm")
 	local instanthealth = CHUDGetOption("instantalienhealth")
 
 	if instanthealth then
 		self:CHUDUpdateHealthBall(deltaTime)
 	end
-
-	--if not rtcount then
-	--	self.resourceDisplay.rtCount:SetIsVisible(false)
-	--	self.resourceDisplay.pResDescription:SetText(string.format("%s (%d %s)",
-	--		Locale.ResolveString("RESOURCES"),
-	--		CommanderUI_GetTeamHarvesterCount(),
-	--		ConditionalValue(CommanderUI_GetTeamHarvesterCount() == 1, "RT", "RTs")))
-	--else
-	--	self.resourceDisplay.rtCount:SetIsVisible(CommanderUI_GetTeamHarvesterCount() > 0)
-		--self.resourceDisplay.pResDescription:SetText(Locale.ResolveString("RESOURCES"))
-	--end
 
 	if self.gameTime then
 		self.gameTime:SetText(CHUDGetGameTimeString())
@@ -253,8 +240,6 @@ function GUIAlienHUD:Update(deltaTime)
 		self.realTime:SetText(CHUDGetRealTimeString())
 		self.realTime:SetIsVisible(realtime and self.visible)
 	end
-
-	--self.resourceDisplay.teamText:SetIsVisible(showcomm)
 
 	local aliencircles = CHUDGetOption("aliencircles")
 	local energyColor = Color(1, 1, 1, 1)

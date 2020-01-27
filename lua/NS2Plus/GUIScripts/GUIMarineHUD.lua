@@ -8,6 +8,7 @@ function GUIMarineHUD:CHUDRepositionGUI()
 	local commactions = CHUDGetOption("commactions")
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
+	local topbar = CHUDGetOption("topbar")
 	
 	-- Position of toggleable elements
 	local y = 30
@@ -19,8 +20,11 @@ function GUIMarineHUD:CHUDRepositionGUI()
 	if showcomm then
 		self.commanderName:SetPosition(Vector(20, y, 0))
 		y = y + 30
-		--self.resourceDisplay.teamText:SetPosition(Vector(20, y, 0))
-		--y = y + 30
+
+		if topbar > 0 then
+			self.resourceDisplay.teamText:SetPosition(Vector(20, y, 0))
+			y = y + 30
+		end
 	end
 	
 	if gametime and self.gameTime then
@@ -263,7 +267,6 @@ function GUIMarineHUD:Update(deltaTime)
 
 	-- Commander name / TRes
 	self.commanderName:SetIsVisible(showcomm)
-	--self.resourceDisplay.teamText:SetIsVisible(showcomm)
 
 	-- Disable that rotating border around the HP Bars if we have MinGUI or disabled bars
 	if mingui or not hpbar then
