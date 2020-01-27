@@ -1,5 +1,10 @@
 Changelog
 ============
+27/01/2020
+    - Added an option to hide the "new" (ns2 build 331) team info top bar
+    - Re-/Added an option to enable the "old" (ns2 build <= 330) resource tower counter next/below to the personal resources counter.
+    - Fixed that embryos were exposed at the minimap via the alien minimap color option.
+
 - 28/11/2019
     - Added new console commands to import/export and share Alien Vison (AV) configurations. Enter `plus_avhelp` into the console for more details (contributed by turtsmcgurts)
     - Fixed Cr4zy's AV "no fill" edges issue (contributed by Cr4zy)
