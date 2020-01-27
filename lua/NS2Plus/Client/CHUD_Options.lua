@@ -44,21 +44,37 @@ CHUDOptions =
 					}) end,
 				sort = "A01",
 			},
-			--[=[
+			topbar = {
+				name = "CHUD_TopBat",
+				label = "Top-Center Team Info",
+				tooltip = "Show or hide the team info bar at the top center.",
+				type = "select",
+				values  = { "Always show", "Show as Commander", "Hide" },
+				defaultValue = 0,
+				category = "ui",
+				valueType = "int",
+				applyFunction = function()
+					local topbar = ClientUI.GetScript("Hud2/topBar/GUIHudTopBarForLocalTeam")
+					if topbar then
+						topbar:UpdateCHUDVisibility()
+					end
+				end,
+				sort = "A02",
+			},
 			rtcount = {
 				name = "CHUD_RTcount",
 				label = "RT count dots",
-				tooltip = "Toggles the RT count dots at the bottom and replaces them with a number.",
+				tooltip = "Select if the RT count should be displayed as number or dots next/below the pres counter.",
 				type = "select",
-				values  = { "Number", "Dots" },
-				defaultValue = true,
+				values  = { "Hide", "Number", "Dots" },
+				defaultValue = 0,
 				category = "ui",
-				valueType = "bool",
+				valueType = "int",
 				helpImage = "ui/helpImages/rtcount.dds",
 				helpImageSize = Vector(256, 128, 0),
 				sort = "A02",
+				resetSettingInBuild = 392,
 			},
-			--]=]
 			showcomm = {
 				name = "CHUD_CommName",
 				label = "Comm name/Team res",
@@ -193,7 +209,7 @@ CHUDOptions =
 				helpImageSize = Vector(256, 128, 0),
 				sort = "A11",
 			},
-			
+
 			hivestatus = {
 				name = "CHUD_HiveStatus",
 				label = "Alien Hive Status UI",
@@ -325,7 +341,7 @@ CHUDOptions =
 				end,
 				sort = "B08",
 			},
-			
+
 			hudbars_a = {
 				name = "CHUD_CustomHUD_A",
 				label = "HUD bars (Alien)",
@@ -371,8 +387,8 @@ CHUDOptions =
 				valueType = "bool",
 				sort = "C03"
 			},
-			
-			avstate = { 
+
+			avstate = {
 				name = "CHUD_AVState",
 				label = "Default AV state",
 				tooltip = "Sets the state the alien vision will be in when you respawn.",
@@ -407,7 +423,7 @@ CHUDOptions =
 				sort = "C02",
 				resetSettingInBuild = 237,
 			},
-			av_style = { 
+			av_style = {
 				name = "CHUD_AVStyle",
 				label = "Alien Vision Style",
 				tooltip = "Switches between different configurable styles of Alien Vision.",
@@ -424,7 +440,7 @@ CHUDOptions =
 				sort = "C03",
 				parent = "av"
 			},
-			av_offstyle = { 
+			av_offstyle = {
 				name = "CHUD_AVOffStyle",
 				label = "Disabled Alien Vision Style",
 				tooltip = "Switches between different options for when Alien Vision is disabled.",
@@ -451,7 +467,7 @@ CHUDOptions =
 				resetSettingInBuild = 237,
 				parent = "av_style"
 			},
-			av_closeintensity = { 
+			av_closeintensity = {
 				name = "CHUD_AVCloseIntensity",
 				label = "Close Intensity",
 				tooltip = "Sets the 'brightness' value of the closer colour.",
@@ -476,7 +492,7 @@ CHUDOptions =
 				sort = "C07",
 				parent = "av_style"
 			},
-			av_distantintensity = { 
+			av_distantintensity = {
 				name = "CHUD_AVDistantIntensity",
 				label = "Distant Intensity",
 				tooltip = "Sets the 'brightness' value of the distant colour.",
@@ -656,7 +672,7 @@ CHUDOptions =
 				sort = "C21",
 				parent = "av"
 			},
-			av_blenddistance = { 
+			av_blenddistance = {
 				name = "CHUD_AVBlendDistance",
 				label = "Blend Distance",
 				tooltip = "Allows you to modify the distance at which blending occurs for close and distant colors.",
@@ -670,7 +686,7 @@ CHUDOptions =
 				sort = "C22",
 				parent = "av"
 			},
-			av_edges = { 
+			av_edges = {
 				name = "CHUD_AVEdges",
 				label = "Edge Style",
 				tooltip = "Switches between edge outlines that are uniform in size or ones that thicken in peripheral vision. Also reduce the fill colour if desired.",
@@ -686,7 +702,7 @@ CHUDOptions =
 				resetSettingInBuild = 237,
 				parent = "av"
 			},
-			av_edgesize = { 
+			av_edgesize = {
 				name = "CHUD_AVEdgeSize",
 				label = "Edge Thickness",
 				tooltip = "Sets the thickness of edges in alien vision.",
@@ -728,7 +744,7 @@ CHUDOptions =
 				sort = "C26",
 				parent = "av"
 			},
-			av_desaturation = { 
+			av_desaturation = {
 				name = "CHUD_AVDesaturation",
 				label = "World Desaturation",
 				tooltip = "Switches between different types of desaturation.",
@@ -744,7 +760,7 @@ CHUDOptions =
 				resetSettingInBuild = 237,
 				parent = "av"
 			},
-			av_desaturationintensity = { 
+			av_desaturationintensity = {
 				name = "CHUD_AVDesaturationIntensity",
 				label = "Desaturation Intensity",
 				tooltip = "Sets the desaturation amount.",
@@ -758,7 +774,7 @@ CHUDOptions =
 				sort = "C28",
 				parent = "av_desaturation"
 			},
-			av_desaturationblend = { 
+			av_desaturationblend = {
 				name = "CHUD_AVDesaturationBlend",
 				label = "Desaturation Blend Distance",
 				tooltip = "Sets the blending range for desaturation.",
@@ -772,7 +788,7 @@ CHUDOptions =
 				sort = "C29",
 				parent = "av_desaturation"
 			},
-			av_viewmodelstyle = { 
+			av_viewmodelstyle = {
 				name = "CHUD_AVViewModelStyle",
 				label = "View Model Style",
 				tooltip = "Switches between default view model or view model with AV applied.",
@@ -787,7 +803,7 @@ CHUDOptions =
 				sort = "C30",
 				parent = "av"
 			},
-			av_viewmodelintensity = { 
+			av_viewmodelintensity = {
 				name = "CHUD_AVViewModelIntensity",
 				label = "View Model Intensity",
 				tooltip = "Sets the amount of Alien Vision applied to the viewmodel.",
@@ -842,9 +858,9 @@ CHUDOptions =
 				sort = "C34",
 				parent = "av",
 			},
-			
-			
-			
+
+
+
 			killfeedhighlight = {
 				name = "CHUD_KillFeedHighlight",
 				label = "Killfeed highlight",
@@ -1007,7 +1023,7 @@ CHUDOptions =
 				helpImageSize = Vector(150, 100, 0),
 				sort = "A14",
 			},
-			autowps = { 
+			autowps = {
 				name = "CHUD_AutoWPs",
 				label = "Automatic waypoints",
 				tooltip = "Enables or disables automatic waypoints (not given by the commander).",
@@ -1018,7 +1034,7 @@ CHUDOptions =
 				valueType = "bool",
 				sort = "A15",
 			},
-			pickupexpire = { 
+			pickupexpire = {
 				name = "CHUD_PickupExpire",
 				label = "Pickup expiration bar",
 				tooltip = "Adds a bar indicating the time left for the pickupable to disappear.",
@@ -1034,7 +1050,7 @@ CHUDOptions =
 				sort = "A16",
 				resetSettingInBuild = 359
 			},
-			pickupexpirecolor = { 
+			pickupexpirecolor = {
 				name = "CHUD_PickupExpireBarColor",
 				label = "Dynamically colored expiration bar",
 				tooltip = "Makes the expire bar colored depending on time left.",
@@ -1048,7 +1064,7 @@ CHUDOptions =
 				valueType = "int",
 				sort = "A17",
 				resetSettingInBuild = 359
-			},		
+			},
 			motiontracking = {
 				name = "CHUD_MotionTracking",
 				label = "Motion tracking circle",
@@ -1062,7 +1078,7 @@ CHUDOptions =
 				helpImageSize = Vector(160, 80, 0),
 				sort = "B01"
 			},
-			wrenchicon = { 
+			wrenchicon = {
 				name = "CHUD_DynamicWrenchColor",
 				label = "Dynamically colored repair icon",
 				tooltip = "Makes the wrench on the marine HUD be color coded with the amount of damage received.",
@@ -1093,7 +1109,7 @@ CHUDOptions =
 				end,
 				sort = "A01",
 			},
-			hitindicator = { 
+			hitindicator = {
 				name = "CHUD_HitIndicator",
 				label = "Hit indicator fade time",
 				tooltip = "Controls how long the crosshair hit indicator will last after hitting a target.",
@@ -1117,8 +1133,8 @@ CHUDOptions =
 				defaultValue = 1,
 				category = "damage",
 				valueType = "int",
-				applyFunction = 
-					function() 
+				applyFunction =
+					function()
 						local speeds = { [0] = 220, [1] = 800, [2] = 9001 }
 						kWorldDamageNumberAnimationSpeed = speeds[CHUDGetOption("fasterdamagenumbers")]
 					end,
@@ -1141,7 +1157,7 @@ CHUDOptions =
 				end,
 				sort = "A04",
 			},
-			damagenumbertime = 
+			damagenumbertime =
 			{
 				name = "CHUD_DamageNumberTime",
 				label = "Damage number fade time",
@@ -1197,10 +1213,10 @@ CHUDOptions =
 				sort = "A09",
 				resetSettingInBuild = 264,
 			},
-			
-			
-			
-			minimapalpha = { 
+
+
+
+			minimapalpha = {
 				name = "CHUD_MinimapAlpha",
 				label = "Overview opacity",
 				tooltip = "Sets the trasparency of the map overview.",
@@ -1218,7 +1234,7 @@ CHUDOptions =
 				end,
 				sort = "A01",
 			},
-			locationalpha = { 
+			locationalpha = {
 				name = "CHUD_LocationAlpha",
 				label = "Location text opacity",
 				tooltip = "Sets the trasparency of the location text on the minimap.",
@@ -1247,7 +1263,7 @@ CHUDOptions =
 				valueType = "bool",
 				sort = "A03",
 			},
-			pglines = { 
+			pglines = {
 				name = "CHUD_MapConnectorLines",
 				label = "Phase Gate Lines",
 				tooltip = "Cutomizes the look of the PG lines in the minimap.",
@@ -1258,7 +1274,7 @@ CHUDOptions =
 				valueType = "int",
 				sort = "A04",
 			},
-			minimaptoggle = { 
+			minimaptoggle = {
 				name = "CHUD_MinimapToggle",
 				label = "Minimap key behavior",
 				tooltip = "Lets you make the minimap key a toggle instead of holding.",
@@ -1269,7 +1285,7 @@ CHUDOptions =
 				valueType = "int",
 				sort = "A05",
 			},
-			overheadsmoothing = { 
+			overheadsmoothing = {
 				name = "CHUD_OverheadSmoothing",
 				label = "Spectator overhead smoothing",
 				tooltip = "Toggles between smoothed and instant camera movement when clicking on the minimap as an overhead spectator.",
@@ -1280,7 +1296,7 @@ CHUDOptions =
 				valueType = "bool",
 				sort = "A06",
 			},
-			minimaparrowcolorcustom = { 
+			minimaparrowcolorcustom = {
 				name = "CHUD_MinimapArrowColorCustom",
 				label = "Use custom minimap arrow color",
 				tooltip = "Lets you set the color of the arrow indicating your position in the minimap.",
@@ -1304,7 +1320,7 @@ CHUDOptions =
 				children = { "minimaparrowcolor" },
 				sort = "A07",
 			},
-			minimaparrowcolor = { 
+			minimaparrowcolor = {
 				name = "CHUD_MinimapArrowColor",
 				label = "Minimap arrow color",
 				tooltip = "Sets the color of the arrow indicating your position in the minimap.",
@@ -1336,7 +1352,7 @@ CHUDOptions =
 				sort = "A09",
 				resetSettingInBuild = 330,
 			},
-			playercolor_m = { 
+			playercolor_m = {
 				name = "CHUD_PlayerColor_M",
 				label = "Marine minimap player color",
 				tooltip = "Sets the color of marine players in the minimap different from the structures.",
@@ -1347,7 +1363,7 @@ CHUDOptions =
 				sort = "A10",
 				resetSettingInBuild = 264,
 			},
-			playercolor_a = { 
+			playercolor_a = {
 				name = "CHUD_PlayerColor_A",
 				label = "Alien minimap player color",
 				tooltip = "Sets the color of alien players in the minimap different from the structures.",
@@ -1381,9 +1397,9 @@ CHUDOptions =
 				sort = "A13",
 				parent = "commhighlight"
 			},
-			
-			
-			
+
+
+
 			hitsounds = {
 				name = "CHUD_Hitsounds",
 				label = "Hitsounds",
@@ -1406,7 +1422,7 @@ CHUDOptions =
 					HitSounds_PlayHitsound(1)
 				end
 			},
-			hitsounds_pitch = { 
+			hitsounds_pitch = {
 				name = "CHUD_HitsoundsPitch",
 				label = "Hitsounds pitch modifier",
 				tooltip = "Sets the pitch for high damage hits on variable damage weapons. This setting has no effect for vanilla hitsounds.",
@@ -1437,9 +1453,9 @@ CHUDOptions =
 				applyOnLoadComplete = true,
 				sort = "A03",
 			},
-			
-			
-			
+
+
+
 			mapparticles = {
 				name = "CHUD_MapParticles",
 				label = "Map particles",
@@ -1480,8 +1496,8 @@ CHUDOptions =
 					CHUDLoadLights()
 				end,
 				sort = "A04",
-			}, 
-			flashatmos = { 
+			},
+			flashatmos = {
 				name = "CHUD_FlashAtmos",
 				label = "Flashlight atmospherics",
 				tooltip = "Sets the atmospheric density of flashlights.",
@@ -1548,7 +1564,7 @@ CHUDOptions =
 				valueType = "bool",
 				sort = "A09",
 			},
-			gorgespit = { 
+			gorgespit = {
 				name = "CHUD_GorgeSpit",
 				label = "Gorge Spit",
 				tooltip = "Replaces gorge spit with a model (rifle_grenade) so it gets outlined and is easier to see with custom alien vision.",
@@ -1559,10 +1575,10 @@ CHUDOptions =
 				valueType = "bool",
 				sort = "A10",
 			},
-			
-			
-			
-			sbcenter = { 
+
+
+
+			sbcenter = {
 				name = "CHUD_SBCenter",
 				label = "Auto-center scoreboard",
 				tooltip = "Enable or disable the scoreboard scrolling to your entry in the scoreboard automatically after opening it.",
@@ -1585,7 +1601,7 @@ CHUDOptions =
 				applyFunction = function() CHUDRestartScripts({ "GUIScoreboard" }) end,
 				sort = "A02",
 			},
-			deathstats = { 
+			deathstats = {
 				name = "CHUD_DeathStats",
 				label = "Stats UI",
 				tooltip = "Enables or disables the stats you get after you die and at the end of the round. Also visible on voiceover menu (default: X).",
@@ -1597,7 +1613,7 @@ CHUDOptions =
 				valueType = "int",
 				sort = "A03",
 			},
-			endstatsorder = { 
+			endstatsorder = {
 				name = "CHUD_EndStatsOrder",
 				label = "End Game Stats UI Order",
 				tooltip = "Sets the order in which the stats after a round ends are displayed.",
@@ -1608,10 +1624,10 @@ CHUDOptions =
 				valueType = "int",
 				sort = "A04",
 			},
-			
-			
-			
-			castermode = { 
+
+
+
+			castermode = {
 				name = "CHUD_CasterMode",
 				label = "Streamer mode",
 				tooltip = "Makes NS2+ use all the default values without overwriting your current config.",
@@ -1631,7 +1647,7 @@ CHUDOptions =
 				end,
 				sort = "A01",
 			},
-			brokenscaling = { 
+			brokenscaling = {
 				name = "CHUD_BrokenScaling",
 				label = "UI Scaling version",
 				tooltip = "Revert the amazing UI Scaling introduced in build 276 by the sexiest man alive and use the inferior, disgusting and broken stuff from previous builds. Use at your own risk.",
@@ -1647,7 +1663,7 @@ CHUDOptions =
 				hideValues = { true },
 				sort = "A02",
 			},
-			uiscale = { 
+			uiscale = {
 				name = "CHUD_UIScaling",
 				label = "UI Scaling",
 				tooltip = "Change the scaling for the UI. Note that not everything will adapt to this as not everything is using the same scaling function and some elements might break. Use at your own risk.",
@@ -1663,7 +1679,7 @@ CHUDOptions =
 				sort = "A03",
 				parent = "brokenscaling",
 			},
-			sensitivity_perteam = { 
+			sensitivity_perteam = {
 				name = "CHUD_SensitivityPerTeam",
 				label = "Team specific sensitivities",
 				tooltip = "Lets you have different sensitivities for aliens and marines.",
@@ -1680,7 +1696,7 @@ CHUDOptions =
 				sort = "A04",
 				ignoreCasterMode = true,
 			},
-			sensitivity_m = { 
+			sensitivity_m = {
 				name = "CHUD_Sensitivity_M",
 				label = "Marine sensitivity",
 				tooltip = "Sensitivity for marines.",
@@ -1697,7 +1713,7 @@ CHUDOptions =
 				ignoreCasterMode = true,
 				parent = "sensitivity_perteam"
 			},
-			sensitivity_a = { 
+			sensitivity_a = {
 				name = "CHUD_Sensitivity_A",
 				label = "Alien sensitivity",
 				tooltip = "Sensitivity for aliens.",
@@ -1839,7 +1855,7 @@ CHUDOptions =
 				end,
 				sort = "A07",
 			},
-			fov_perteam = { 
+			fov_perteam = {
 				name = "CHUD_FOVPerTeam",
 				label = "Team specific FOV",
 				tooltip = "Lets you have different FOVs for aliens and marines.",
@@ -1856,7 +1872,7 @@ CHUDOptions =
 				sort = "A08",
 				ignoreCasterMode = true,
 			},
-			fov_m = { 
+			fov_m = {
 				name = "CHUD_FOV_M",
 				label = "Marine FOV",
 				tooltip = "FOV for marines.",
@@ -1874,7 +1890,7 @@ CHUDOptions =
 				parent = "fov_perteam",
 				resetSettingInBuild = 389
 			},
-			fov_a = { 
+			fov_a = {
 				name = "CHUD_FOV_A",
 				label = "Alien FOV",
 				tooltip = "FOV for aliens.",
@@ -1892,7 +1908,7 @@ CHUDOptions =
 				parent = "fov_perteam",
 				resetSettingInBuild = 389
 			},
-			autopickup = { 
+			autopickup = {
 				name = "CHUD_AutoPickup",
 				label = "Weapon autopickup",
 				tooltip = "Picks up weapons automatically as long as the slot they belong to is empty.",
@@ -1909,7 +1925,7 @@ CHUDOptions =
 					Client.SendNetworkMessage("SetCHUDAutopickup", message)
 				end,
 			},
-			autopickupbetter = { 
+			autopickupbetter = {
 				name = "CHUD_AutoPickupBetter",
 				label = "Autopickup better weapon",
 				tooltip = "Picks up better weapons in the primary slot automatically.",
@@ -2072,8 +2088,8 @@ CHUDOptions =
 				end,
 				parent = "drawviewmodel_a"
 			},
-			
-			marinecommselect = { 
+
+			marinecommselect = {
 				name = "CHUD_MarineCommSelect",
 				label = "(Comm) Marine Click Selection",
 				tooltip = "Lets you disable click selecting for Marines.",
@@ -2084,7 +2100,7 @@ CHUDOptions =
 				valueType = "bool",
 				sort = "B01",
 			},
-			commqueue_playeronly = { 
+			commqueue_playeronly = {
 				name = "CHUD_CommQueuePlayerOnly",
 				label = "(Comm) Spacebar Player Alerts",
 				tooltip = "Allows the spacebar alert queue to only respond to player requests.",

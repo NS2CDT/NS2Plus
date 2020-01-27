@@ -314,6 +314,11 @@ if Client then
 		if hiddenviewmodel then
 			GetGUIManager():CreateGUIScriptSingle(hiddenviewmodelScript)
 		end
+
+		local topbar = ClientUI.GetScript("Hud2/topBar/GUIHudTopBarForLocalTeam")
+		if topbar then
+			topbar:UpdateCHUDVisibility()
+		end
 	end
 	
 	function CHUDApplyTeamSpecificStuff()
