@@ -153,7 +153,7 @@ local function estimateHiveSkillGraph()
 						table.insert(hiveSkillGraphTable,{ gameMinute = gameLength - left, joined = true, teamNumber = player.teamNumber, steamId = player.steamId })
 						left = left - player.minutesPlaying
 						table.insert(hiveSkillGraphTable,{ gameMinute = gameLength - left, joined = false, teamNumber = player.teamNumber, steamId = player.steamId })
-						-- allow some time for others to reach and join instead
+						-- allow some time for others to react and join instead
 						left = left - 10/60
 						team[i] = {}
 					end
@@ -2329,56 +2329,70 @@ function CHUDGUI_EndStats:ProcessStats()
 		local lineOffset = {0, 0.5}
 		local maxHiveSkill = 0
 		local minHiveSkill = 0
-		local players = {0, 0}
 
-		-- Handle gameMinute 0 special to avoid artificially spikes because of arbitrary joining order
-		local next = 1
-		for i = next, #hiveSkillGraphTable do
+		-- hiveSkillGraphTable may join an id multiple times without leaving, so keep track of ids.
+		local players = {{}, {}}
+		-- Counting set size is not easy so keep separate track
+		local playerCount = {0, 0}		
+
+		-- We only add to the graph when seeing a new/larger gameMinute to avoid spikes of joins and leaves on the same gameMinute.
+		-- gameMinute 0 have a many entries, but that may happen later too, like reshuffle, auto join after leaving
+		local cur_time = 0
+		for i = 1, #hiveSkillGraphTable + 1 do
 			local entry = hiveSkillGraphTable[i]
-			if entry.gameMinute > 0 then
-				next = i
+
+			-- Advance in time? or after last real entry, then add to graph  
+			if entry == nil or cur_time ~= entry.gameMinute then			
+				local gameSeconds = cur_time * 60
+
+				if gameSeconds == 0 then
+					-- Dont show graph going from 0 to start average hive skill
+					-- The total hive skill is larger than the min average hive skill. 
+					minHiveSkill = math.min(hiveSkill[1],hiveSkill[2])
+				else
+					table.insert(self.hiveSkillGraphs[1], Vector(gameSeconds, avgTeam1Skill + lineOffset[1], 0))
+					table.insert(self.hiveSkillGraphs[2], Vector(gameSeconds, avgTeam2Skill + lineOffset[2], 0))
+				end
+
+				avgTeam1Skill, avgTeam2Skill = hiveSkill[1] / math.max(playerCount[1], 1) , hiveSkill[2] / math.max(playerCount[2], 1)
+				maxHiveSkill = math.max(maxHiveSkill, avgTeam1Skill, avgTeam2Skill)
+				minHiveSkill = math.min(minHiveSkill, avgTeam1Skill, avgTeam2Skill)
+
+				table.insert(self.hiveSkillGraphs[1], Vector(gameSeconds, avgTeam1Skill + lineOffset[1], 0))
+				table.insert(self.hiveSkillGraphs[2], Vector(gameSeconds, avgTeam2Skill + lineOffset[2], 0))
+
+				if entry == nil then
+					-- Normal case; iteration after last real entry        
+					break
+				end
+
+				cur_time = entry.gameMinute
+			end
+
+			-- Skip any leaves at end of game (perhaps subtract some seconds)
+			if entry.gameMinute >= miscDataTable.gameLengthMinutes then
 				break
 			end
 
+      local id = entry.steamId
 			local teamNumber = entry.teamNumber
-			local playerEntry = playerStatMap[teamNumber] and playerStatMap[teamNumber][entry.steamId]
-			local playerSkill = playerEntry and math.max(playerEntry.hiveSkill, 0) or 0
+			local playerEntry = playerStatMap[teamNumber] and playerStatMap[teamNumber][id]
 
-			players[teamNumber] = math.max(0, players[teamNumber] + ConditionalValue(entry.joined, 1, -1))
-			hiveSkill[teamNumber] = math.max(0, hiveSkill[teamNumber] + ConditionalValue(entry.joined, playerSkill, -playerSkill))
+			-- What are those entries without a playerStatMap? Bots? They would enter with hive skill 0, and increase player count.
+			if playerEntry ~= nil then
+				local playerSkill = math.max(playerEntry.hiveSkill, 0)
+				local isPlaying = players[teamNumber][id] ~= nil
+
+				-- A lot of kludge to detect double joins or double leaves
+				-- Do we need to check player is still playing on another team?     
+				if entry.joined ~= isPlaying then
+						players[teamNumber][id] = ConditionalValue(entry.joined, true, nil)
+						playerCount[teamNumber] = playerCount[teamNumber] + ConditionalValue(entry.joined, 1, -1)
+						hiveSkill[teamNumber] = hiveSkill[teamNumber] + ConditionalValue(entry.joined, playerSkill, -playerSkill)
+				end
+			end
 		end
-
-		local avgTeam1Skill, avgTeam2Skill = hiveSkill[1] / math.max(players[1], 1) , hiveSkill[2] / math.max(players[2], 1)
-		maxHiveSkill = math.max(maxHiveSkill, avgTeam1Skill, avgTeam2Skill)
-		minHiveSkill = math.min(maxHiveSkill, avgTeam1Skill, avgTeam2Skill)
-
-		table.insert(self.hiveSkillGraphs[1], Vector(0, avgTeam1Skill + lineOffset[1], 0))
-		table.insert(self.hiveSkillGraphs[2], Vector(0, avgTeam2Skill + lineOffset[2], 0))
-
-		-- Handle end game special to avoid artificially spikes because of arbitrary disjoin order
-		local skipAfter = miscDataTable.gameLengthMinutes - 5/60
-		for i = next, #hiveSkillGraphTable do
-			local entry = hiveSkillGraphTable[i]
-			if entry.gameMinute > skipAfter then break end
-
-			local gameSeconds = entry.gameMinute * 60
-			table.insert(self.hiveSkillGraphs[1], Vector(gameSeconds, avgTeam1Skill + lineOffset[1], 0))
-			table.insert(self.hiveSkillGraphs[2], Vector(gameSeconds, avgTeam2Skill + lineOffset[2], 0))
-
-			local teamNumber = entry.teamNumber
-			local playerEntry = playerStatMap[teamNumber] and playerStatMap[teamNumber][entry.steamId]
-			local playerSkill = playerEntry and math.max(playerEntry.hiveSkill, 0) or 0
-
-			players[teamNumber] = math.max(0, players[teamNumber] + ConditionalValue(entry.joined, 1, -1))
-			hiveSkill[teamNumber] = math.max(0, hiveSkill[teamNumber] + ConditionalValue(entry.joined, playerSkill, -playerSkill))
-
-			avgTeam1Skill, avgTeam2Skill = hiveSkill[1] / math.max(players[1], 1) , hiveSkill[2] / math.max(players[2], 1)
-			maxHiveSkill = math.max(maxHiveSkill, avgTeam1Skill, avgTeam2Skill)
-			minHiveSkill = math.min(minHiveSkill, avgTeam1Skill, avgTeam2Skill)
-
-			table.insert(self.hiveSkillGraphs[1], Vector(gameSeconds, avgTeam1Skill + lineOffset[1], 0))
-			table.insert(self.hiveSkillGraphs[2], Vector(gameSeconds, avgTeam2Skill + lineOffset[2], 0))
-		end
+		
 
 		self.hiveSkillGraph:SetPoints(1, self.hiveSkillGraphs[1])
 		self.hiveSkillGraph:SetPoints(2, self.hiveSkillGraphs[2])
@@ -2394,8 +2408,7 @@ function CHUDGUI_EndStats:ProcessStats()
 		self.hiveSkillGraph:SetXGridSpacing(xSpacing)
 
 		local diff = maxHiveSkill - minHiveSkill
-		local res = diff >= 1000 and -2 or -1
-		local yGridSpacing = math.max(Round(diff/15, res), 10)
+		local yGridSpacing = diff <= 200 and 25 or diff <= 400 and 50 or diff <= 800 and 100 or Round(diff/800,-2)
 		self.hiveSkillGraph:SetYGridSpacing(yGridSpacing)
 	end
 
