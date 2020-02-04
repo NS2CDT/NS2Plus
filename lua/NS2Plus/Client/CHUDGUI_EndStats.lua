@@ -15,6 +15,7 @@ local screenHeight = Client.GetScreenHeight()
 local aspectRatio = screenWidth/screenHeight
 
 local kSteamProfileURL = "http://steamcommunity.com/profiles/"
+local kObservatoryUserURL = "https://observatory.morrolan.ch/player?steam_id="
 
 -- To avoid printing 200.00 or things like that
 local function printNum(number)
@@ -2968,6 +2969,10 @@ function CHUDGUI_EndStats:SendKeyEvent(key, down)
 				local function openSteamProf()
 					Client.ShowWebpage(string.format("%s[U:1:%s]", kSteamProfileURL, self.lastRow.steamId))
 				end
+
+				local function openObservatoryProf()
+					Client.ShowWebpage(string.format("%s%s", kObservatoryUserURL, self.lastRow.steamId))
+				end
 				
 				self.hoverMenu:ResetButtons()
 				
@@ -2984,6 +2989,7 @@ function CHUDGUI_EndStats:SendKeyEvent(key, down)
 				local name = self.lastRow.playerName:GetText()
 				self.hoverMenu:AddButton(name, nameBgColor, nameBgColor, textColor)
 				self.hoverMenu:AddButton(Locale.ResolveString("SB_MENU_STEAM_PROFILE"), teamColorBg, teamColorHighlight, textColor, openSteamProf)
+				self.hoverMenu:AddButton("Observatory profile", teamColorBg, teamColorHighlight, textColor, openObservatoryProf)
 
 				StartSoundEffect(kButtonClickSound)
 				self.hoverMenu:Show()
