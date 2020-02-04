@@ -349,6 +349,7 @@ function CHUDGUI_EndStats:CreateTeamBackground(teamNumber)
 
 end
 
+-- Todo: Add score row
 local function CreateScoreboardRow(container, bgColor, textColor, playerName, kills, assists, deaths, acc, pdmg, sdmg, timeBuilding, timePlayed, timeComm, steamId, isRookie, hiveSkill)
 	
 	local containerSize = container:GetSize()
@@ -368,8 +369,10 @@ local function CreateScoreboardRow(container, bgColor, textColor, playerName, ki
 		item.steamId = steamId
 	end
 	
-	if hiveSkill then
-		item.hiveSkill = hiveSkill
+	if hiveSkill and GetPlayerSkillTier then
+		local skillTier, skillTierName = GetPlayerSkillTier(hiveSkill, isRookie)
+		item.hiveSkillTier = skillTier
+		item.hiveSkillTierName = skillTierName
 	end
 	
 	container:AddChild(item.background)
@@ -2987,6 +2990,12 @@ function CHUDGUI_EndStats:SendKeyEvent(key, down)
 				
 				self.hoverMenu:SetBackgroundColor(bgColor)
 				local name = self.lastRow.playerName:GetText()
+
+				-- Todo: Add skill tier icon
+				if self.lastRow.hiveSkillTier then
+					name = string.format("[%s] %s", self.lastRow.hiveSkillTier, name)
+				end
+
 				self.hoverMenu:AddButton(name, nameBgColor, nameBgColor, textColor)
 				self.hoverMenu:AddButton(Locale.ResolveString("SB_MENU_STEAM_PROFILE"), teamColorBg, teamColorHighlight, textColor, openSteamProf)
 				self.hoverMenu:AddButton("Observatory profile", teamColorBg, teamColorHighlight, textColor, openObservatoryProf)
