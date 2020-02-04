@@ -1665,7 +1665,7 @@ function CHUDGUI_EndStats:RepositionStats()
 		yPos = yPos + comparisonSize.y + GUILinearScale(48)
 	end
 
-	local showHiveSkillGraph = CHUDDevMode and #self.hiveSkillGraphs > 0
+	local showHiveSkillGraph = #self.hiveSkillGraphs > 0 -- and CHUDDevMode
 	self.hiveSkillGraphTextShadow:SetIsVisible(showHiveSkillGraph)
 	self.hiveSkillGraph:SetIsVisible(showHiveSkillGraph)
 	if showHiveSkillGraph then
