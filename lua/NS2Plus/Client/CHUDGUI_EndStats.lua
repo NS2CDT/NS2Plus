@@ -2329,26 +2329,33 @@ function CHUDGUI_EndStats:ProcessStats()
 		local lineOffset = {0, 0.5}
 		local maxHiveSkill = 0
 		local minHiveSkill = 0
+		local avgTeam1Skill = 0
+		local avgTeam2Skill = 0
 
-		-- hiveSkillGraphTable may join an id multiple times without leaving, so keep track of ids.
+		-- Keep track of players in each team to filter out duplicate hiveSkillGraphTable join/leave entries
 		local players = {{}, {}}
 		-- Counting set size is not easy so keep separate track
 		local playerCount = {0, 0}		
 
-		-- We only add to the graph when seeing a new/larger gameMinute to avoid spikes of joins and leaves on the same gameMinute.
-		-- gameMinute 0 have a many entries, but that may happen later too, like reshuffle, auto join after leaving
-		local cur_time = 0
+		-- Iterate over the graph data table but only add a new data point after advancing in time
+		-- It's not uncommon for more than 1 player to change their team at any given point in time
+		-- Specially at the very begining of a round
+		-- The iteration limit is #hiveSkillGraphTable + 1 to add the last data point at the very end
+		local graphTime = 0
+		local roundEndTime = miscDataTable.gameLengthMinutes
 		for i = 1, #hiveSkillGraphTable + 1 do
 			local entry = hiveSkillGraphTable[i]
+			local entryTime = entry and entry.gameMinute
 
-			-- Advance in time? or after last real entry, then add to graph  
-			if entry == nil or cur_time ~= entry.gameMinute then			
-				local gameSeconds = cur_time * 60
+			-- Add data point after advancing in time or reaching the end of the data table (entry == nil) / round
+			local atEnd = entry == nil or entryTime >= roundEndTime
+			if atEnd or graphTime ~= entry.gameMinute then
+				local gameSeconds = graphTime * 60
 
 				if gameSeconds == 0 then
 					-- Dont show graph going from 0 to start average hive skill
 					-- The total hive skill is larger than the min average hive skill. 
-					minHiveSkill = math.min(hiveSkill[1],hiveSkill[2])
+					minHiveSkill = math.min(hiveSkill[1], hiveSkill[2])
 				else
 					table.insert(self.hiveSkillGraphs[1], Vector(gameSeconds, avgTeam1Skill + lineOffset[1], 0))
 					table.insert(self.hiveSkillGraphs[2], Vector(gameSeconds, avgTeam2Skill + lineOffset[2], 0))
@@ -2361,38 +2368,28 @@ function CHUDGUI_EndStats:ProcessStats()
 				table.insert(self.hiveSkillGraphs[1], Vector(gameSeconds, avgTeam1Skill + lineOffset[1], 0))
 				table.insert(self.hiveSkillGraphs[2], Vector(gameSeconds, avgTeam2Skill + lineOffset[2], 0))
 
-				if entry == nil then
-					-- Normal case; iteration after last real entry        
+				-- Reached the end, exit here
+				if atEnd then
 					break
 				end
 
-				cur_time = entry.gameMinute
+				graphTime = entryTime
 			end
 
-			-- Skip any leaves at end of game (perhaps subtract some seconds)
-			if entry.gameMinute >= miscDataTable.gameLengthMinutes then
-				break
-			end
-
-      local id = entry.steamId
+            local id = entry.steamId
 			local teamNumber = entry.teamNumber
-			local playerEntry = playerStatMap[teamNumber] and playerStatMap[teamNumber][id]
+			local isHuman = id > 0 -- don't track bots
+			local playerEntry = isHuman and playerStatMap[teamNumber] and playerStatMap[teamNumber][id]
+			local isPlaying = isHuman and players[teamNumber] and players[teamNumber][id]
 
-			-- What are those entries without a playerStatMap? Bots? They would enter with hive skill 0, and increase player count.
-			if playerEntry ~= nil then
+			-- Filter out invalid data table entries
+			if playerEntry and entry.joined ~= isPlaying then
 				local playerSkill = math.max(playerEntry.hiveSkill, 0)
-				local isPlaying = players[teamNumber][id] ~= nil
-
-				-- A lot of kludge to detect double joins or double leaves
-				-- Do we need to check player is still playing on another team?     
-				if entry.joined ~= isPlaying then
-						players[teamNumber][id] = ConditionalValue(entry.joined, true, nil)
-						playerCount[teamNumber] = playerCount[teamNumber] + ConditionalValue(entry.joined, 1, -1)
-						hiveSkill[teamNumber] = hiveSkill[teamNumber] + ConditionalValue(entry.joined, playerSkill, -playerSkill)
-				end
+				players[teamNumber][id] = entry.joined
+				playerCount[teamNumber] = playerCount[teamNumber] + ConditionalValue(entry.joined, 1, -1)
+				hiveSkill[teamNumber] = hiveSkill[teamNumber] + ConditionalValue(entry.joined, playerSkill, -playerSkill)
 			end
 		end
-		
 
 		self.hiveSkillGraph:SetPoints(1, self.hiveSkillGraphs[1])
 		self.hiveSkillGraph:SetPoints(2, self.hiveSkillGraphs[2])
