@@ -2402,14 +2402,14 @@ function CHUDGUI_EndStats:ProcessStats()
 		maxHiveSkill = Round(maxHiveSkill + 100, -2)
 		self.hiveSkillGraph:SetYBounds(minHiveSkill, maxHiveSkill, true)
 
-		local gameLength = miscDataTable.gameLengthMinutes*60
+		local gameLength = miscDataTable.gameLengthMinutes * 60
 		local xSpacing = GetXSpacing(gameLength)
 
 		self.hiveSkillGraph:SetXBounds(0, gameLength)
 		self.hiveSkillGraph:SetXGridSpacing(xSpacing)
 
 		local diff = maxHiveSkill - minHiveSkill
-		local yGridSpacing = diff <= 200 and 25 or diff <= 400 and 50 or diff <= 800 and 100 or Round(diff/800,-2)
+		local yGridSpacing = diff <= 200 and 25 or diff <= 400 and 50 or diff <= 800 and 100 or Round(diff/8,-2)
 		self.hiveSkillGraph:SetYGridSpacing(yGridSpacing)
 	end
 
