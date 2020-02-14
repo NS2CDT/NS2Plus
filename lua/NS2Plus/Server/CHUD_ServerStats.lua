@@ -145,7 +145,8 @@ local techLogBuildings = set {
 local function AddHiveSkillEntry(player, teamNumber, joined)
 	local gamerules = GetGamerules()
 	local steamId = player:GetSteamId()
-	if gamerules and steamId > 0 then -- don't track bots
+	local isOnPlayingTeam = teamNumber == kTeam1Index or teamNumber == kTeam2Index -- don't track spectators
+	if gamerules and isOnPlayingTeam and steamId > 0 then -- don't track bots
 		CHUDTeamStats[1].maxPlayers = math.max(CHUDTeamStats[1].maxPlayers, gamerules.team1:GetNumPlayers())
 		CHUDTeamStats[2].maxPlayers = math.max(CHUDTeamStats[2].maxPlayers, gamerules.team2:GetNumPlayers())
 
