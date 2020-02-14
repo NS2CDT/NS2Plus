@@ -1,6 +1,12 @@
 Changelog
 ============
-27/01/2020
+- 14/02/2020
+    - Fixed various issues with the hive skill graph of the match report (Thanks to pebl)
+    - Added the player's observatory.morrolan.ch profile link to context menu of the match report.
+    - Added the player's skill tier number to the context menu of the match report.
+    - Fixed the positioning of the old team ressource display HUD element.
+
+- 27/01/2020
     - Added an option to hide the "new" (ns2 build 331) team info top bar
     - Re-/Added an option to enable the "old" (ns2 build <= 330) resource tower counter next/below to the personal resources counter.
     - Fixed that embryos were exposed at the minimap via the alien minimap color option.
