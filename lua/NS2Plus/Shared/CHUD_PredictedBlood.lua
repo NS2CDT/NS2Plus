@@ -5,7 +5,7 @@ if Client then
 		if not CHUDGetOption("serverblood") or not target then         
 			return oldDamageMixinDoDamage(self, damage, target, point, direction, surface, altMode, showtracer)
 		else
-			HandleHitEffect = function()end
+			HandleHitEffect = function() end
 			local killedFromDamage = oldDamageMixinDoDamage(self, damage, target, point, direction, surface, altMode, showtracer)
 			HandleHitEffect = oldHandleHitEffect
 			return killedFromDamage
@@ -29,20 +29,26 @@ elseif Server then
 	
 	function BuildHitEffectMessage(position, doer, surface, target, showtracer, altMode, damage, direction)
 		local attacker = doer
-		
+		local parent = doer:GetParent()
+
 		if doer:isa("Player") then
 			attacker = doer
-		elseif doer:GetParent() and doer:GetParent():isa("Player") then
-			attacker = doer:GetParent()
-		elseif HasMixin(doer, "Owner") and doer:GetOwner() and doer:GetOwner():isa("Player") then
+		elseif parent and parent:isa("Player") then
+			attacker = parent
+		elseif HasMixin(doer, "Owner") and parent and parent:isa("Player") then
 			attacker = doer:GetOwner()
 		end
-		
-		if attacker and attacker.serverblood == true and doer:GetParent() == attacker and target then
-			local message = oldBuildHitEffectMessage(position, doer, surface, target, false, altMode, damage, direction)
+
+		local message
+		if attacker and attacker.serverblood and parent == attacker and target then
+			message = oldBuildHitEffectMessage(position, doer, surface, target, false, altMode, damage, direction)
 			Server.SendNetworkMessage(attacker, "HitEffect", message, false)
 		end
-		
+
+		if message and not showtracer then -- don't call oldBuildHitEffectMessage twice with same arguments
+			return message
+		end
+
 		return oldBuildHitEffectMessage(position, doer, surface, target, showtracer, altMode, damage, direction)
 	end
 

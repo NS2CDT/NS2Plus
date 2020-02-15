@@ -15,6 +15,7 @@ local screenHeight = Client.GetScreenHeight()
 local aspectRatio = screenWidth/screenHeight
 
 local kSteamProfileURL = "http://steamcommunity.com/profiles/"
+local kObservatoryUserURL = "https://observatory.morrolan.ch/player?steam_id="
 
 -- To avoid printing 200.00 or things like that
 local function printNum(number)
@@ -153,7 +154,7 @@ local function estimateHiveSkillGraph()
 						table.insert(hiveSkillGraphTable,{ gameMinute = gameLength - left, joined = true, teamNumber = player.teamNumber, steamId = player.steamId })
 						left = left - player.minutesPlaying
 						table.insert(hiveSkillGraphTable,{ gameMinute = gameLength - left, joined = false, teamNumber = player.teamNumber, steamId = player.steamId })
-						-- allow some time for others to reach and join instead
+						-- allow some time for others to react and join instead
 						left = left - 10/60
 						team[i] = {}
 					end
@@ -348,6 +349,7 @@ function CHUDGUI_EndStats:CreateTeamBackground(teamNumber)
 
 end
 
+-- Todo: Add score row
 local function CreateScoreboardRow(container, bgColor, textColor, playerName, kills, assists, deaths, acc, pdmg, sdmg, timeBuilding, timePlayed, timeComm, steamId, isRookie, hiveSkill)
 	
 	local containerSize = container:GetSize()
@@ -367,8 +369,10 @@ local function CreateScoreboardRow(container, bgColor, textColor, playerName, ki
 		item.steamId = steamId
 	end
 	
-	if hiveSkill then
-		item.hiveSkill = hiveSkill
+	if hiveSkill and GetPlayerSkillTier then
+		local skillTier, skillTierName = GetPlayerSkillTier(hiveSkill, isRookie)
+		item.hiveSkillTier = skillTier
+		item.hiveSkillTierName = skillTierName
 	end
 	
 	container:AddChild(item.background)
@@ -1664,7 +1668,7 @@ function CHUDGUI_EndStats:RepositionStats()
 		yPos = yPos + comparisonSize.y + GUILinearScale(48)
 	end
 
-	local showHiveSkillGraph = CHUDDevMode and #self.hiveSkillGraphs > 0
+	local showHiveSkillGraph = #self.hiveSkillGraphs > 0 -- and CHUDDevMode
 	self.hiveSkillGraphTextShadow:SetIsVisible(showHiveSkillGraph)
 	self.hiveSkillGraph:SetIsVisible(showHiveSkillGraph)
 	if showHiveSkillGraph then
@@ -2329,55 +2333,66 @@ function CHUDGUI_EndStats:ProcessStats()
 		local lineOffset = {0, 0.5}
 		local maxHiveSkill = 0
 		local minHiveSkill = 0
-		local players = {0, 0}
+		local avgTeam1Skill = 0
+		local avgTeam2Skill = 0
 
-		-- Handle gameMinute 0 special to avoid artificially spikes because of arbitrary joining order
-		local next = 1
-		for i = next, #hiveSkillGraphTable do
+		-- Keep track of players in each team to filter out duplicate hiveSkillGraphTable join/leave entries
+		local players = {{}, {}}
+		-- Counting set size is not easy so keep separate track
+		local playerCount = {0, 0}		
+
+		-- Iterate over the graph data table but only add a new data point after advancing in time
+		-- It's not uncommon for more than 1 player to change their team at any given point in time
+		-- Specially at the very begining of a round
+		-- The iteration limit is #hiveSkillGraphTable + 1 to add the last data point at the very end
+		local graphTime = 0
+		local roundEndTime = miscDataTable.gameLengthMinutes
+		for i = 1, #hiveSkillGraphTable + 1 do
 			local entry = hiveSkillGraphTable[i]
-			if entry.gameMinute > 0 then
-				next = i
-				break
+			local entryTime = entry and entry.gameMinute
+
+			-- Add data point after advancing in time or reaching the end of the data table (entry == nil) / round
+			local atEnd = entry == nil or entryTime >= roundEndTime
+			if atEnd or graphTime ~= entry.gameMinute then
+				local gameSeconds = graphTime * 60
+
+				if gameSeconds == 0 then
+					-- Dont show graph going from 0 to start average hive skill
+					-- The total hive skill is larger than the min average hive skill. 
+					minHiveSkill = math.min(hiveSkill[1], hiveSkill[2])
+				else
+					table.insert(self.hiveSkillGraphs[1], Vector(gameSeconds, avgTeam1Skill + lineOffset[1], 0))
+					table.insert(self.hiveSkillGraphs[2], Vector(gameSeconds, avgTeam2Skill + lineOffset[2], 0))
+				end
+
+				avgTeam1Skill, avgTeam2Skill = hiveSkill[1] / math.max(playerCount[1], 1) , hiveSkill[2] / math.max(playerCount[2], 1)
+				maxHiveSkill = math.max(maxHiveSkill, avgTeam1Skill, avgTeam2Skill)
+				minHiveSkill = math.min(minHiveSkill, avgTeam1Skill, avgTeam2Skill)
+
+				table.insert(self.hiveSkillGraphs[1], Vector(gameSeconds, avgTeam1Skill + lineOffset[1], 0))
+				table.insert(self.hiveSkillGraphs[2], Vector(gameSeconds, avgTeam2Skill + lineOffset[2], 0))
+
+				-- Reached the end, exit here
+				if atEnd then
+					break
+				end
+
+				graphTime = entryTime
 			end
 
+            local id = entry.steamId
 			local teamNumber = entry.teamNumber
-			local playerEntry = playerStatMap[teamNumber] and playerStatMap[teamNumber][entry.steamId]
-			local playerSkill = playerEntry and math.max(playerEntry.hiveSkill, 0) or 0
+			local isHuman = id > 0 -- don't track bots
+			local playerEntry = isHuman and playerStatMap[teamNumber] and playerStatMap[teamNumber][id]
+			local isPlaying = isHuman and players[teamNumber] and players[teamNumber][id]
 
-			players[teamNumber] = math.max(0, players[teamNumber] + ConditionalValue(entry.joined, 1, -1))
-			hiveSkill[teamNumber] = math.max(0, hiveSkill[teamNumber] + ConditionalValue(entry.joined, playerSkill, -playerSkill))
-		end
-
-		local avgTeam1Skill, avgTeam2Skill = hiveSkill[1] / math.max(players[1], 1) , hiveSkill[2] / math.max(players[2], 1)
-		maxHiveSkill = math.max(maxHiveSkill, avgTeam1Skill, avgTeam2Skill)
-		minHiveSkill = math.min(maxHiveSkill, avgTeam1Skill, avgTeam2Skill)
-
-		table.insert(self.hiveSkillGraphs[1], Vector(0, avgTeam1Skill + lineOffset[1], 0))
-		table.insert(self.hiveSkillGraphs[2], Vector(0, avgTeam2Skill + lineOffset[2], 0))
-
-		-- Handle end game special to avoid artificially spikes because of arbitrary disjoin order
-		local skipAfter = miscDataTable.gameLengthMinutes - 5/60
-		for i = next, #hiveSkillGraphTable do
-			local entry = hiveSkillGraphTable[i]
-			if entry.gameMinute > skipAfter then break end
-
-			local gameSeconds = entry.gameMinute * 60
-			table.insert(self.hiveSkillGraphs[1], Vector(gameSeconds, avgTeam1Skill + lineOffset[1], 0))
-			table.insert(self.hiveSkillGraphs[2], Vector(gameSeconds, avgTeam2Skill + lineOffset[2], 0))
-
-			local teamNumber = entry.teamNumber
-			local playerEntry = playerStatMap[teamNumber] and playerStatMap[teamNumber][entry.steamId]
-			local playerSkill = playerEntry and math.max(playerEntry.hiveSkill, 0) or 0
-
-			players[teamNumber] = math.max(0, players[teamNumber] + ConditionalValue(entry.joined, 1, -1))
-			hiveSkill[teamNumber] = math.max(0, hiveSkill[teamNumber] + ConditionalValue(entry.joined, playerSkill, -playerSkill))
-
-			avgTeam1Skill, avgTeam2Skill = hiveSkill[1] / math.max(players[1], 1) , hiveSkill[2] / math.max(players[2], 1)
-			maxHiveSkill = math.max(maxHiveSkill, avgTeam1Skill, avgTeam2Skill)
-			minHiveSkill = math.min(minHiveSkill, avgTeam1Skill, avgTeam2Skill)
-
-			table.insert(self.hiveSkillGraphs[1], Vector(gameSeconds, avgTeam1Skill + lineOffset[1], 0))
-			table.insert(self.hiveSkillGraphs[2], Vector(gameSeconds, avgTeam2Skill + lineOffset[2], 0))
+			-- Filter out invalid data table entries
+			if playerEntry and entry.joined ~= isPlaying then
+				local playerSkill = math.max(playerEntry.hiveSkill, 0)
+				players[teamNumber][id] = entry.joined
+				playerCount[teamNumber] = playerCount[teamNumber] + ConditionalValue(entry.joined, 1, -1)
+				hiveSkill[teamNumber] = hiveSkill[teamNumber] + ConditionalValue(entry.joined, playerSkill, -playerSkill)
+			end
 		end
 
 		self.hiveSkillGraph:SetPoints(1, self.hiveSkillGraphs[1])
@@ -2387,15 +2402,14 @@ function CHUDGUI_EndStats:ProcessStats()
 		maxHiveSkill = Round(maxHiveSkill + 100, -2)
 		self.hiveSkillGraph:SetYBounds(minHiveSkill, maxHiveSkill, true)
 
-		local gameLength = miscDataTable.gameLengthMinutes*60
+		local gameLength = miscDataTable.gameLengthMinutes * 60
 		local xSpacing = GetXSpacing(gameLength)
 
 		self.hiveSkillGraph:SetXBounds(0, gameLength)
 		self.hiveSkillGraph:SetXGridSpacing(xSpacing)
 
 		local diff = maxHiveSkill - minHiveSkill
-		local res = diff >= 1000 and -2 or -1
-		local yGridSpacing = math.max(Round(diff/15, res), 10)
+		local yGridSpacing = diff <= 200 and 25 or diff <= 400 and 50 or diff <= 800 and 100 or Round(diff/8,-2)
 		self.hiveSkillGraph:SetYGridSpacing(yGridSpacing)
 	end
 
@@ -2958,6 +2972,10 @@ function CHUDGUI_EndStats:SendKeyEvent(key, down)
 				local function openSteamProf()
 					Client.ShowWebpage(string.format("%s[U:1:%s]", kSteamProfileURL, self.lastRow.steamId))
 				end
+
+				local function openObservatoryProf()
+					Client.ShowWebpage(string.format("%s%s", kObservatoryUserURL, self.lastRow.steamId))
+				end
 				
 				self.hoverMenu:ResetButtons()
 				
@@ -2972,8 +2990,15 @@ function CHUDGUI_EndStats:SendKeyEvent(key, down)
 				
 				self.hoverMenu:SetBackgroundColor(bgColor)
 				local name = self.lastRow.playerName:GetText()
+
+				-- Todo: Add skill tier icon
+				if self.lastRow.hiveSkillTier then
+					name = string.format("[%s] %s", self.lastRow.hiveSkillTier, name)
+				end
+
 				self.hoverMenu:AddButton(name, nameBgColor, nameBgColor, textColor)
 				self.hoverMenu:AddButton(Locale.ResolveString("SB_MENU_STEAM_PROFILE"), teamColorBg, teamColorHighlight, textColor, openSteamProf)
+				self.hoverMenu:AddButton("Observatory profile", teamColorBg, teamColorHighlight, textColor, openObservatoryProf)
 
 				StartSoundEffect(kButtonClickSound)
 				self.hoverMenu:Show()

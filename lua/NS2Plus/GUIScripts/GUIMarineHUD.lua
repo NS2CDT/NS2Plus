@@ -8,6 +8,7 @@ function GUIMarineHUD:CHUDRepositionGUI()
 	local commactions = CHUDGetOption("commactions")
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
+	local topbar = CHUDGetOption("topbar")
 	
 	-- Position of toggleable elements
 	local y = 30
@@ -19,8 +20,11 @@ function GUIMarineHUD:CHUDRepositionGUI()
 	if showcomm then
 		self.commanderName:SetPosition(Vector(20, y, 0))
 		y = y + 30
-		--self.resourceDisplay.teamText:SetPosition(Vector(20, y, 0))
-		--y = y + 30
+
+		if topbar > 0 then
+			self.resourceDisplay.teamText:SetPosition(Vector(20, y, 0))
+			y = y + 30
+		end
 	end
 	
 	if gametime and self.gameTime then
@@ -215,11 +219,12 @@ function GUIMarineHUD:TriggerInitAnimations()
 
 end
 
+-- Todo: One day optimize this. Seriously why is this updated every frame?!?
 local originalMarineHUDUpdate = GUIMarineHUD.Update
 function GUIMarineHUD:Update(deltaTime)
 	local mingui = CHUDGetOption("mingui")
 	local showcomm = CHUDGetOption("showcomm")
-	--local rtcount = CHUDGetOption("rtcount")
+	local rtcount = CHUDGetOption("rtcount")
 	local commactions = CHUDGetOption("commactions")
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
@@ -255,25 +260,13 @@ function GUIMarineHUD:Update(deltaTime)
 		self.welderIcon:SetIsVisible(welderUpgrade and player:GetWeapon(Welder.kMapName) ~= nil)
 	end
 
-	--if not rtcount then
-	--	self.resourceDisplay.rtCount:SetIsVisible(false)
-	--	self.resourceDisplay.pResDescription:SetText(string.format("%s (%d %s)",
-	--		Locale.ResolveString("RESOURCES"),
-	--		CommanderUI_GetTeamHarvesterCount(),
-	--		ConditionalValue(CommanderUI_GetTeamHarvesterCount() == 1, "RT", "RTs")))
-	--else
-	--	self.resourceDisplay.rtCount:SetIsVisible(CommanderUI_GetTeamHarvesterCount() > 0)
-	--	self.resourceDisplay.pResDescription:SetText(Locale.ResolveString("RESOURCES"))
-	--end
-
-	--if CHUDGetOption("hudbars_m") == 2 then
-	--	local pos = self.resourceDisplay.rtCount:GetPosition()
-	--	self.resourceDisplay.rtCount:SetPosition(Vector(pos.x-75, pos.y, 0))
-	--end
+	if rtcount > 0 and CHUDGetOption("hudbars_m") == 2 then
+		local pos = self.resourceDisplay.rtCount:GetPosition()
+		self.resourceDisplay.rtCount:SetPosition(Vector(pos.x-75, pos.y, 0))
+	end
 
 	-- Commander name / TRes
 	self.commanderName:SetIsVisible(showcomm)
-	--self.resourceDisplay.teamText:SetIsVisible(showcomm)
 
 	-- Disable that rotating border around the HP Bars if we have MinGUI or disabled bars
 	if mingui or not hpbar then

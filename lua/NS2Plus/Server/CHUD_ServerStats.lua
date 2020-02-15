@@ -144,11 +144,12 @@ local techLogBuildings = set {
 
 local function AddHiveSkillEntry(player, teamNumber, joined)
 	local gamerules = GetGamerules()
-	if gamerules then
+	local steamId = player:GetSteamId()
+	local isOnPlayingTeam = teamNumber == kTeam1Index or teamNumber == kTeam2Index -- don't track spectators
+	if gamerules and isOnPlayingTeam and steamId > 0 then -- don't track bots
 		CHUDTeamStats[1].maxPlayers = math.max(CHUDTeamStats[1].maxPlayers, gamerules.team1:GetNumPlayers())
 		CHUDTeamStats[2].maxPlayers = math.max(CHUDTeamStats[2].maxPlayers, gamerules.team2:GetNumPlayers())
 
-		local steamId = player:GetSteamId()
 		local gameTime = CHUDGetGameTime(true)
 		table.insert(CHUDHiveSkillGraph, { gameMinute = gameTime, joined = joined, teamNumber = teamNumber, steamId = steamId } )
 	end

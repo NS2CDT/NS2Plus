@@ -6,30 +6,22 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
+- 14/02/2020
+    - Fixed various issues with the hive skill graph of the match report (Thanks to pebl)
+    - Added the player's observatory.morrolan.ch profile link to context menu of the match report.
+    - Added the player's skill tier number to the context menu of the match report.
+    - Fixed the positioning of the old team ressource display HUD element.
+
+27/01/2020
+    - Added an option to hide the "new" (ns2 build 331) team info top bar
+    - Re-/Added an option to enable the "old" (ns2 build <= 330) resource tower counter next/below to the personal resources counter.
+    - Fixed that embryos were exposed at the minimap via the alien minimap color option.
+    
 - 28/11/2019
     - Added new console commands to import/export and share Alien Vison (AV) configurations. Enter `plus_avhelp` into the console for more details (contributed by turtsmcgurts)
     - Fixed Cr4zy's AV "no fill" edges issue (contributed by Cr4zy)
     - Fixed Cr4zy's AV depth blending issue  (contributed by Cr4zy)
 
-- 27/11/2019
-    - Added a confirmation message for reseting all ns2plus options (contributed by Cr4zy)
-    - Greatly improved the customizable AV options (contributed by Cr4zy):        
-        - Added the ability to individually colour; Marines, Aliens, Gorges, Marine Structures and Alien Structures.
-        - Added a Nanoshield AV highlight option, for those people who like darker AV's that cant see the Nanoshield vfx this will enable an recolour within the AV itself.
-        - Code updated, some improvements with inline functions and removal of old depreciated code.
-        - Close and Distant colours now apply to depth fog too allowing for more interesting setups.
-        - Ability to toggle off any of the individually colourable elements.
-        - A new edge option which doesnt add colour fill to entities allowing for more of an outline only style.
-        - Toggle a new edge math that greatly improves the rendering of edge detection in the distance, removing the "highlighted" floors and walls effect of the previous detection.
-        - Cleaned up parameters being sent to shader, many values no in single integers for bitshifting, also allows for the increased colour option count.
-        - *Watch https://www.youtube.com/watch?v=sWnyY7-nLdI for an walkthrough though the available new options.*
-    - Fixed that the time displays overlapped with each other and the hive status HUD for aliens.
-    - The "Minimal GUI" option does no longer hide the status effect icons. Please use the vanilla "Minimal HUD Mode" option if you want to hide those.
-
-- 19/09/2019
-    - Added options menu to the mods options menu of the new main menu
-    - Enabled stats tracking for cysts and alien tunnels. So they are listed in the end-game report. (Thanks to turtsmcgurts)
-     
 Server settings
 ===============
 Server operators can adjust some features for NS2+ through the console (typing "sv_plus" in console), or change them in the NS2PlusServerSettings.json file located in the server config folder.

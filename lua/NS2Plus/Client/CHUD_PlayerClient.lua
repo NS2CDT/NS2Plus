@@ -91,13 +91,15 @@ local originalPlayerOnInit
 originalPlayerOnInit = Class_ReplaceMethod("Player", "OnInitialized",
 	function(self)
 		originalPlayerOnInit(self)
-		
-		local message = { }
-		message.overkill = CHUDGetOption("overkilldamagenumbers")
+
+		local message = {
+			overkill = CHUDGetOption("overkilldamagenumbers")
+		}
 		Client.SendNetworkMessage("SetCHUDOverkill", message)
 		
-		message = { }
-		message.serverblood = CHUDGetOption("serverblood")
+		message = {
+			serverblood = CHUDGetOption("serverblood")
+		}
 		Client.SendNetworkMessage("SetCHUDServerBlood", message)
 
 		message = {
