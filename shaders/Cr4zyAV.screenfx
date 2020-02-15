@@ -2,7 +2,8 @@ settings =
     [
         { name="amount"                default=0.0 }
         { name="startTime"             default=0.0 }
-        { name="opacityValue"          default=0.0 }
+        { name="depthTexture"  }
+        { name="normalTexture" }
         { name="edgeSize"              default=0.4 }
         { name="closeIntensity"        default=1.0 }
         { name="distantIntensity"      default=1.0 }
@@ -24,8 +25,6 @@ settings =
         { name="avCombined"            default=0.0 }
         { name="worldCloseRGBInt"      default=0.0 }
         { name="worldFarRGBInt"        default=0.0 }
-        { name="depthTexture"  }
-        { name="normalTexture" }
     ]
     
 layers =
@@ -38,7 +37,9 @@ layers =
             parameters                      = {
                     amount                  = "amount"
                     startTime               = "startTime"
-                    opacityValue            = "opacityValue"
+                    baseTexture             = { resource="source_buffer" linear=true }
+                    depthTexture            = { resource="depthTexture" linear=true }
+                    normalTexture           = { resource="normalTexture" linear=true }
                     edgeSize                = "edgeSize"
                     closeIntensity          = "closeIntensity"
                     distantIntensity        = "distantIntensity"
@@ -60,9 +61,6 @@ layers =
                     aStructIntensity        = "aStructIntensity"
                     worldCloseRGBInt        = "worldCloseRGBInt"
                     worldFarRGBInt          = "worldFarRGBInt"
-                    baseTexture             = { resource="source_buffer" linear=true }
-                    depthTexture            = { resource="depthTexture" linear=true }
-                    normalTexture           = { resource="normalTexture" linear=true }
                 }
         }
     ]
