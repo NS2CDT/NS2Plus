@@ -1,5 +1,10 @@
 Changelog
 ============
+- 16/02/2020
+    - Added a color blindness correction option. It enables a daltonization screen shader that shifts colors into the visible spectrum for each type of color blindness.
+    - Fixed Cr4zy AV client crashes
+    - Fixed a compatibility issue with ns2 build 332
+
 - 14/02/2020
     - Fixed various issues with the hive skill graph of the match report (Thanks to pebl)
     - Added the player's observatory.morrolan.ch profile link to context menu of the match report.

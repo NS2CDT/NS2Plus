@@ -6,6 +6,11 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
+- 16/02/2020
+    - Added a color blindness correction option. It enables a daltonization screen shader that shifts colors into the visible spectrum for each type of color blindness.
+    - Fixed Cr4zy AV client crashes
+    - Fixed a compatibility issue with ns2 build 332
+    
 - 14/02/2020
     - Fixed various issues with the hive skill graph of the match report (Thanks to pebl)
     - Added the player's observatory.morrolan.ch profile link to context menu of the match report.
@@ -16,11 +21,6 @@ Latest changes
     - Added an option to hide the "new" (ns2 build 331) team info top bar
     - Re-/Added an option to enable the "old" (ns2 build <= 330) resource tower counter next/below to the personal resources counter.
     - Fixed that embryos were exposed at the minimap via the alien minimap color option.
-    
-- 28/11/2019
-    - Added new console commands to import/export and share Alien Vison (AV) configurations. Enter `plus_avhelp` into the console for more details (contributed by turtsmcgurts)
-    - Fixed Cr4zy's AV "no fill" edges issue (contributed by Cr4zy)
-    - Fixed Cr4zy's AV depth blending issue  (contributed by Cr4zy)
 
 Server settings
 ===============
