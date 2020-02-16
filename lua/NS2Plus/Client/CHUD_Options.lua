@@ -1455,7 +1455,19 @@ CHUDOptions =
 			},
 
 
-
+			colorblind = {
+				name = "CHUD_ColotBlindCorrection",
+				label = "Colorblind correction",
+				tooltip = "Shifts colors into the visible region for each type of color blindness",
+				type = "select",
+				values  = { "Off", "Protanopia (Red)", "Deuteranopia (Green)", "Tritanopia (Blue)"},
+				defaultValue = 0,
+				category = "graphics",
+				valueType = "int",
+				applyFunction = function() if CHUDUpdateDaltonizeVision then CHUDUpdateDaltonizeVision() end end,
+				applyOnLoadComplete = true,
+				sort = "A00",
+			},
 			mapparticles = {
 				name = "CHUD_MapParticles",
 				label = "Map particles",

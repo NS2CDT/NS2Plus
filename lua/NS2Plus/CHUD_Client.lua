@@ -72,6 +72,7 @@ local function OnLocalPlayerChanged()
 	CHUDLoadLights()
 	CHUDEvaluateGUIVis()
 	CHUDApplyLifeformSpecificStuff()
+	CHUDUpdateDaltonizeVision()
 end
 
 local lastTeam
