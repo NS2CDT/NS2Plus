@@ -30,17 +30,17 @@ function UnitStatusMixin:GetCHUDBlipData(_, hint)
 	return CHUDBlipData
 end
 
-local originalGetUnitHint = UnitStatusMixin.GetUnitHint
-function UnitStatusMixin:GetUnitHint(forEntity)
+local originalGetUnitHint = UnitStatusMixin.GetUnitHint2
+function UnitStatusMixin:GetUnitHint2(forEntity)
 	local hint = originalGetUnitHint(self, forEntity)
-	
 	return self:GetCHUDBlipData(forEntity, hint)
 end
 
 local oldGetUnitState = UnitStatusMixin.GetUnitState
 function UnitStatusMixin:GetUnitState(forEntity)
+
 	local state = oldGetUnitState(self, forEntity)
-	if state and state.CHUDBlipData then
+	if state and not state.CHUDBlipData then
 		state.CHUDBlipData = self:GetCHUDBlipData(forEntity)
 	end
 
