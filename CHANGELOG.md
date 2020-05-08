@@ -1,5 +1,8 @@
 Changelog
 ============
+- 07/05/2020
+    - Fixed compatibility issue with NS2 build 332 and nameplates
+
 - 16/02/2020
     - Added a color blindness correction option. It enables a daltonization screen shader that shifts colors into the visible spectrum for each type of color blindness.
     - Fixed Cr4zy AV client crashes
