@@ -49,7 +49,7 @@ function GUIUnitStatus:UpdateUnitStatusBlip(blipIndex, localPlayerIsCommander, b
 	-- Nameplate Options: { "Default", "Percentages", "Bars Only", "Percentages + Bars"}
 	if nameplates == 1 or nameplates == 3 then
 		if CHUDBlipData and updateBlip.NameText:GetIsVisible() then
-			
+
 			if CHUDBlipData.Percentage then
 				updateBlip.NameText:SetText(CHUDBlipData.Percentage)
 			end
@@ -64,6 +64,7 @@ function GUIUnitStatus:UpdateUnitStatusBlip(blipIndex, localPlayerIsCommander, b
 			local barsVisible = nameplates == 3
 			updateBlip.HealthBarBg:SetIsVisible(updateBlip.HealthBarBg:GetIsVisible() and barsVisible)
 			updateBlip.ArmorBarBg:SetIsVisible(updateBlip.ArmorBarBg:GetIsVisible() and barsVisible)
+
 			if updateBlip.AbilityBarBg then
 				updateBlip.AbilityBarBg:SetIsVisible(updateBlip.AbilityBarBg:GetIsVisible() and barsVisible)
 			end
@@ -84,8 +85,11 @@ function GUIUnitStatus:UpdateUnitStatusBlip(blipIndex, localPlayerIsCommander, b
 					updateBlip.HintText:SetIsVisible(false)
 				end
 			end
-			
+
+			-- Always hide hint text if it's a player. (There's no hint text for player controllers, anyways)
+			updateBlip.HintText:SetIsVisible(ConditionalValue(not blipData.IsPlayer, true, false))
 		end
+
 	elseif nameplates == 2 and not blipData.IsPlayer then
 		updateBlip.NameText:SetIsVisible(false)
 		updateBlip.HintText:SetIsVisible(false)

@@ -6,6 +6,9 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
+- 11/05/2020
+    - Fixed oversight of health numbers still being displayed for enemy players.
+
 - 07/05/2020
     - Fixed compatibility issue with NS2 build 332 and nameplates
 
