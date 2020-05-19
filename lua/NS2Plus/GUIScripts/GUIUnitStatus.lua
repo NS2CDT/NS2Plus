@@ -46,7 +46,7 @@ function GUIUnitStatus:UpdateUnitStatusBlip(blipIndex, localPlayerIsCommander, b
 	
 	OldUpdateUnitStatusBlip( self, blipIndex, localPlayerIsCommander, baseResearchRot, showHints, playerTeamType )		
 	
-	-- Nameplate Options: { "Default", "Percentages", "Bars Only", "Percentages + Bars"}
+	-- Nameplate Options: { "Default", "Percentages", "Bars Only", "Percentages + Bars"} (0-3)
 	if nameplates == 1 or nameplates == 3 then
 		if CHUDBlipData and updateBlip.NameText:GetIsVisible() then
 
@@ -57,8 +57,9 @@ function GUIUnitStatus:UpdateUnitStatusBlip(blipIndex, localPlayerIsCommander, b
 			if CHUDBlipData.Status then
 				updateBlip.HintText:SetText(CHUDBlipData.Status)
 			end
-			
-			updateBlip.HintText:SetIsVisible(ConditionalValue(blipData.IsCrossHairTarget, blipData.IsCrossHairTarget, false))
+
+			local hideHintText = blipData.IsCrossHairTarget ~= true or (blipData.IsPlayer == true and isEnemy == true)
+			updateBlip.HintText:SetIsVisible(not hideHintText)
 			updateBlip.HintText:SetColor(updateBlip.NameText:GetColor())
 			
 			local barsVisible = nameplates == 3
@@ -68,7 +69,7 @@ function GUIUnitStatus:UpdateUnitStatusBlip(blipIndex, localPlayerIsCommander, b
 			if updateBlip.AbilityBarBg then
 				updateBlip.AbilityBarBg:SetIsVisible(updateBlip.AbilityBarBg:GetIsVisible() and barsVisible)
 			end
-			
+
 			if blipData.SpawnFraction ~= nil and not isEnemy and not blipData.IsCrossHairTarget then
 				updateBlip.NameText:SetText(string.format("%s (%d%%)", blipData.SpawnerName, blipData.SpawnFraction*100))
 				updateBlip.HintText:SetIsVisible(false)
@@ -86,11 +87,9 @@ function GUIUnitStatus:UpdateUnitStatusBlip(blipIndex, localPlayerIsCommander, b
 				end
 			end
 
-			-- Always hide hint text if it's a player. (There's no hint text for player controllers, anyways)
-			updateBlip.HintText:SetIsVisible(ConditionalValue(not blipData.IsPlayer, true, false))
 		end
 
-	elseif nameplates == 2 and not blipData.IsPlayer then
+	elseif nameplates == 2 and blipData.IsPlayer == false then
 		updateBlip.NameText:SetIsVisible(false)
 		updateBlip.HintText:SetIsVisible(false)
 	end
