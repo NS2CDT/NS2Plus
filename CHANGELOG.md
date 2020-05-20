@@ -1,5 +1,8 @@
 Changelog
 ============
+- 20/05/2020
+    - Hide maturity text when "Bars Only" nameplates are selected.
+
 - 11/05/2020
     - Fixed oversight of health numbers still being displayed for enemy players.
 
