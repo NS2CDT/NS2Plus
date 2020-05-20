@@ -92,6 +92,7 @@ function GUIUnitStatus:UpdateUnitStatusBlip(blipIndex, localPlayerIsCommander, b
 	elseif nameplates == 2 and blipData.IsPlayer == false then
 		updateBlip.NameText:SetIsVisible(false)
 		updateBlip.HintText:SetIsVisible(false)
+		updateBlip.MaturityText:SetIsVisible(false)
 	end
 	
 end
