@@ -233,7 +233,7 @@ function GUIMarineHUD:Update(deltaTime)
 
 	-- Minimal HUD pls go home, you're drunk
 	-- Run this if WE choose to have it
-	if self.lastNotificationUpdate + GUIMarineHUD.kNotificationUpdateIntervall < Client.GetTime() then
+	if self.lastNotificationUpdate + GUIMarineHUD.kNotificationUpdateInterval < Client.GetTime() then
 		local fullMode = Client.GetOptionInteger("hudmode", kHUDMode.Full) == kHUDMode.Full
 		if not fullMode and commactions then
 			self.eventDisplay:Update(Client.GetTime() - self.lastNotificationUpdate, { PlayerUI_GetRecentNotification(), PlayerUI_GetRecentPurchaseable() } )
