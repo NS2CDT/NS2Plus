@@ -1,5 +1,12 @@
 Changelog
 ============
+- 25/07/2020
+    - Moved game/real time text to right side of screen to make room for vanilla gui
+    - Made "Research Notifications" option the sole option for enabling/disabling new vanilla research UI
+    - Removed commactions option for reason above
+    - Fixed "show tech map" screen (Default J) not properly showing/hiding the biomass background based on minimal gui setting
+    - Fixed extra energy bar when aliens have adrenaline not hiding itself when non-vanilla hud bars are selected.
+
 - 20/05/2020
     - Hide maturity text when "Bars Only" nameplates are selected.
 
