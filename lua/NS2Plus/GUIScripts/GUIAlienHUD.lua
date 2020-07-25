@@ -8,6 +8,7 @@ function GUIAlienHUD:CHUDRepositionGUI()
 	local realtime = CHUDGetOption("realtime")
 	local biomass = ClientUI.GetScript("GUIBioMassDisplay")
 	local y = self.resourceDisplay.teamText:GetPosition().y
+	local mingui = CHUDGetOption("mingui")
 
 	if gametime and self.gameTime then
 		y = y + 25
@@ -25,8 +26,8 @@ function GUIAlienHUD:CHUDRepositionGUI()
 		GUIMakeFontScale(self.realTime)
 	end
 
-	local biomassSmokeyBackground = ConditionalValue(mingui, "ui/alien_commander_bg_smoke.dds", "ui/transparent.dds")
-	local biomassTexture = ConditionalValue(mingui, "ui/biomass_bar.dds", "ui/transparent.dds")
+	local biomassSmokeyBackground = ConditionalValue(mingui, "ui/transparent.dds", "ui/alien_commander_bg_smoke.dds")
+	local biomassTexture = ConditionalValue(mingui, "ui/transparent.dds", "ui/biomass_bar.dds")
 	local kBioMassBackgroundPos = GUIScale(Vector(20, 90, 0))
 	local kSmokeyBackgroundPos = GUIScale(Vector(-100, 10, 0))
 
