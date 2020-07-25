@@ -7,22 +7,26 @@ function GUIAlienHUD:CHUDRepositionGUI()
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
 	local biomass = ClientUI.GetScript("GUIBioMassDisplay")
-	local y = self.resourceDisplay.teamText:GetPosition().y
 	local mingui = CHUDGetOption("mingui")
+	local y = 375
 
 	if gametime and self.gameTime then
-		y = y + 25
+
 		self.gameTime:SetFontName(GUIMarineHUD.kTextFontName)
+		self.gameTime:SetTextAlignmentX(GUIItem.Align_Max)
 		self.gameTime:SetScale(GetScaledVector())
-		self.gameTime:SetPosition(Vector(20, y , 0))
+		self.gameTime:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), GUIScale(y), 0))
 		GUIMakeFontScale(self.gameTime)
+
+		y = y + 25
 	end
 
 	if realtime and self.realTime then
-		y = y + 25
+
 		self.realTime:SetFontName(GUIMarineHUD.kTextFontName)
+		self.realTime:SetTextAlignmentX(GUIItem.Align_Max)
 		self.realTime:SetScale(GetScaledVector())
-		self.realTime:SetPosition(Vector(20, y, 0))
+		self.realTime:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), GUIScale(y), 0))
 		GUIMakeFontScale(self.realTime)
 	end
 
@@ -108,12 +112,14 @@ function GUIAlienHUD:Initialize()
 	self.gameTime:SetFontIsBold(true)
 	self.gameTime:SetLayer(kGUILayerPlayerHUDForeground2)
 	self.gameTime:SetColor(kAlienTeamColorFloat)
+	self.gameTime:SetIsScaling(false)
 
 	self.realTime = self:CreateAnimatedTextItem()
 	self.realTime:SetFontName(GUIMarineHUD.kTextFontName)
 	self.realTime:SetFontIsBold(true)
 	self.realTime:SetLayer(kGUILayerPlayerHUDForeground2)
 	self.realTime:SetColor(kAlienTeamColorFloat)
+	self.realTime:SetIsScaling(false)
 
 	local kBackgroundCHUD = ConditionalValue(mingui, PrecacheAsset("ui/alien_commander_bg_smoke.dds"), PrecacheAsset("ui/transparent.dds"))
 
