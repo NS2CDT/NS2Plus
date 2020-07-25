@@ -6,6 +6,12 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
+- 25/07/2020
+    - Moved game/real time text to right side of screen to make room for vanilla gui
+    - Made "Research Notifications" option the sole option for enabling/disabling new vanilla research UI
+    - Removed commactions option for reason above
+    - Fixed "show tech map" screen (Default J) not properly showing/hiding the biomass background based on minimal gui setting
+    - Fixed extra energy bar when aliens have adrenaline not hiding itself when non-vanilla hud bars are selected.
 - 20/05/2020
     - Hide maturity text when "Bars Only" nameplates are selected.
 - 11/05/2020
@@ -24,11 +30,6 @@ Latest changes
     - Added the player's observatory.morrolan.ch profile link to context menu of the match report.
     - Added the player's skill tier number to the context menu of the match report.
     - Fixed the positioning of the old team ressource display HUD element.
-
-27/01/2020
-    - Added an option to hide the "new" (ns2 build 331) team info top bar
-    - Re-/Added an option to enable the "old" (ns2 build <= 330) resource tower counter next/below to the personal resources counter.
-    - Fixed that embryos were exposed at the minimap via the alien minimap color option.
 
 Server settings
 ===============
