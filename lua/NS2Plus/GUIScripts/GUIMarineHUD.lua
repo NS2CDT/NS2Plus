@@ -5,7 +5,7 @@ function GUIMarineHUD:CHUDRepositionGUI()
 	local hpbar = CHUDGetOption("hpbar")
 	local minimap = CHUDGetOption("minimap")
 	local showcomm = CHUDGetOption("showcomm")
-	local commactions = CHUDGetOption("commactions")
+	local unlocks = CHUDGetOption("unlocks")
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
 	local topbar = CHUDGetOption("topbar")
@@ -43,7 +43,7 @@ function GUIMarineHUD:CHUDRepositionGUI()
 		y = y + 30
 	end
 	
-	if commactions then
+	if unlocks then
 		self.eventDisplay.notificationFrame:SetPosition(Vector(20, y, 0) * self.eventDisplay.scale)
 	end
 	
@@ -225,21 +225,22 @@ function GUIMarineHUD:Update(deltaTime)
 	local mingui = CHUDGetOption("mingui")
 	local showcomm = CHUDGetOption("showcomm")
 	local rtcount = CHUDGetOption("rtcount")
-	local commactions = CHUDGetOption("commactions")
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
 	local hpbar = CHUDGetOption("hpbar") and CHUDGetOption("hudbars_m") ~= 2
 	local welderUpgrade = CHUDGetOption("welderup")
+	local unlocks = CHUDGetOption("unlocks")
 
 	-- Minimal HUD pls go home, you're drunk
 	-- Run this if WE choose to have it
 	if self.lastNotificationUpdate + GUIMarineHUD.kNotificationUpdateInterval < Client.GetTime() then
 		local fullMode = Client.GetOptionInteger("hudmode", kHUDMode.Full) == kHUDMode.Full
-		if not fullMode and commactions then
+		if not fullMode and unlocks then
 			self.eventDisplay:Update(Client.GetTime() - self.lastNotificationUpdate, { PlayerUI_GetRecentNotification(), PlayerUI_GetRecentPurchaseable() } )
 			self.lastNotificationUpdate = Client.GetTime()
 		end
-		self.eventDisplay.notificationFrame:SetIsVisible(commactions)
+
+		self.eventDisplay.notificationFrame:SetIsVisible(unlocks)
 	end
 
 	originalMarineHUDUpdate(self, deltaTime)

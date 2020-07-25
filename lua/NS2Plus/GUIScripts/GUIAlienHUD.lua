@@ -226,6 +226,11 @@ function GUIAlienHUD:Update(deltaTime)
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
 	local instanthealth = CHUDGetOption("instantalienhealth")
+	local unlocks = CHUDGetOption("unlocks")
+
+	if self.eventDisplay then
+		self.eventDisplay.notificationFrame:SetIsVisible(unlocks)
+	end
 
 	if instanthealth then
 		self:CHUDUpdateHealthBall(deltaTime)

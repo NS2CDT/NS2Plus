@@ -183,7 +183,7 @@ CHUDOptions =
 			unlocks = {
 				name = "CHUD_Unlocks",
 				label = "Research notifications",
-				tooltip = "Enables or disables the research completed notifications on the right side of the screen.",
+				tooltip = "Enables or disables the research notifications on the left side of the screen.",
 				type = "select",
 				values  = { "Off", "On" },
 				defaultValue = true,
@@ -235,18 +235,6 @@ CHUDOptions =
 				category = "ui",
 				valueType = "bool",
 				sort = "B01",
-				applyFunction = function() CHUDRestartScripts({ "Hud/Marine/GUIMarineHUD" }) end,
-			},
-			commactions = {
-				name = "CHUD_CommActions",
-				label = "Marine comm actions",
-				tooltip = "Shows or hides the last commander actions.",
-				type = "select",
-				values  = { "Off", "On" },
-				defaultValue = true,
-				category = "ui",
-				valueType = "bool",
-				sort = "B02",
 				applyFunction = function() CHUDRestartScripts({ "Hud/Marine/GUIMarineHUD" }) end,
 			},
 			hpbar = {
