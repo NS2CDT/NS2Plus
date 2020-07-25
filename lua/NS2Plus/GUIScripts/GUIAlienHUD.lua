@@ -234,6 +234,7 @@ function GUIAlienHUD:Update(deltaTime)
 	local realtime = CHUDGetOption("realtime")
 	local instanthealth = CHUDGetOption("instantalienhealth")
 	local unlocks = CHUDGetOption("unlocks")
+	local alienHudBars = CHUDGetOption("hudbars_a")
 
 	if self.eventDisplay then
 		self.eventDisplay.notificationFrame:SetIsVisible(unlocks)
@@ -263,7 +264,7 @@ function GUIAlienHUD:Update(deltaTime)
 
 	self.armorBall:SetIsVisible(self.healthBall:GetBackground():GetIsVisible() and CHUDGetOption("hudbars_a") == 0)
 
-	if self.mucousBall and CHUDGetOption("hudbars_a") ~= 0 then
+	if self.mucousBall and alienHudBars ~= 0 then
 		self.mucousBall:SetIsVisible(false)
 	end
 
@@ -292,6 +293,10 @@ function GUIAlienHUD:Update(deltaTime)
 
 	if Client.GetOptionInteger("hudmode", kHUDMode.Full) ~= kHUDMode.Full then
 		self.statusDisplays:SetIsVisible(gCHUDHiddenViewModel)
+	end
+
+	if alienHudBars > 0 then
+		self.adrenalineEnergy:SetIsVisible(false)
 	end
 
 end
