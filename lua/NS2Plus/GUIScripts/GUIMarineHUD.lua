@@ -12,39 +12,52 @@ function GUIMarineHUD:CHUDRepositionGUI()
 	
 	-- Position of toggleable elements
 	local y = 30
-	
+
 	if minimap then
 		y = y + 300
 	end
-	
+
 	if showcomm then
+
 		self.commanderName:SetPosition(Vector(20, y, 0))
 		y = y + 30
 
 		if topbar > 0 then
+			Print("\t\tNot showing topbar. Adding 30")
 			self.resourceDisplay.teamText:SetPosition(Vector(20, y, 0))
 			y = y + 30
 		end
 	end
-	
-	if gametime and self.gameTime then
-		self.gameTime:SetFontName(GUIMarineHUD.kTextFontName)
-		self.gameTime:SetScale(GetScaledVector()*1.15)
-		self.gameTime:SetPosition(Vector(20, y, 0))
-		GUIMakeFontScale(self.gameTime)
+
+	if gametime then
+
+		if self.gameTime then
+
+			self.gameTime:SetFontName(GUIMarineHUD.kTextFontName)
+			self.gameTime:SetScale(GetScaledVector()*1.15)
+			self.gameTime:SetPosition(Vector(20, y, 0))
+			GUIMakeFontScale(self.gameTime)
+		end
+
 		y = y + 30
 	end
-	
-	if realtime and self.realTime then
-		self.realTime:SetFontName(GUIMarineHUD.kTextFontName)
-		self.realTime:SetScale(GetScaledVector()*1.15)
-		self.realTime:SetPosition(Vector(20, y, 0))
-		GUIMakeFontScale(self.realTime)
+
+	if realtime then
+
+		if self.realTime then
+
+			self.realTime:SetFontName(GUIMarineHUD.kTextFontName)
+			self.realTime:SetScale(GetScaledVector()*1.15)
+			self.realTime:SetPosition(Vector(20, y, 0))
+			GUIMakeFontScale(self.realTime)
+		end
+
 		y = y + 30
 	end
 	
 	if unlocks then
-		self.eventDisplay.notificationFrame:SetPosition(Vector(20, y, 0) * self.eventDisplay.scale)
+
+		self.eventDisplay.notificationFrame:SetPosition(Vector(20, y + 10, 0) * self.eventDisplay.scale)
 	end
 	
 	local xpos = ConditionalValue(hpbar, -20, -300)
