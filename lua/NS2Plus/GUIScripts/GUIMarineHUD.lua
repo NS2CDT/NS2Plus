@@ -56,7 +56,8 @@ function GUIMarineHUD:CHUDRepositionGUI()
 	
 	if unlocks then
 
-		self.eventDisplay.notificationFrame:SetPosition(Vector(20, y + 10, 0) * self.eventDisplay.scale)
+		self.eventDisplay.framePos = Vector(20, y + 10, 0) * self.eventDisplay.scale
+		self.eventDisplay.notificationFrame:SetPosition(self.eventDisplay.framePos)
 	end
 	
 	local xpos = ConditionalValue(hpbar, -20, -300)
