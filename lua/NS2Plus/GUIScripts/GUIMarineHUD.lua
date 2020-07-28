@@ -23,7 +23,6 @@ function GUIMarineHUD:CHUDRepositionGUI()
 		y = y + 30
 
 		if topbar > 0 then
-			Print("\t\tNot showing topbar. Adding 30")
 			self.resourceDisplay.teamText:SetPosition(Vector(20, y, 0))
 			y = y + 30
 		end
