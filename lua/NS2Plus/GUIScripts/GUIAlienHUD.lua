@@ -13,24 +13,29 @@ function GUIAlienHUD:CHUDRepositionGUI()
 
 	local y = 425
 
-	if realtime and self.realTime then
+	if realtime then
 
-		self.realTime:SetFontName(GUIMarineHUD.kTextFontName)
-		self.realTime:SetTextAlignmentX(GUIItem.Align_Max)
-		self.realTime:SetScale(GetScaledVector())
-		self.realTime:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), GUIScale(y), 0))
-		GUIMakeFontScale(self.realTime)
+		if self.realTime then
+
+			self.realTime:SetFontName(GUIMarineHUD.kTextFontName)
+			self.realTime:SetTextAlignmentX(GUIItem.Align_Max)
+			self.realTime:SetScale(GetScaledVector())
+			self.realTime:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), GUIScale(y), 0))
+			GUIMakeFontScale(self.realTime)
+		end
 
 		y = y - 25
 	end
 
-	if gametime and self.gameTime then
+	if gametime then
 
-		self.gameTime:SetFontName(GUIMarineHUD.kTextFontName)
-		self.gameTime:SetTextAlignmentX(GUIItem.Align_Max)
-		self.gameTime:SetScale(GetScaledVector())
-		self.gameTime:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), GUIScale(y), 0))
-		GUIMakeFontScale(self.gameTime)
+		if self.gameTime then
+			self.gameTime:SetFontName(GUIMarineHUD.kTextFontName)
+			self.gameTime:SetTextAlignmentX(GUIItem.Align_Max)
+			self.gameTime:SetScale(GetScaledVector())
+			self.gameTime:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), GUIScale(y), 0))
+			GUIMakeFontScale(self.gameTime)
+		end
 
 		y = y - 25
 	end
@@ -39,7 +44,7 @@ function GUIAlienHUD:CHUDRepositionGUI()
 
 		self.resourceDisplay.teamText:SetTextAlignmentX(GUIItem.Align_Max)
 		self.resourceDisplay.teamText:SetIsScaling(false)
-		self.resourceDisplay.teamText:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), y, 0))
+		self.resourceDisplay.teamText:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), GUIScale(y), 0))
 	end
 
 

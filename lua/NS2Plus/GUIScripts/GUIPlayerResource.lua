@@ -37,7 +37,9 @@ function GUIPlayerResource:Reset(scale)
 	if self.teamNumber == kTeam1Index then
 		self.teamText:SetPosition(GUIPlayerResource.kTeam1TextPos)
 	else
-		self.teamText:SetPosition(GUIPlayerResource.kTeam2TextPos)
+		self.teamText:SetTextAlignmentX(GUIItem.Align_Max)
+		self.teamText:SetIsScaling(false)
+		self.teamText:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), 375, 0))
 	end
 	self.teamText:SetFontName(GUIPlayerResource.kTresTextFontName)
 	GUIMakeFontScale(self.teamText)
