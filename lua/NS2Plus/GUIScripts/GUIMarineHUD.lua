@@ -244,19 +244,8 @@ function GUIMarineHUD:Update(deltaTime)
 	local welderUpgrade = CHUDGetOption("welderup")
 	local unlocks = CHUDGetOption("unlocks")
 
-	-- Minimal HUD pls go home, you're drunk
-	-- Run this if WE choose to have it
-	if self.lastNotificationUpdate + GUIMarineHUD.kNotificationUpdateInterval < Client.GetTime() then
-		local fullMode = Client.GetOptionInteger("hudmode", kHUDMode.Full) == kHUDMode.Full
-		if not fullMode and unlocks then
-			self.eventDisplay:Update(Client.GetTime() - self.lastNotificationUpdate, { PlayerUI_GetRecentNotification(), PlayerUI_GetRecentPurchaseable() } )
-			self.lastNotificationUpdate = Client.GetTime()
-		end
-
-		self.eventDisplay.notificationFrame:SetIsVisible(unlocks)
-	end
-
 	originalMarineHUDUpdate(self, deltaTime)
+	self.eventDisplay.notificationFrame:SetIsVisible(unlocks)
 
 	local player = Client.GetLocalPlayer()
 
