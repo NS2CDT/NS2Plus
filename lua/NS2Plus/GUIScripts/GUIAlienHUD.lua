@@ -4,11 +4,25 @@ PrecacheAsset("ui/old_alien_hud_health.dds")
 PrecacheAsset("ui/vanilla_alien_hud_health.dds")
 
 function GUIAlienHUD:CHUDRepositionGUI()
+
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
 	local biomass = ClientUI.GetScript("GUIBioMassDisplay")
 	local mingui = CHUDGetOption("mingui")
-	local y = 375
+	local topbar = CHUDGetOption("topbar")
+
+	local y = 425
+
+	if realtime and self.realTime then
+
+		self.realTime:SetFontName(GUIMarineHUD.kTextFontName)
+		self.realTime:SetTextAlignmentX(GUIItem.Align_Max)
+		self.realTime:SetScale(GetScaledVector())
+		self.realTime:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), GUIScale(y), 0))
+		GUIMakeFontScale(self.realTime)
+
+		y = y - 25
+	end
 
 	if gametime and self.gameTime then
 
@@ -18,17 +32,16 @@ function GUIAlienHUD:CHUDRepositionGUI()
 		self.gameTime:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), GUIScale(y), 0))
 		GUIMakeFontScale(self.gameTime)
 
-		y = y + 25
+		y = y - 25
 	end
 
-	if realtime and self.realTime then
+	if topbar > 0 then
 
-		self.realTime:SetFontName(GUIMarineHUD.kTextFontName)
-		self.realTime:SetTextAlignmentX(GUIItem.Align_Max)
-		self.realTime:SetScale(GetScaledVector())
-		self.realTime:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), GUIScale(y), 0))
-		GUIMakeFontScale(self.realTime)
+		self.resourceDisplay.teamText:SetTextAlignmentX(GUIItem.Align_Max)
+		self.resourceDisplay.teamText:SetIsScaling(false)
+		self.resourceDisplay.teamText:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), y, 0))
 	end
+
 
 	local biomassSmokeyBackground = ConditionalValue(mingui, "ui/transparent.dds", "ui/alien_commander_bg_smoke.dds")
 	local biomassTexture = ConditionalValue(mingui, "ui/transparent.dds", "ui/biomass_bar.dds")
@@ -163,6 +176,7 @@ function GUIAlienHUD:Initialize()
 		self.energyBall.leftSide:SetIsVisible(false)
 		self.energyBall.rightSide:SetIsVisible(false)
 		self.adrenalineEnergy:SetIsVisible(false)
+
 		if CHUDGetOption("hudbars_a") == 2 then
 			healthBall:SetPosition(Vector(healthBallPos.x+50, healthBallPos.y, 0))
 			energyBall:SetPosition(Vector(energyBallPos.x-50, energyBallPos.y, 0))

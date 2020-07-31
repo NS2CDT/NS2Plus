@@ -245,7 +245,10 @@ function GUIMarineHUD:Update(deltaTime)
 	local unlocks = CHUDGetOption("unlocks")
 
 	originalMarineHUDUpdate(self, deltaTime)
-	self.eventDisplay.notificationFrame:SetIsVisible(unlocks)
+
+	if self.eventDisplay then
+		self.eventDisplay.notificationFrame:SetIsVisible(unlocks)
+	end
 
 	local player = Client.GetLocalPlayer()
 
