@@ -39,3 +39,4 @@ ModLoader.SetupFileHook("lua/GUIJetpackFuel.lua", "lua/NS2Plus/GUIScripts/GUIJet
 ModLoader.SetupFileHook("lua/GUIHiveStatus.lua", "lua/NS2Plus/GUIScripts/GUIHiveStatus.lua", "post")
 ModLoader.SetupFileHook("lua/Hud2/topBar/GUIHudTopBarForLocalTeam.lua", "lua/NS2Plus/GUIScripts/GUIHudTopBarForLocalTeam.lua", "post")
 ModLoader.SetupFileHook("lua/Hud/GUIPlayerResource.lua", "lua/NS2Plus/GUIScripts/GUIPlayerResource.lua", "post")
+ModLoader.SetupFileHook("lua/Hud/GUIEvent.lua", "lua/NS2Plus/GUIScripts/GUIEvent.lua", "post")
