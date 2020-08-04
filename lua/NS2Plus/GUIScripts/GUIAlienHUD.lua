@@ -121,6 +121,7 @@ end
 
 local originalAlienInit = GUIAlienHUD.Initialize
 function GUIAlienHUD:Initialize()
+
 	local mingui = not CHUDGetOption("mingui")
 
 	originalAlienInit(self)
@@ -149,7 +150,7 @@ function GUIAlienHUD:Initialize()
 	-- Alien bars
 	self:InitializeCHUDAlienCircles()
 
-	if mingui then
+	if not mingui then
 		self.resourceDisplay.background:SetColor(Color(1,1,1,0))
 	else
 		self.resourceDisplay.background:SetColor(Color(1,1,1,1))
