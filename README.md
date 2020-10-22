@@ -6,6 +6,8 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
+- 22/10/2020
+    - Removed Gorge Spit replacement model option and it's functionality, a new high-vis model has be made.
 - 25/07/2020
     - Moved game/real time text to right side of screen to make room for vanilla gui
     - Made "Research Notifications" option the sole option for enabling/disabling new vanilla research UI
