@@ -1,13 +1,18 @@
 Script.Load("lua/EffectManager.lua")
+
 local blockedEffects = set {
 							"complete_order",
 							"upgrade_complete" }
+
 originalTriggerEffects = Class_ReplaceMethod( "EffectManager", "TriggerEffects",
 	function(self, effectName, tableParams, triggeringEntity)
 		if not blockedEffects[effectName] then
+
 			originalTriggerEffects(self, effectName, tableParams, triggeringEntity)
+
 		elseif	(effectName == "complete_order" and CHUDGetOption("wps")) or
 				(effectName == "upgrade_complete" and CHUDGetOption("unlocks")) then
+
 			originalTriggerEffects(self, effectName, tableParams, triggeringEntity)
 		end
 	end

@@ -1,3 +1,15 @@
+-- Colorblind correction shader
+Player.screenEffects.daltonize = Client.CreateScreenEffect("shaders/Daltonize.screenfx")
+Player.screenEffects.daltonize:SetActive(false)
+
+function CHUDUpdateDaltonizeVision()
+	local optionValue = CHUDGetOption("colorblind")
+	local isEnabled = optionValue > 0
+
+	Player.screenEffects.daltonize:SetActive(isEnabled)
+	Player.screenEffects.daltonize:SetParameter("mode", optionValue)
+end
+
 originalBlur = Class_ReplaceMethod( "Player", "SetBlurEnabled",
 	function(self, blurEnabled)
 		if not CHUDGetOption("blur") then

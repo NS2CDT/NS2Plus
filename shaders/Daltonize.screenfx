@@ -1,0 +1,18 @@
+settings =
+    [
+        { name="mode"           default=0.0 }
+    ]
+
+layers =
+    [
+        {
+            color_targets                   = "back_buffer"
+            shader                          = "shaders/Daltonize.shader"
+            technique                       = "SFXDaltonizeVision"
+            generator                       = "fullscreen"
+            parameters                      = {
+                    baseTexture             = { resource="source_buffer" linear=true }
+                    mode                    = "mode"
+                }
+        }
+    ]

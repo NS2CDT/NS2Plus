@@ -5,19 +5,20 @@ function GUIMarineHUD:CHUDRepositionGUI()
 	local hpbar = CHUDGetOption("hpbar")
 	local minimap = CHUDGetOption("minimap")
 	local showcomm = CHUDGetOption("showcomm")
-	local commactions = CHUDGetOption("commactions")
+	local unlocks = CHUDGetOption("unlocks")
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
 	local topbar = CHUDGetOption("topbar")
 	
 	-- Position of toggleable elements
 	local y = 30
-	
+
 	if minimap then
 		y = y + 300
 	end
-	
+
 	if showcomm then
+
 		self.commanderName:SetPosition(Vector(20, y, 0))
 		y = y + 30
 
@@ -26,25 +27,37 @@ function GUIMarineHUD:CHUDRepositionGUI()
 			y = y + 30
 		end
 	end
-	
-	if gametime and self.gameTime then
-		self.gameTime:SetFontName(GUIMarineHUD.kTextFontName)
-		self.gameTime:SetScale(GetScaledVector()*1.15)
-		self.gameTime:SetPosition(Vector(20, y, 0))
-		GUIMakeFontScale(self.gameTime)
+
+	if gametime then
+
+		if self.gameTime then
+
+			self.gameTime:SetFontName(GUIMarineHUD.kTextFontName)
+			self.gameTime:SetScale(GetScaledVector()*1.15)
+			self.gameTime:SetPosition(Vector(20, y, 0))
+			GUIMakeFontScale(self.gameTime)
+		end
+
+		y = y + 30
+	end
+
+	if realtime then
+
+		if self.realTime then
+
+			self.realTime:SetFontName(GUIMarineHUD.kTextFontName)
+			self.realTime:SetScale(GetScaledVector()*1.15)
+			self.realTime:SetPosition(Vector(20, y, 0))
+			GUIMakeFontScale(self.realTime)
+		end
+
 		y = y + 30
 	end
 	
-	if realtime and self.realTime then
-		self.realTime:SetFontName(GUIMarineHUD.kTextFontName)
-		self.realTime:SetScale(GetScaledVector()*1.15)
-		self.realTime:SetPosition(Vector(20, y, 0))
-		GUIMakeFontScale(self.realTime)
-		y = y + 30
-	end
-	
-	if commactions then
-		self.eventDisplay.notificationFrame:SetPosition(Vector(20, y, 0) * self.eventDisplay.scale)
+	if unlocks then
+
+		self.eventDisplay.framePos = Vector(20, y + 10, 0) * self.eventDisplay.scale
+		self.eventDisplay.notificationFrame:SetPosition(self.eventDisplay.framePos)
 	end
 	
 	local xpos = ConditionalValue(hpbar, -20, -300)
@@ -225,24 +238,17 @@ function GUIMarineHUD:Update(deltaTime)
 	local mingui = CHUDGetOption("mingui")
 	local showcomm = CHUDGetOption("showcomm")
 	local rtcount = CHUDGetOption("rtcount")
-	local commactions = CHUDGetOption("commactions")
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
 	local hpbar = CHUDGetOption("hpbar") and CHUDGetOption("hudbars_m") ~= 2
 	local welderUpgrade = CHUDGetOption("welderup")
-
-	-- Minimal HUD pls go home, you're drunk
-	-- Run this if WE choose to have it
-	if self.lastNotificationUpdate + GUIMarineHUD.kNotificationUpdateIntervall < Client.GetTime() then
-		local fullMode = Client.GetOptionInteger("hudmode", kHUDMode.Full) == kHUDMode.Full
-		if not fullMode and commactions then
-			self.eventDisplay:Update(Client.GetTime() - self.lastNotificationUpdate, { PlayerUI_GetRecentNotification(), PlayerUI_GetRecentPurchaseable() } )
-			self.lastNotificationUpdate = Client.GetTime()
-		end
-		self.eventDisplay.notificationFrame:SetIsVisible(commactions)
-	end
+	local unlocks = CHUDGetOption("unlocks")
 
 	originalMarineHUDUpdate(self, deltaTime)
+
+	if self.eventDisplay then
+		self.eventDisplay.notificationFrame:SetIsVisible(unlocks)
+	end
 
 	local player = Client.GetLocalPlayer()
 

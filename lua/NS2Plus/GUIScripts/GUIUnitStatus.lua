@@ -7,6 +7,14 @@ function GUIUnitStatus:UpdateUnitStatusBlip(blipIndex, localPlayerIsCommander, b
 	local updateBlip = self.activeBlipList[blipIndex]
 	
 	local nameplates = not localPlayerIsCommander and CHUDGetOption("nameplates") or 0
+
+	-- Compatibility check for older versions.
+	local numNameplateOptions = #CHUDGetOptionParam("nameplates", "values")
+	if nameplates < 0 or nameplates >= numNameplateOptions then
+		nameplates = Clamp(nameplates, 0, numNameplateOptions)
+		CHUDSetOption("nameplates", nameplates, true)
+	end
+
 	local CHUDBlipData = blipData.CHUDBlipData
 
 	if not CHUDBlipData and type(blipData.Hint) == "table" then
@@ -28,22 +36,20 @@ function GUIUnitStatus:UpdateUnitStatusBlip(blipIndex, localPlayerIsCommander, b
 	
 	local isEnemy = (playerTeamType ~= blipData.TeamType) and (blipData.TeamType ~= kNeutralTeamType)
 
-	local hideBg = false
 	if nameplates == 1 then
 		showHints = false
 	elseif nameplates == 3 then
 		showHints = true
 	elseif PlayerUI_GetIsSpecating() and isEnabled and blipData.IsPlayer and playerTeamType == kNeutralTeamType then
 		blipData.IsCrossHairTarget = true
-		hideBg = true
 	end
 	
 	OldUpdateUnitStatusBlip( self, blipIndex, localPlayerIsCommander, baseResearchRot, showHints, playerTeamType )		
 	
-	-- Percentages Nameplates
+	-- Nameplate Options: { "Default", "Percentages", "Bars Only", "Percentages + Bars"} (0-3)
 	if nameplates == 1 or nameplates == 3 then
 		if CHUDBlipData and updateBlip.NameText:GetIsVisible() then
-			
+
 			if CHUDBlipData.Percentage then
 				updateBlip.NameText:SetText(CHUDBlipData.Percentage)
 			end
@@ -51,17 +57,19 @@ function GUIUnitStatus:UpdateUnitStatusBlip(blipIndex, localPlayerIsCommander, b
 			if CHUDBlipData.Status then
 				updateBlip.HintText:SetText(CHUDBlipData.Status)
 			end
-			
-			updateBlip.HintText:SetIsVisible(true)
+
+			local hideHintText = blipData.IsCrossHairTarget ~= true or (blipData.IsPlayer == true and isEnemy == true)
+			updateBlip.HintText:SetIsVisible(not hideHintText)
 			updateBlip.HintText:SetColor(updateBlip.NameText:GetColor())
 			
 			local barsVisible = nameplates == 3
 			updateBlip.HealthBarBg:SetIsVisible(updateBlip.HealthBarBg:GetIsVisible() and barsVisible)
 			updateBlip.ArmorBarBg:SetIsVisible(updateBlip.ArmorBarBg:GetIsVisible() and barsVisible)
+
 			if updateBlip.AbilityBarBg then
 				updateBlip.AbilityBarBg:SetIsVisible(updateBlip.AbilityBarBg:GetIsVisible() and barsVisible)
 			end
-			
+
 			if blipData.SpawnFraction ~= nil and not isEnemy and not blipData.IsCrossHairTarget then
 				updateBlip.NameText:SetText(string.format("%s (%d%%)", blipData.SpawnerName, blipData.SpawnFraction*100))
 				updateBlip.HintText:SetIsVisible(false)
@@ -78,11 +86,13 @@ function GUIUnitStatus:UpdateUnitStatusBlip(blipIndex, localPlayerIsCommander, b
 					updateBlip.HintText:SetIsVisible(false)
 				end
 			end
-			
+
 		end
-	elseif nameplates == 2 and not blipData.IsPlayer then
+
+	elseif nameplates == 2 and blipData.IsPlayer == false then
 		updateBlip.NameText:SetIsVisible(false)
 		updateBlip.HintText:SetIsVisible(false)
+		updateBlip.MaturityText:SetIsVisible(false)
 	end
 	
 end

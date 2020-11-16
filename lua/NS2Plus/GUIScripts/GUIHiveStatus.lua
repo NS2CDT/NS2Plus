@@ -2,13 +2,6 @@ local originalInit = GUIHiveStatus.Initialize
 function GUIHiveStatus:Initialize()
 	originalInit(self)
 
-	local gametime = CHUDGetOption("gametime")
-	local realtime = CHUDGetOption("realtime")
-	if gametime and realtime then
-		self.kStatusBackgroundPosition = GUIScale( Vector( 0, 97, 0 ) )
-		self.background:SetPosition( self.kStatusBackgroundPosition )
-	end
-
 	self.hivestatus = CHUDGetOption("hivestatus")
 	self:SetIsVisible(self.hivestatus)
 end

@@ -15,7 +15,6 @@ Script.Load("lua/NS2Plus/Client/CHUD_WeaponTime.lua")
 Script.Load("lua/NS2Plus/Client/CHUD_ViewModel.lua")
 Script.Load("lua/NS2Plus/Client/CHUD_GoldenMode.lua")
 Script.Load("lua/NS2Plus/Client/CHUD_MinimapMoveMixin.lua")
-Script.Load("lua/NS2Plus/Client/CHUD_GorgeSpit.lua")
 
 trollModes = {}
 
@@ -72,6 +71,7 @@ local function OnLocalPlayerChanged()
 	CHUDLoadLights()
 	CHUDEvaluateGUIVis()
 	CHUDApplyLifeformSpecificStuff()
+	CHUDUpdateDaltonizeVision()
 end
 
 local lastTeam

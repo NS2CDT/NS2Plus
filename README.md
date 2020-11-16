@@ -6,21 +6,32 @@ You can check some of the recommended settings [here](https://www.youtube.com/wa
 
 Latest changes
 ==============
+- 22/10/2020
+    - Removed Gorge Spit replacement model option and it's functionality, a new high-vis model has be made.
+- 25/07/2020
+    - Moved game/real time text to right side of screen to make room for vanilla gui
+    - Made "Research Notifications" option the sole option for enabling/disabling new vanilla research UI
+    - Removed commactions option for reason above
+    - Fixed "show tech map" screen (Default J) not properly showing/hiding the biomass background based on minimal gui setting
+    - Fixed extra energy bar when aliens have adrenaline not hiding itself when non-vanilla hud bars are selected.
+- 20/05/2020
+    - Hide maturity text when "Bars Only" nameplates are selected.
+- 11/05/2020
+    - Fixed oversight of health numbers still being displayed for enemy players.
+
+- 07/05/2020
+    - Fixed compatibility issue with NS2 build 332 and nameplates
+
+- 16/02/2020
+    - Added a color blindness correction option. It enables a daltonization screen shader that shifts colors into the visible spectrum for each type of color blindness.
+    - Fixed Cr4zy AV client crashes
+    - Fixed a compatibility issue with ns2 build 332
+    
 - 14/02/2020
     - Fixed various issues with the hive skill graph of the match report (Thanks to pebl)
     - Added the player's observatory.morrolan.ch profile link to context menu of the match report.
     - Added the player's skill tier number to the context menu of the match report.
     - Fixed the positioning of the old team ressource display HUD element.
-
-27/01/2020
-    - Added an option to hide the "new" (ns2 build 331) team info top bar
-    - Re-/Added an option to enable the "old" (ns2 build <= 330) resource tower counter next/below to the personal resources counter.
-    - Fixed that embryos were exposed at the minimap via the alien minimap color option.
-    
-- 28/11/2019
-    - Added new console commands to import/export and share Alien Vison (AV) configurations. Enter `plus_avhelp` into the console for more details (contributed by turtsmcgurts)
-    - Fixed Cr4zy's AV "no fill" edges issue (contributed by Cr4zy)
-    - Fixed Cr4zy's AV depth blending issue  (contributed by Cr4zy)
 
 Server settings
 ===============

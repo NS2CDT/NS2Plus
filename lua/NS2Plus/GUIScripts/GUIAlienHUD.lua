@@ -4,29 +4,52 @@ PrecacheAsset("ui/old_alien_hud_health.dds")
 PrecacheAsset("ui/vanilla_alien_hud_health.dds")
 
 function GUIAlienHUD:CHUDRepositionGUI()
+
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
 	local biomass = ClientUI.GetScript("GUIBioMassDisplay")
-	local y = self.resourceDisplay.teamText:GetPosition().y
+	local mingui = CHUDGetOption("mingui")
+	local topbar = CHUDGetOption("topbar")
 
-	if gametime and self.gameTime then
-		y = y + 25
-		self.gameTime:SetFontName(GUIMarineHUD.kTextFontName)
-		self.gameTime:SetScale(GetScaledVector())
-		self.gameTime:SetPosition(Vector(20, y , 0))
-		GUIMakeFontScale(self.gameTime)
+	local y = 425
+
+	if realtime then
+
+		if self.realTime then
+
+			self.realTime:SetFontName(GUIMarineHUD.kTextFontName)
+			self.realTime:SetTextAlignmentX(GUIItem.Align_Max)
+			self.realTime:SetScale(GetScaledVector())
+			self.realTime:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), GUIScale(y), 0))
+			GUIMakeFontScale(self.realTime)
+		end
+
+		y = y - 25
 	end
 
-	if realtime and self.realTime then
-		y = y + 25
-		self.realTime:SetFontName(GUIMarineHUD.kTextFontName)
-		self.realTime:SetScale(GetScaledVector())
-		self.realTime:SetPosition(Vector(20, y, 0))
-		GUIMakeFontScale(self.realTime)
+	if gametime then
+
+		if self.gameTime then
+			self.gameTime:SetFontName(GUIMarineHUD.kTextFontName)
+			self.gameTime:SetTextAlignmentX(GUIItem.Align_Max)
+			self.gameTime:SetScale(GetScaledVector())
+			self.gameTime:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), GUIScale(y), 0))
+			GUIMakeFontScale(self.gameTime)
+		end
+
+		y = y - 25
 	end
 
-	local biomassSmokeyBackground = ConditionalValue(mingui, "ui/alien_commander_bg_smoke.dds", "ui/transparent.dds")
-	local biomassTexture = ConditionalValue(mingui, "ui/biomass_bar.dds", "ui/transparent.dds")
+	if topbar > 0 then
+
+		self.resourceDisplay.teamText:SetTextAlignmentX(GUIItem.Align_Max)
+		self.resourceDisplay.teamText:SetIsScaling(false)
+		self.resourceDisplay.teamText:SetPosition(Vector(Client.GetScreenWidth() - GUIScale(20), GUIScale(y), 0))
+	end
+
+
+	local biomassSmokeyBackground = ConditionalValue(mingui, "ui/transparent.dds", "ui/alien_commander_bg_smoke.dds")
+	local biomassTexture = ConditionalValue(mingui, "ui/transparent.dds", "ui/biomass_bar.dds")
 	local kBioMassBackgroundPos = GUIScale(Vector(20, 90, 0))
 	local kSmokeyBackgroundPos = GUIScale(Vector(-100, 10, 0))
 
@@ -98,6 +121,7 @@ end
 
 local originalAlienInit = GUIAlienHUD.Initialize
 function GUIAlienHUD:Initialize()
+
 	local mingui = not CHUDGetOption("mingui")
 
 	originalAlienInit(self)
@@ -107,12 +131,14 @@ function GUIAlienHUD:Initialize()
 	self.gameTime:SetFontIsBold(true)
 	self.gameTime:SetLayer(kGUILayerPlayerHUDForeground2)
 	self.gameTime:SetColor(kAlienTeamColorFloat)
+	self.gameTime:SetIsScaling(false)
 
 	self.realTime = self:CreateAnimatedTextItem()
 	self.realTime:SetFontName(GUIMarineHUD.kTextFontName)
 	self.realTime:SetFontIsBold(true)
 	self.realTime:SetLayer(kGUILayerPlayerHUDForeground2)
 	self.realTime:SetColor(kAlienTeamColorFloat)
+	self.realTime:SetIsScaling(false)
 
 	local kBackgroundCHUD = ConditionalValue(mingui, PrecacheAsset("ui/alien_commander_bg_smoke.dds"), PrecacheAsset("ui/transparent.dds"))
 
@@ -124,7 +150,7 @@ function GUIAlienHUD:Initialize()
 	-- Alien bars
 	self:InitializeCHUDAlienCircles()
 
-	if mingui then
+	if not mingui then
 		self.resourceDisplay.background:SetColor(Color(1,1,1,0))
 	else
 		self.resourceDisplay.background:SetColor(Color(1,1,1,1))
@@ -156,6 +182,7 @@ function GUIAlienHUD:Initialize()
 		self.energyBall.leftSide:SetIsVisible(false)
 		self.energyBall.rightSide:SetIsVisible(false)
 		self.adrenalineEnergy:SetIsVisible(false)
+
 		if CHUDGetOption("hudbars_a") == 2 then
 			healthBall:SetPosition(Vector(healthBallPos.x+50, healthBallPos.y, 0))
 			energyBall:SetPosition(Vector(energyBallPos.x-50, energyBallPos.y, 0))
@@ -226,6 +253,12 @@ function GUIAlienHUD:Update(deltaTime)
 	local gametime = CHUDGetOption("gametime")
 	local realtime = CHUDGetOption("realtime")
 	local instanthealth = CHUDGetOption("instantalienhealth")
+	local unlocks = CHUDGetOption("unlocks")
+	local alienHudBars = CHUDGetOption("hudbars_a")
+
+	if self.eventDisplay then
+		self.eventDisplay.notificationFrame:SetIsVisible(unlocks)
+	end
 
 	if instanthealth then
 		self:CHUDUpdateHealthBall(deltaTime)
@@ -251,7 +284,7 @@ function GUIAlienHUD:Update(deltaTime)
 
 	self.armorBall:SetIsVisible(self.healthBall:GetBackground():GetIsVisible() and CHUDGetOption("hudbars_a") == 0)
 
-	if self.mucousBall and CHUDGetOption("hudbars_a") ~= 0 then
+	if self.mucousBall and alienHudBars ~= 0 then
 		self.mucousBall:SetIsVisible(false)
 	end
 
@@ -280,6 +313,10 @@ function GUIAlienHUD:Update(deltaTime)
 
 	if Client.GetOptionInteger("hudmode", kHUDMode.Full) ~= kHUDMode.Full then
 		self.statusDisplays:SetIsVisible(gCHUDHiddenViewModel)
+	end
+
+	if alienHudBars > 0 then
+		self.adrenalineEnergy:SetIsVisible(false)
 	end
 
 end

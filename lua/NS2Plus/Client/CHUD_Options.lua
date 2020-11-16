@@ -183,7 +183,7 @@ CHUDOptions =
 			unlocks = {
 				name = "CHUD_Unlocks",
 				label = "Research notifications",
-				tooltip = "Enables or disables the research completed notifications on the right side of the screen.",
+				tooltip = "Enables or disables the research notifications on the left side of the screen.",
 				type = "select",
 				values  = { "Off", "On" },
 				defaultValue = true,
@@ -235,18 +235,6 @@ CHUDOptions =
 				category = "ui",
 				valueType = "bool",
 				sort = "B01",
-				applyFunction = function() CHUDRestartScripts({ "Hud/Marine/GUIMarineHUD" }) end,
-			},
-			commactions = {
-				name = "CHUD_CommActions",
-				label = "Marine comm actions",
-				tooltip = "Shows or hides the last commander actions.",
-				type = "select",
-				values  = { "Off", "On" },
-				defaultValue = true,
-				category = "ui",
-				valueType = "bool",
-				sort = "B02",
 				applyFunction = function() CHUDRestartScripts({ "Hud/Marine/GUIMarineHUD" }) end,
 			},
 			hpbar = {
@@ -925,7 +913,7 @@ CHUDOptions =
 				label = "Nameplate style",
 				tooltip = "Changes building names and health/armor bars for teammates and structures.",
 				type = "select",
-				values  = { "Default", "Percentages", "Bars only", "Percentages + Bars" },
+				values  = { "Default", "Percentages", "Bars Only", "Percentages + Bars"},
 				defaultValue = 0,
 				category = "hud",
 				valueType = "int",
@@ -1455,7 +1443,19 @@ CHUDOptions =
 			},
 
 
-
+			colorblind = {
+				name = "CHUD_ColotBlindCorrection",
+				label = "Colorblind correction",
+				tooltip = "Shifts colors into the visible region for each type of color blindness",
+				type = "select",
+				values  = { "Off", "Protanopia (Red)", "Deuteranopia (Green)", "Tritanopia (Blue)"},
+				defaultValue = 0,
+				category = "graphics",
+				valueType = "int",
+				applyFunction = function() if CHUDUpdateDaltonizeVision then CHUDUpdateDaltonizeVision() end end,
+				applyOnLoadComplete = true,
+				sort = "A00",
+			},
 			mapparticles = {
 				name = "CHUD_MapParticles",
 				label = "Map particles",
@@ -1564,20 +1564,6 @@ CHUDOptions =
 				valueType = "bool",
 				sort = "A09",
 			},
-			gorgespit = {
-				name = "CHUD_GorgeSpit",
-				label = "Gorge Spit",
-				tooltip = "Replaces gorge spit with a model (rifle_grenade) so it gets outlined and is easier to see with custom alien vision.",
-				type = "select",
-				values  = { "Default", "High Visibility" },
-				defaultValue = false,
-				category = "graphics",
-				valueType = "bool",
-				sort = "A10",
-			},
-
-
-
 			sbcenter = {
 				name = "CHUD_SBCenter",
 				label = "Auto-center scoreboard",
