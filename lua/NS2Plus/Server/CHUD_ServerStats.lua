@@ -467,6 +467,13 @@ originalUpdateScore = Class_ReplaceMethod("PlayerInfoEntity", "UpdateScore",
 				stat.playerName = self.playerName
 				stat.hiveSkill = self.playerSkill
 				stat.isRookie = self.isRookie
+
+				-- stat.hiveSkillOffset = self.hiveSkillOffset
+				-- Above does not work, so we mimic what should have been in PlayerInfoEntity.lua
+				local scorePlayer = Shared.GetEntity(self.playerId)
+				if HasMixin(scorePlayer, "Scoring") then
+					stat.hiveSkillOffset = scorePlayer:GetPlayerSkillOffset()
+				end
 			end
 
 		end
@@ -924,9 +931,14 @@ local function FormatRoundStats()
 
 				local accuracy, accuracyOnos = CHUDGetAccuracy(entry.hits, entry.misses, entry.onosHits)
 
-				statEntry.isMarine = teamNumber == 1
+				if teamNumber == 1 then
+					statEntry.isMarine = true
+					statEntry.hiveSkill = stats.hiveSkill + stats.hiveSkillOffset
+				else
+					statEntry.isMarine = false
+					statEntry.hiveSkill = stats.hiveSkill - stats.hiveSkillOffset
+				end
 				statEntry.playerName = stats.playerName
-				statEntry.hiveSkill = stats.hiveSkill
 				statEntry.kills = entry.kills
 				statEntry.killstreak = entry.killstreak
 				statEntry.assists = entry.assists
